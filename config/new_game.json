@@ -1,0 +1,10 @@
+{
+  "money": 20,
+  "unlocked_maps": ["MAP_HOME", "MAP_DRAIN"],
+  "start_time": [7, 30],
+  "weather": "SUNNY",
+  "time_scale": 1.0,
+  "start_quests": ["QUEST_MAIN_FISHERMAN"],
+  "player_spawn": [30, 1, 12],
+  "player_yaw_degrees": 90
+}

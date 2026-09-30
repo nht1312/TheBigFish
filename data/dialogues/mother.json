@@ -1,0 +1,62 @@
+[
+  {"id": "DIALOGUE_MOTHER_001", "tags": ["FAMILY", "STORY"], "start": "n1",
+   "nodes": {
+     "n1": {"speaker": "NPC_MOTHER", "text": "Về rồi đó hả?", "next": "n2"},
+     "n2": {"speaker": "NARRATION", "text": "Mẹ đang lặt rau, không ngẩng lên.", "choices": [
+       {"text": "Ngoài mương có ông kia câu được con cá, to lắm.", "next": "fish1"},
+       {"text": "Dạ.", "next": "plain1"}
+     ]},
+     "fish1": {"speaker": "NPC_MOTHER", "text": "Ông già ngồi đó từ sáng tới giờ. Không được con cá mới lạ.", "next": "fish2"},
+     "fish2": {"speaker": "NPC_MOTHER", "text": "Sao, bộ cũng muốn đi câu hả?", "choices": [
+       {"text": "Dạ... thử coi.", "next": "try1", "effects": [
+         {"type": "add_memory", "npc": "NPC_MOTHER", "memory": "PLAYER_SAID_WANTS_TO_FISH"},
+         {"type": "modify_relationship", "npc": "NPC_MOTHER", "dim": "Understanding", "delta": 2}
+       ]},
+       {"text": "Đâu có. Con hỏi vậy thôi.", "next": "no1"}
+     ]},
+     "try1": {"speaker": "NPC_MOTHER", "text": "Nhà mình không có đồ câu đâu. Muốn thì tự kiếm.", "next": "end_look"},
+     "no1": {"speaker": "NPC_MOTHER", "text": "Ừ.", "next": "end_look"},
+     "end_look": {"speaker": "NARRATION", "text": "Mẹ liếc ra bụi tre sau nhà, rồi lại cúi xuống rổ rau."},
+     "plain1": {"speaker": "NPC_MOTHER", "text": "Cơm để trong nồi đó. Ăn đi rồi muốn làm gì thì làm."}
+   },
+   "end_effects": [
+     {"type": "message", "text": "Tre sau nhà... dây thun... cái gì làm lưỡi câu được ta?", "style": "thought", "delay": 1.0}
+   ]},
+  {"id": "DIALOGUE_MOTHER_IDLE", "tags": ["FAMILY"], "start": "n1",
+   "nodes": {
+     "n1": {"speaker": "NPC_MOTHER", "text": "Gì đó con?", "branch": [
+       {"conditions": [{"type": "day_phase", "phase": "EVENING"}], "next": "evening"}
+     ]},
+     "evening": {"speaker": "NPC_MOTHER", "text": "Tối rồi, đi đâu nữa?"}
+   }},
+  {"id": "DIALOGUE_MOTHER_ROD", "tags": ["FAMILY", "WARNING"], "start": "n1",
+   "nodes": {
+     "n1": {"speaker": "NARRATION", "text": "Mẹ nhìn cây tre trên tay bạn.", "next": "n2"},
+     "n2": {"speaker": "NPC_MOTHER", "text": "Làm cái đó hả? Coi chừng té xuống cống đó nghe chưa.", "effects": [
+       {"type": "add_memory", "npc": "NPC_MOTHER", "memory": "SAW_IMPROVISED_ROD"}
+     ]}
+   },
+   "end_effects": [
+     {"type": "modify_relationship", "npc": "NPC_MOTHER", "dim": "Concern", "delta": 1}
+   ]},
+  {"id": "DIALOGUE_MOTHER_VS_END", "tags": ["FAMILY", "STORY", "EMOTIONAL"], "start": "n1",
+   "nodes": {
+     "n1": {"speaker": "NARRATION", "text": "Mẹ đứng ở cửa. Mẹ nhìn đoạn tre gãy trên tay bạn.", "next": "n2"},
+     "n2": {"speaker": "NPC_MOTHER", "text": "Đã nói đừng có nghịch mấy cái này rồi.", "next": "n3"},
+     "n3": {"speaker": "PLAYER", "text": "...", "next": "n4"},
+     "n4": {"speaker": "NARRATION", "text": "Mẹ cầm đoạn tre lên, lật qua lật lại.", "next": "n5"},
+     "n5": {"speaker": "NPC_MOTHER", "text": "Mai tính gì?", "next": "n6"},
+     "n6": {"speaker": "NARRATION", "text": "Bạn nhìn ra phía con đường."}
+   },
+   "end_effects": [
+     {"type": "add_memory", "npc": "NPC_MOTHER", "memory": "SAW_BROKEN_FIRST_ROD"},
+     {"type": "modify_relationship", "npc": "NPC_MOTHER", "dim": "Concern", "delta": 3},
+     {"type": "set_flag", "key": "VERTICAL_SLICE_COMPLETE"},
+     {"type": "cue", "cue": "vs_ending"},
+     {"type": "autosave", "reason": "vertical_slice_complete"}
+   ]},
+  {"id": "DIALOGUE_MOTHER_AFTER_SLICE", "tags": ["FAMILY"], "start": "n1",
+   "nodes": {
+     "n1": {"speaker": "NPC_MOTHER", "text": "Đi rửa tay đi. Người toàn bùn không."}
+   }}
+]

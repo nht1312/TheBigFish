@@ -1,0 +1,20 @@
+[
+  {"id": "FISH_SMALL_COMMON", "name": "Cá rô phi nhỏ", "archetype": "PASSIVE", "species_archetype": "SMALL_FRESHWATER",
+   "weight_kg": [0.15, 0.45], "length_cm": [10, 18], "strength": 22, "speed": 1.0, "stamina": 60, "fight_seconds": 9,
+   "aggression": 0.25, "caution": 0.2, "turn_rate": 2.5, "depth_preference": "SHALLOW", "water_preference": ["Drain", "Pond", "Lake"],
+   "bait_preference": ["WORM", "BREAD"], "approach_seconds": [4, 9], "hook_bonus": 0.15, "skill_xp": 5, "value": 5},
+  {"id": "FISH_SMALL_001", "name": "Cá trê con", "archetype": "BOTTOM_FEEDER", "species_archetype": "SMALL_FRESHWATER",
+   "weight_kg": [0.2, 0.6], "length_cm": [15, 25], "strength": 28, "speed": 0.8, "stamina": 80, "fight_seconds": 12,
+   "aggression": 0.3, "caution": 0.45, "turn_rate": 1.8, "depth_preference": "BOTTOM", "water_preference": ["Drain", "Pond"],
+   "bait_preference": ["WORM"], "approach_seconds": [6, 13], "skill_xp": 6, "value": 7},
+  {"id": "FISH_GIANT_DRAIN", "name": "Con cá lớn", "archetype": "AGGRESSIVE", "species_archetype": "GIANT_FISH", "giant": true, "unknown_species": true,
+   "weight_kg": [18, 18], "length_cm": [120, 120], "strength": 95, "speed": 2.2, "stamina": 99999, "fight_seconds": 999,
+   "aggression": 0.9, "caution": 0.6, "turn_rate": 0.9, "depth_preference": "DEEP", "water_preference": ["Drain"],
+   "bait_preference": ["WORM"], "approach_seconds": [7, 10], "persistent_bite": true, "scripted_outcome": "ROD_BREAK", "story_linked": true, "skill_xp": 0,
+   "phases": [
+     {"name": "PHASE_2_INITIAL_RUN", "seconds": 5, "actions": {"RUN": 3, "BURST": 2}},
+     {"name": "PHASE_3_DEEP_DIVE", "seconds": 6, "actions": {"DIVE": 5, "BURST": 1}},
+     {"name": "PHASE_4_RECOVERY", "seconds": 4, "actions": {"REST": 2, "SHAKE": 2}},
+     {"name": "PHASE_5_FINAL_BURST", "seconds": 9999, "actions": {"BURST": 3, "RUN": 2, "TURN": 1}}
+   ]}
+]

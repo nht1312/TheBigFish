@@ -1,0 +1,7 @@
+[
+  {"id": "RECIPE_IMPROVISED_ROD", "name": "Cần tre tự chế", "tier": "IMPROVISED", "station": "HOME_DOORSTEP",
+   "inputs": [{"item": "ITEM_BAMBOO", "qty": 1}, {"item": "ITEM_RUBBER_LINE", "qty": 1}, {"item": "ITEM_SHOE_FLOAT", "qty": 1}, {"item": "ITEM_WIRE", "qty": 1}],
+   "output": {"item": "ITEM_IMPROVISED_ROD", "qty": 1},
+   "conditions": [{"type": "flag", "key": "STORY_PROLOGUE_FISHERMAN"}, {"type": "not_flag", "key": "GiantFishEncountered"}],
+   "craft_lines": ["Buộc dây thun vào đầu cây tre.", "Uốn sợi kẽm thành cái lưỡi câu.", "Cắt miếng đế giày làm phao.", "Một cây cần câu. Xấu hoắc. Nhưng là của mình."]}
+]

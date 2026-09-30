@@ -1,0 +1,37 @@
+[
+  {"id": "EVENT_FIRST_FISHERMAN", "category": "STORY", "story_state": "STORY_PROLOGUE_FISHERMAN",
+   "trigger": {"on": "FishermanCatchObserved"}, "once": true, "autosave": true,
+   "effects": [
+     {"type": "set_flag", "key": "STORY_PROLOGUE_FISHERMAN"},
+     {"type": "add_stat", "key": "FishingPassion", "value": 5},
+     {"type": "add_stat", "key": "Knowledge.Fishing", "value": 1},
+     {"type": "add_memory", "npc": "NPC_OLD_FISHERMAN", "memory": "PLAYER_WATCHED_FISHING"},
+     {"type": "message", "text": "Mình cũng muốn thử.", "style": "thought", "delay": 2.5}
+   ]},
+  {"id": "EVENT_FIRST_CATCH", "category": "STORY",
+   "trigger": {"on": "FishLanded", "match": {"first": true}}, "once": true,
+   "effects": [
+     {"type": "message", "text": "Con cá đầu tiên của mình.", "style": "thought", "delay": 1.5}
+   ]},
+  {"id": "EVENT_GIANT_FISH", "category": "STORY",
+   "trigger": {"on": "FishLanded", "match": {"map": "MAP_DRAIN"}}, "once": true,
+   "effects": [
+     {"type": "set_var", "key": "fishing.next_fish", "value": "FISH_GIANT_DRAIN"},
+     {"type": "cue", "cue": "giant_sign", "delay": 4.0},
+     {"type": "message", "text": "Phía ống cống, mặt nước bỗng cuộn lên một vòng rất lớn.", "style": "narration", "delay": 4.5}
+   ]},
+  {"id": "EVENT_GIANT_FISH_BREAKS_ROD", "category": "STORY",
+   "trigger": {"on": "RodBroken", "match": {"fish": "FISH_GIANT_DRAIN"}}, "once": true, "autosave": true,
+   "effects": [
+     {"type": "set_flag", "key": "GiantFishEncountered"},
+     {"type": "add_stat", "key": "FishingPassion", "value": 15},
+     {"type": "set_var", "key": "fishing.next_fish", "value": ""},
+     {"type": "give_item", "item": "SPECIAL_ITEM_FIRST_ROD"},
+     {"type": "cue", "cue": "rod_break_fall"},
+     {"type": "message", "text": "Con cá đó... to cỡ nào vậy trời.", "style": "thought", "delay": 4.0}
+   ]},
+  {"id": "EVENT_VS_ENDING", "category": "STORY",
+   "trigger": {"on": "LocationEntered", "match": {"location": "LOC_HOME_YARD"}}, "once": true,
+   "conditions": [{"type": "flag", "key": "GiantFishEncountered"}],
+   "dialogue": "DIALOGUE_MOTHER_VS_END"}
+]

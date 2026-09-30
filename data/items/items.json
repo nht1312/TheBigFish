@@ -1,0 +1,10 @@
+[
+  {"id": "ITEM_BAMBOO", "name": "Cây tre", "category": "MATERIAL", "description": "Một cây tre thẳng, chặt sau nhà.", "stackable": true, "max_stack": 10, "value": 0, "tags": ["IMPROVISED"]},
+  {"id": "ITEM_RUBBER_LINE", "name": "Dây thun", "category": "MATERIAL", "description": "Mấy sợi thun cắt từ ruột xe đạp cũ.", "stackable": true, "max_stack": 10, "value": 0, "tags": ["IMPROVISED"]},
+  {"id": "ITEM_SHOE_FLOAT", "name": "Miếng đế giày", "category": "MATERIAL", "description": "Đế xốp của một chiếc giày cũ. Nổi được.", "stackable": true, "max_stack": 10, "value": 0, "tags": ["IMPROVISED"]},
+  {"id": "ITEM_WIRE", "name": "Sợi kẽm", "category": "MATERIAL", "description": "Một đoạn kẽm nhặt ở đống ve chai.", "stackable": true, "max_stack": 10, "value": 0, "tags": ["IMPROVISED", "SCRAP"]},
+  {"id": "ITEM_BASIC_BAIT", "name": "Giun đất", "category": "BAIT", "description": "Đào dưới đất ẩm. Cá nhỏ nào cũng ăn.", "stackable": true, "max_stack": 20, "value": 0, "equip_slot": "bait", "bait_type": "WORM", "attraction": 1.0},
+  {"id": "ITEM_IMPROVISED_ROD", "name": "Cần tre tự chế", "category": "FISHING_GEAR", "description": "Tre, dây thun, lưỡi kẽm, phao đế giày. Xấu, nhưng tự tay mình làm.", "stackable": false, "value": 0, "equip_slot": "rod", "tier": "IMPROVISED", "durability": 20,
+   "rod": {"strength": 55, "line_strength": 80, "hook_strength": 72, "reel_power": 18, "reel_speed": 0.9, "line_length": 18, "max_cast": 9}},
+  {"id": "SPECIAL_ITEM_FIRST_ROD", "name": "Cây cần đầu tiên (gãy)", "category": "SPECIAL", "description": "Đoạn tre gãy làm đôi. Con cá đó kéo gãy nó.", "stackable": false, "value": 0, "tags": ["MEMORY"]}
+]

@@ -1,0 +1,5 @@
+{
+  "_comment": "Overrides for FishingSession.DEFAULT_TUNING (src/fishing/fishing_session.gd). Empty = defaults.",
+  "tension_zones": {"safe": 30, "normal": 60, "danger": 80, "critical": 95},
+  "session": {}
+}

@@ -1,0 +1,17 @@
+[
+  {"id": "NPC_MOTHER", "name": "Mẹ", "character": "CHAR_MAIN_MOTHER",
+   "relationship": {"Trust": 50, "Concern": 30, "Understanding": 20, "Respect": 40, "Conflict": 10, "Support": 20},
+   "dialogues": [
+     {"dialogue": "DIALOGUE_MOTHER_001", "conditions": [{"type": "flag", "key": "STORY_PROLOGUE_FISHERMAN"}, {"type": "not_flag", "key": "dialogue_done:DIALOGUE_MOTHER_001"}]},
+     {"dialogue": "DIALOGUE_MOTHER_AFTER_SLICE", "conditions": [{"type": "flag", "key": "VERTICAL_SLICE_COMPLETE"}]},
+     {"dialogue": "DIALOGUE_MOTHER_ROD", "conditions": [{"type": "has_item", "item": "ITEM_IMPROVISED_ROD"}]},
+     {"dialogue": "DIALOGUE_MOTHER_IDLE"}
+   ]},
+  {"id": "NPC_OLD_FISHERMAN", "name": "Ông già câu cá", "character": "CHAR_MAIN_OLD_FISHERMAN",
+   "relationship": {"Familiarity": 0, "Respect": 10},
+   "dialogues": [
+     {"dialogue": "DIALOGUE_FISHERMAN_ROD", "conditions": [{"type": "has_item", "item": "ITEM_IMPROVISED_ROD"}, {"type": "not_flag", "key": "GiantFishEncountered"}]},
+     {"dialogue": "DIALOGUE_FISHERMAN_BROKEN", "conditions": [{"type": "flag", "key": "GiantFishEncountered"}]},
+     {"dialogue": "DIALOGUE_FISHERMAN_001"}
+   ]}
+]

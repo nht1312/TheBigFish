@@ -1,0 +1,13 @@
+# Godot
+.godot/
+*.translation
+export_presets.cfg
+/build/
+
+# Local engine binary (downloaded, see README)
+tools/godot/
+
+# OS
+Thumbs.db
+.DS_Store
+/build/

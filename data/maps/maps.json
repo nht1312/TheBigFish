@@ -1,0 +1,20 @@
+[
+  {"id": "MAP_HOME", "name": "Xóm nhà", "type": "HOME", "landmark": "Nhà mình",
+   "zones": [
+     {"location": "LOC_HOME_YARD", "rect": [-10, -12, 10, 9.5]},
+     {"location": "LOC_CANAL", "rect": [-32, 14, 10, 26]},
+     {"location": "LOC_NEIGHBORHOOD", "rect": [-60, -40, 120, 120]}
+   ],
+   "fishing_spots": [
+     {"id": "SPOT_HOME_CANAL", "name": "Con mương", "rect": [-30, 17, 8, 23], "water_y": 0.05, "depth": "SHALLOW", "fishable": false,
+      "blocked_text": "Chỗ này của ông ấy. Mình mà quăng xuống chắc bị chửi."}
+   ]},
+  {"id": "MAP_DRAIN", "name": "Cống lớn", "type": "DRAIN", "landmark": "Ống cống bê tông lớn",
+   "zones": [
+     {"location": "LOC_DRAIN", "rect": [44, 24, 100, 110]}
+   ],
+   "fishing_spots": [
+     {"id": "SPOT_DRAIN_MAIN", "name": "Lòng cống", "rect": [60, 30, 80, 100], "water_y": -1.4, "depth": "MID", "water_type": "Drain", "current": 0.2, "fishable": true,
+      "fish": [{"fish": "FISH_SMALL_COMMON", "weight": 3}, {"fish": "FISH_SMALL_001", "weight": 1}]}
+   ]}
+]

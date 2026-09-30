@@ -1,0 +1,35 @@
+[
+  {"id": "DIALOGUE_FISHERMAN_001", "tags": ["FISHING"], "start": "n1",
+   "nodes": {
+     "n1": {"speaker": "NARRATION", "text": "Ông liếc nhìn bạn một cái, rồi lại nhìn cái phao.", "next": "n2"},
+     "n2": {"speaker": "NPC_OLD_FISHERMAN", "text": "Đứng lùi ra chút. Cá nó thấy bóng người."}
+   },
+   "end_effects": [
+     {"type": "modify_relationship", "npc": "NPC_OLD_FISHERMAN", "dim": "Familiarity", "delta": 1}
+   ]},
+  {"id": "DIALOGUE_FISHERMAN_ROD", "tags": ["FISHING", "TUTORIAL"], "start": "n1",
+   "nodes": {
+     "n1": {"speaker": "NARRATION", "text": "Ông nhìn cây cần tre của bạn hơi lâu.", "next": "n2"},
+     "n2": {"speaker": "NPC_OLD_FISHERMAN", "text": "Cần tre hả.", "next": "n3"},
+     "n3": {"speaker": "NPC_OLD_FISHERMAN", "text": "Cống lớn cuối đường có cá. Mồi giun là được.", "next": "n4"},
+     "n4": {"speaker": "NPC_OLD_FISHERMAN", "text": "Phao chìm hẳn mới giật. Rung rung là nó còn thử mồi."}
+   },
+   "end_effects": [
+     {"type": "add_stat", "key": "Knowledge.Fishing", "value": 1},
+     {"type": "modify_relationship", "npc": "NPC_OLD_FISHERMAN", "dim": "Familiarity", "delta": 2},
+     {"type": "add_memory", "npc": "NPC_OLD_FISHERMAN", "memory": "SAW_PLAYER_ROD"}
+   ]},
+  {"id": "DIALOGUE_FISHERMAN_BROKEN", "tags": ["FISHING"], "start": "n1",
+   "nodes": {
+     "n1": {"speaker": "NARRATION", "text": "Ông nhìn đoạn tre gãy, không nói gì một lúc.", "next": "n2"},
+     "n2": {"speaker": "NPC_OLD_FISHERMAN", "text": "Con gì mà kéo gãy được cây đó?", "choices": [
+       {"text": "Con cá dưới ống cống. To lắm.", "next": "big"},
+       {"text": "Không biết nữa.", "next": "dunno"}
+     ]},
+     "big": {"speaker": "NPC_OLD_FISHERMAN", "text": "Ở đó hả...", "next": "big2", "effects": [
+       {"type": "add_memory", "npc": "NPC_OLD_FISHERMAN", "memory": "PLAYER_TOLD_GIANT_FISH"}
+     ]},
+     "big2": {"speaker": "NARRATION", "text": "Ông cười, lắc đầu, rồi quay lại với cái phao."},
+     "dunno": {"speaker": "NPC_OLD_FISHERMAN", "text": "Ừ. Cá lớn thì không cho mình biết trước đâu."}
+   }}
+]
