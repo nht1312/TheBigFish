@@ -47,7 +47,15 @@ func apply(e: Dictionary) -> void:
 		"start_dialogue":
 			ctx.dialogue.start(str(e["dialogue"]))
 		"message":
-			ctx.bus.emit_event(GameEvents.MESSAGE, {"text": str(e["text"]), "style": str(e.get("style", "thought"))})
+			ctx.bus.emit_event(GameEvents.MESSAGE, {"text": str(e["text"]), "style": str(e.get("style", "thought")), "delay": float(e.get("delay", 0.0))})
+		"travel":  # {destination (spawn), cost, minutes, lines?}
+			travel(e)
+		"confiscate":  # {key, slots?: ["rod"], categories?: ["FISH"], props_match?} — someone takes things away
+			_confiscate(e)
+		"return_confiscated":  # {key, categories?: ["FISHING_GEAR"]} — the rest stays gone
+			_return_confiscated(e)
+		"fishing_ban":  # the player promised not to fish for a day (today, or tomorrow if it is late)
+			ctx.state.set_var("fishing.banned_day", str(ctx.clock.day + (1 if ctx.clock.hour() >= 12 else 0)))
 		"cue":
 			ctx.bus.emit_event(GameEvents.CUE, e)
 		"open_shop":
@@ -65,3 +73,49 @@ func apply(e: Dictionary) -> void:
 			ctx.bus.emit_event(GameEvents.AUTOSAVE_REQUESTED, {"reason": str(e.get("reason", "effect"))})
 		_:
 			push_error("EffectExecutor: unknown effect type '%s'" % type)
+
+
+## Pays the fare and moves time on; the world fades and moves the player on the "travel" cue.
+## Returns "" or the reason it could not happen.
+func travel(e: Dictionary) -> String:
+	var cost := int(e.get("cost", 0))
+	if not ctx.state.add_money(-cost):
+		var text := "Không đủ tiền đi xe. Vé %s." % EconomySystem.format_money(cost)
+		ctx.bus.emit_event(GameEvents.MESSAGE, {"text": text, "style": "info"})
+		return text
+	ctx.clock.advance_minutes(float(e.get("minutes", 30)))
+	ctx.bus.emit_event(InteractionSystem.TRAVEL, {"destination": str(e["destination"]), "cost": cost})
+	ctx.bus.emit_event(GameEvents.CUE, {"cue": "travel", "destination": str(e["destination"]), "lines": e.get("lines", e.get("travel_lines", []))})
+	return ""
+
+
+func _confiscate(e: Dictionary) -> void:
+	var taken: Array = []
+	for slot in e.get("slots", []):
+		var entry := ctx.inventory.equipped_entry(str(slot))
+		if not entry.is_empty():
+			taken.append(entry.duplicate(true))
+	var props_match: Dictionary = e.get("props_match", {})
+	for category in e.get("categories", []):
+		for entry in ctx.inventory.entries_in_category(str(category)):
+			if taken.any(func(t): return int(t["uid"]) == int(entry["uid"])):
+				continue
+			if props_match.keys().all(func(k): return str(entry["props"].get(k, "")) == str(props_match[k])):
+				taken.append(entry.duplicate(true))
+	for entry in taken:
+		ctx.inventory.remove_uid(int(entry["uid"]))
+	var key := str(e["key"])
+	ctx.state.set_var("confiscated:" + key, JSON.stringify(taken))
+	ctx.state.set_flag("confiscated:" + key, not taken.is_empty())
+
+
+func _return_confiscated(e: Dictionary) -> void:
+	var key := str(e["key"])
+	var taken = JSON.parse_string(ctx.state.get_var("confiscated:" + key))
+	if taken is Array:
+		var categories: Array = e.get("categories", [])
+		for entry in taken:
+			if categories.is_empty() or categories.has(ctx.data.get_item(entry["id"]).get("category", "")):
+				ctx.inventory.add(str(entry["id"]), int(entry.get("qty", 1)), entry.get("props", {}))
+	ctx.state.set_var("confiscated:" + key, "")
+	ctx.state.set_flag("confiscated:" + key, false)

@@ -6,8 +6,10 @@ extends RefCounted
 ##
 ## Uses WorldBuilder's primitives so materials and colliders stay consistent.
 
-const LAKE_RECT := [395.0, -85.0, 585.0, 85.0]  # playable bounds (matches LOC_LAKE)
+const LAKE_RECT := [395.0, -85.0, 585.0, 200.0]  # playable bounds: LOC_LAKE + LOC_POND (Act3Areas)
+const LAKE_REGION := [350.0, -230.0, 730.0, 240.0]  # shown while the player is inside
 const LAKE_WATER := [440.0, -45.0, 540.0, 45.0]  # SPOT_LAKE_MAIN
+const POND_WATER := [470.0, 125.0, 530.0, 170.0]  # SPOT_POND_MAIN (built by Act3Areas)
 const PIER_Z := 1.2  # pier half-width, centred on z = 0
 const PIER_END := 454.0
 
@@ -21,6 +23,7 @@ const LAKE_GRASS_EXCLUDE := [
 
 var b: WorldBuilder
 var placed: Dictionary = {}  # interactable id -> visual Node3D (hidden while depleted)
+var lake_region: Node3D
 
 
 func _init(builder: WorldBuilder) -> void:
@@ -31,8 +34,16 @@ func build(data: DataRegistry) -> void:
 	_fishing_shop()
 	_scrap_yard()
 	_market()
+	lake_region = b.begin_region("LAKE", LAKE_REGION)
 	_lake()
-	_place_interactables(data)
+	b.end_region()
+
+
+## Grass fields for WorldBuilder to scatter: [{ parent, area, exclude }].
+func grass_fields() -> Array:
+	var exclude := LAKE_GRASS_EXCLUDE.duplicate()
+	exclude.append_array(Act3Areas.POND_GRASS_EXCLUDE)
+	return [{"parent": lake_region, "area": [398, -82, 582, 197], "exclude": exclude}]
 
 
 # --- Home road ------------------------------------------------------------------
@@ -186,11 +197,8 @@ func _market() -> void:
 func _lake() -> void:
 	var grass := b.surf("grass", Color(0.78, 1.0, 0.62), Color(0.36, 0.45, 0.24))
 	var w: Array = LAKE_WATER
-	# Ground slabs around the lake pit (the far ground is part of them).
-	b.box(b.root, Vector3(360, -4, -220), Vector3(w[0], 0, 220), grass)
-	b.box(b.root, Vector3(w[2], -4, -220), Vector3(720, 0, 220), grass)
-	b.box(b.root, Vector3(w[0], -4, -220), Vector3(w[2], 0, w[1]), grass)
-	b.box(b.root, Vector3(w[0], -4, w[3]), Vector3(w[2], 0, 220), grass)
+	# Ground around the lake and pond pits (the far ground is part of it).
+	b.ground_with_pits([360, -220, 720, 240], [LAKE_WATER, POND_WATER], grass)
 	var mud := b.surf("mud", Color.WHITE, Color(0.3, 0.24, 0.17))
 	b.box(b.root, Vector3(w[0], -3.2, w[1]), Vector3(w[2], -3.0, w[3]), mud)
 	# Muddy banks: a thin rim at the waterline around the whole lake.
@@ -259,7 +267,7 @@ func _lake_trees() -> void:
 		b._tree(p, rng.randf_range(7.0, 10.0), true)
 	var x := LAKE_RECT[0] - 10.0
 	while x < LAKE_RECT[2] + 10.0:
-		for z in [rng.randf_range(-100, -90), rng.randf_range(90, 100)]:
+		for z in [rng.randf_range(-100, -90), rng.randf_range(LAKE_RECT[3] + 5, LAKE_RECT[3] + 15)]:
 			b._tree(Vector3(x, 0, z), rng.randf_range(8.0, 13.0), false)
 		x += rng.randf_range(5.0, 9.0)
 	var z2 := LAKE_RECT[1]
@@ -301,7 +309,8 @@ func _lake_reeds() -> void:
 
 # --- Data-placed interactables -----------------------------------------------------
 
-func _place_interactables(data: DataRegistry) -> void:
+## Called by WorldBuilder once every region exists, so visuals land in the right one.
+func place_interactables(data: DataRegistry) -> void:
 	for def in data.all("interactables"):
 		if not def.has("position"):
 			continue
@@ -319,7 +328,7 @@ func _visual(kind: String, pos: Vector3, label: String, seed: int) -> Node3D:
 	rng.seed = seed
 	var node := Node3D.new()
 	node.position = pos
-	b.root.add_child(node)
+	b.region_at(pos).add_child(node)
 	match kind:
 		"scrap":
 			for k in 7:
@@ -371,6 +380,29 @@ func _visual(kind: String, pos: Vector3, label: String, seed: int) -> Node3D:
 			text.pixel_size = 0.003
 			text.position = Vector3(1.8, 2.2, 0.24)
 			node.add_child(text)
+		"gate":  # corrugated iron gate between two brick posts
+			var brick := b.surf("plaster_worn", Color(0.8, 0.55, 0.45), Color(0.6, 0.35, 0.3))
+			for px in [-1.7, 1.7]:
+				b.box(node, Vector3(px - 0.2, 0, -0.2), Vector3(px + 0.2, 2.3, 0.2), brick, false)
+			b.box(node, Vector3(-1.5, 0.05, -0.04), Vector3(1.5, 2.0, 0.04), b.surf("tin_roof", Color(0.7, 0.75, 0.8)), false)
+			var bell := b.cylinder(node, Vector3(1.7, 1.5, 0.22), 0.05, 0.08, Color(0.9, 0.8, 0.2))
+			bell.rotation_degrees.x = 90
+		"fallen_sign":
+			var board := b.box(node, Vector3(-0.5, 0, -0.3), Vector3(0.5, 0.05, 0.3), b.surf("wood", Color(0.7, 0.62, 0.5), Color(0.4, 0.3, 0.2)), false)
+			board.rotation_degrees.y = 18
+			var post := b.box(node, Vector3(-0.05, 0, -0.05), Vector3(0.05, 1.1, 0.05), b.surf("wood", Color(0.6, 0.5, 0.4)), false)
+			post.position = Vector3(0.7, 0.05, 0.2)
+			post.rotation_degrees.z = 78
+		"shrine":  # miếu nhỏ: a tiny red-roofed altar on a post
+			b.box(node, Vector3(-0.06, 0, -0.06), Vector3(0.06, 0.9, 0.06), b.surf("concrete_old"), false)
+			b.box(node, Vector3(-0.35, 0.9, -0.3), Vector3(0.35, 1.3, 0.3), Color(0.92, 0.88, 0.78), false)
+			var roof := b.box(node, Vector3(-0.45, 1.3, -0.4), Vector3(0.45, 1.36, 0.4), Color(0.72, 0.15, 0.1), false)
+			roof.rotation_degrees.x = 6
+			for k in 3:
+				b.cylinder(node, Vector3(-0.1 + k * 0.1, 1.0, 0.2), 0.006, 0.18, Color(0.85, 0.25, 0.2))
+			for k in 3:
+				var banana := b.box(node, Vector3(-0.03, 0, -0.1), Vector3(0.03, 0.04, 0.1), Color(0.95, 0.8, 0.2), false)
+				banana.position = Vector3(0.12 + k * 0.05, 0.92, 0.0)
 		_:
 			node.queue_free()
 			return null

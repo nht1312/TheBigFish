@@ -20,6 +20,12 @@ const SHOTS := [
 	{"name": "16_lake_pier", "pos": Vector3(437, 1, 0), "yaw": -90.0, "pitch": -4.0},
 	{"name": "17_lake_wide", "pos": Vector3(424, 1, -14), "yaw": -65.0, "pitch": -4.0, "wait": 2.0},
 	{"name": "18_bus_stop", "pos": Vector3(98, 1, 12.6), "yaw": 0.0, "pitch": -6.0},
+	{"name": "19_pond_fence", "pos": Vector3(471.8, 1, 92), "yaw": 180.0, "pitch": -6.0, "act3": true},
+	{"name": "20_pond", "pos": Vector3(500, 1, 122), "yaw": 160.0, "pitch": -6.0},
+	{"name": "21_stream", "pos": Vector3(448, 1, 352.5), "yaw": 150.0, "pitch": -12.0},
+	{"name": "22_stream_friend", "pos": Vector3(465, 1, 350), "yaw": -150.0, "pitch": -10.0, "wait": 1.5},
+	{"name": "23_river", "pos": Vector3(560, 1, 594), "yaw": 160.0, "pitch": -6.0},
+	{"name": "24_river_bridge", "pos": Vector3(530, 1, 597), "yaw": -130.0, "pitch": 2.0},
 	{"name": "08_fight", "pos": Vector3(57.5, 1, 45), "yaw": -90.0, "pitch": -20.0, "fight": true},
 ]
 
@@ -85,6 +91,14 @@ func _prepare(shot: Dictionary) -> void:
 		game.ctx.state.set_flag("VERTICAL_SLICE_COMPLETE")
 		game.ctx.state.set_flag("event_done:EVENT_ACT2_MORNING")  # no chapter transition in the tour
 		world._refresh_placed()
+	if shot.get("act3", false):
+		# Cò made up with the player and fishes at the stream.
+		for flag in ["ACT_II_COMPLETE", "POND_CAUGHT", "dialogue_done:DIALOGUE_FRIEND_AFTER_POND"]:
+			game.ctx.state.set_flag(flag)
+		game.ctx.clock.set_time(9, 0)
+	world.player.global_position = shot["pos"]
+	world._refresh_regions()
+	world._refresh_presence()
 	world.hud.shop_panel.close()
 	if shot.has("shop"):
 		game.ctx.state.money = 150

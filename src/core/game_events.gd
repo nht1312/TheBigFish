@@ -8,6 +8,7 @@ const FISH_LOST := &"FishLost"
 const FISH_HOOKED := &"FishHooked"
 const ROD_BROKEN := &"RodBroken"
 const FISHING_STATE_CHANGED := &"FishingStateChanged"
+const CAST_MADE := &"CastMade"
 
 const ITEM_OBTAINED := &"ItemObtained"
 const ITEM_LOST := &"ItemLost"

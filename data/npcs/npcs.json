@@ -1,77 +1,954 @@
 [
-  {"id": "NPC_MOTHER", "name": "Mẹ", "character": "CHAR_MAIN_MOTHER",
-   "appearance": {"height": 1.55, "build": "slim", "skin": [0.80, 0.62, 0.50], "hair": "bun", "hair_color": [0.07, 0.06, 0.06],
-                  "shirt": [0.52, 0.30, 0.44], "pants": [0.06, 0.06, 0.07], "sleeves": "long", "sandals": [0.55, 0.35, 0.25], "pose": "sit_chores"},
-   "relationship": {"Trust": 50, "Concern": 30, "Understanding": 20, "Respect": 40, "Conflict": 10, "Support": 20},
-   "dialogues": [
-     {"dialogue": "DIALOGUE_MOTHER_001", "conditions": [{"type": "flag", "key": "STORY_PROLOGUE_FISHERMAN"}, {"type": "not_flag", "key": "dialogue_done:DIALOGUE_MOTHER_001"}]},
-     {"dialogue": "DIALOGUE_MOTHER_BASIC_ROD", "conditions": [{"type": "has_item", "item": "ITEM_ROD_BASIC"}, {"type": "not_flag", "key": "dialogue_done:DIALOGUE_MOTHER_BASIC_ROD"}]},
-     {"dialogue": "DIALOGUE_MOTHER_ACT2", "conditions": [{"type": "flag", "key": "VERTICAL_SLICE_COMPLETE"}]},
-     {"dialogue": "DIALOGUE_MOTHER_ROD", "conditions": [{"type": "has_item", "item": "ITEM_IMPROVISED_ROD"}]},
-     {"dialogue": "DIALOGUE_MOTHER_IDLE"}
-   ]},
-  {"id": "NPC_OLD_FISHERMAN", "name": "Ông già câu cá", "character": "CHAR_MAIN_OLD_FISHERMAN",
-   "appearance": {"height": 1.62, "skin": [0.62, 0.44, 0.32], "hair": "short", "hair_color": [0.72, 0.72, 0.70], "hat": "non_la",
-                  "shirt": [0.56, 0.53, 0.40], "pants": [0.22, 0.22, 0.25], "sleeves": "rolled", "sandals": [0.12, 0.12, 0.12], "stoop": 8, "pose": "sit_fishing"},
-   "relationship": {"Familiarity": 0, "Respect": 10},
-   "dialogues": [
-     {"dialogue": "DIALOGUE_FISHERMAN_ROD", "conditions": [{"type": "has_item", "item": "ITEM_IMPROVISED_ROD"}, {"type": "not_flag", "key": "GiantFishEncountered"}]},
-     {"dialogue": "DIALOGUE_FISHERMAN_BASIC_ROD", "conditions": [{"type": "has_item", "item": "ITEM_ROD_BASIC"}]},
-     {"dialogue": "DIALOGUE_FISHERMAN_BROKEN", "conditions": [{"type": "flag", "key": "GiantFishEncountered"}]},
-     {"dialogue": "DIALOGUE_FISHERMAN_001"}
-   ]},
-  {"id": "NPC_SHOP_OWNER", "name": "Chú bán đồ câu", "character": "CHAR_SUPPORT_SHOP_OWNER",
-   "appearance": {"height": 1.68, "skin": [0.74, 0.55, 0.42], "hair": "short", "hair_color": [0.14, 0.12, 0.11],
-                  "shirt": [0.28, 0.40, 0.55], "pants": [0.30, 0.27, 0.22], "sleeves": "short", "sandals": [0.2, 0.2, 0.22], "pose": "stand"},
-   "spawn": {"position": [52.0, 0, 7.5], "yaw": 180},
-   "interactable": "INT_SHOP_OWNER",
-   "schedule": [{"from": 7, "to": 12}, {"from": 13, "to": 18}],
-   "relationship": {"Familiarity": 0, "Respect": 10},
-   "dialogues": [
-     {"dialogue": "DIALOGUE_SHOP_OWNER_LAKE", "conditions": [{"type": "stat_gte", "key": "FishSold", "value": 1}, {"type": "not_flag", "key": "LAKE_TOLD"}]},
-     {"dialogue": "DIALOGUE_SHOP_OWNER_001", "conditions": [{"type": "not_flag", "key": "dialogue_done:DIALOGUE_SHOP_OWNER_001"}]},
-     {"dialogue": "DIALOGUE_SHOP_OWNER_SHOP"}
-   ]},
-  {"id": "NPC_FISH_VENDOR", "name": "Cô bán cá", "character": "CHAR_SUPPORT_FISH_VENDOR",
-   "appearance": {"height": 1.56, "skin": [0.76, 0.58, 0.45], "hair": "bun", "hair_color": [0.10, 0.08, 0.07],
-                  "shirt": [0.85, 0.52, 0.30], "pants": [0.34, 0.22, 0.30], "sleeves": "long", "sandals": [0.2, 0.5, 0.75], "pose": "sit_chores"},
-   "spawn": {"position": [88.0, 0, 17.4], "yaw": 0, "seat": 0.3},
-   "interactable": "INT_FISH_VENDOR",
-   "schedule": [{"from": 5.5, "to": 12}],
-   "relationship": {"Familiarity": 0, "Business": 0},
-   "dialogues": [
-     {"dialogue": "DIALOGUE_FISH_VENDOR_001", "conditions": [{"type": "not_flag", "key": "dialogue_done:DIALOGUE_FISH_VENDOR_001"}]},
-     {"dialogue": "DIALOGUE_FISH_VENDOR_SHOP"}
-   ]},
-  {"id": "NPC_SCRAP_COLLECTOR", "name": "Bà ve chai", "character": "CHAR_SUPPORT_SCRAP_COLLECTOR",
-   "appearance": {"height": 1.50, "build": "slim", "skin": [0.66, 0.48, 0.36], "hair": "bun", "hair_color": [0.55, 0.55, 0.53], "hat": "non_la",
-                  "shirt": [0.35, 0.42, 0.38], "pants": [0.12, 0.12, 0.14], "sleeves": "long", "sandals": [0.15, 0.15, 0.15], "stoop": 10, "pose": "sit_chores"},
-   "spawn": {"position": [70.0, 0, 6.6], "yaw": 180, "seat": 0.42},
-   "interactable": "INT_SCRAP_COLLECTOR",
-   "schedule": [{"from": 7, "to": 17}],
-   "relationship": {"Familiarity": 0},
-   "dialogues": [
-     {"dialogue": "DIALOGUE_SCRAP_001", "conditions": [{"type": "not_flag", "key": "dialogue_done:DIALOGUE_SCRAP_001"}]},
-     {"dialogue": "DIALOGUE_SCRAP_SHOP"}
-   ]},
-  {"id": "NPC_VEG_VENDOR", "name": "Bà bán rau", "ambient": true,
-   "appearance": {"height": 1.52, "skin": [0.70, 0.52, 0.40], "hair": "bun", "hair_color": [0.4, 0.4, 0.38], "hat": "non_la",
-                  "shirt": [0.30, 0.45, 0.62], "pants": [0.1, 0.1, 0.12], "sleeves": "long", "sandals": [0.5, 0.2, 0.2], "stoop": 6, "pose": "sit_chores"},
-   "spawn": {"position": [94.5, 0, 17.4], "yaw": 0, "seat": 0.3},
-   "interactable": "INT_VEG_VENDOR",
-   "schedule": [{"from": 5.5, "to": 11}],
-   "dialogues": [{"dialogue": "DIALOGUE_VEG_VENDOR"}]},
-  {"id": "NPC_LAKE_FISHERMAN", "name": "Người câu ở hồ", "ambient": true,
-   "appearance": {"height": 1.66, "skin": [0.68, 0.50, 0.38], "hair": "short", "hair_color": [0.12, 0.11, 0.1],
-                  "shirt": [0.55, 0.28, 0.25], "pants": [0.25, 0.3, 0.38], "sleeves": "short", "sandals": [0.1, 0.1, 0.1], "pose": "sit_fishing"},
-   "spawn": {"position": [440.6, 0, -22.0], "yaw": -90, "actor": "fisherman", "water_y": -0.6},
-   "interactable": "INT_LAKE_FISHERMAN",
-   "dialogues": [{"dialogue": "DIALOGUE_LAKE_FISHERMAN"}]},
-  {"id": "NPC_LAKE_CHILD", "name": "Thằng bé", "ambient": true,
-   "appearance": {"height": 1.2, "skin": [0.78, 0.60, 0.47], "hair": "short", "hair_color": [0.08, 0.07, 0.06],
-                  "shirt": [0.9, 0.9, 0.85], "pants": [0.2, 0.3, 0.6], "sleeves": "short", "sandals": [0.9, 0.3, 0.2], "pose": "stand"},
-   "spawn": {"position": [436.0, 0, 6.0], "yaw": -80},
-   "interactable": "INT_LAKE_CHILD",
-   "schedule": [{"from": 6, "to": 11}, {"from": 15, "to": 18.5}],
-   "dialogues": [{"dialogue": "DIALOGUE_LAKE_CHILD"}]}
+  {
+    "id": "NPC_MOTHER",
+    "name": "Mẹ",
+    "character": "CHAR_MAIN_MOTHER",
+    "appearance": {
+      "height": 1.55,
+      "build": "slim",
+      "skin": [
+        0.8,
+        0.62,
+        0.5
+      ],
+      "hair": "bun",
+      "hair_color": [
+        0.07,
+        0.06,
+        0.06
+      ],
+      "shirt": [
+        0.52,
+        0.3,
+        0.44
+      ],
+      "pants": [
+        0.06,
+        0.06,
+        0.07
+      ],
+      "sleeves": "long",
+      "sandals": [
+        0.55,
+        0.35,
+        0.25
+      ],
+      "pose": "sit_chores"
+    },
+    "relationship": {
+      "Trust": 50,
+      "Concern": 30,
+      "Understanding": 20,
+      "Respect": 40,
+      "Conflict": 10,
+      "Support": 20
+    },
+    "dialogues": [
+      {
+        "dialogue": "DIALOGUE_MOTHER_001",
+        "conditions": [
+          {
+            "type": "flag",
+            "key": "STORY_PROLOGUE_FISHERMAN"
+          },
+          {
+            "type": "not_flag",
+            "key": "dialogue_done:DIALOGUE_MOTHER_001"
+          }
+        ]
+      },
+      {
+        "dialogue": "DIALOGUE_MOTHER_AFTER_IGNORE",
+        "conditions": [
+          {
+            "type": "has_memory",
+            "npc": "NPC_MOTHER",
+            "memory": "IGNORED_BAN"
+          },
+          {
+            "type": "not_flag",
+            "key": "dialogue_done:DIALOGUE_MOTHER_AFTER_IGNORE"
+          }
+        ]
+      },
+      {
+        "dialogue": "DIALOGUE_MOTHER_BASIC_ROD",
+        "conditions": [
+          {
+            "type": "has_item",
+            "item": "ITEM_ROD_BASIC"
+          },
+          {
+            "type": "not_flag",
+            "key": "dialogue_done:DIALOGUE_MOTHER_BASIC_ROD"
+          }
+        ]
+      },
+      {
+        "dialogue": "DIALOGUE_MOTHER_ACT2",
+        "conditions": [
+          {
+            "type": "flag",
+            "key": "VERTICAL_SLICE_COMPLETE"
+          }
+        ]
+      },
+      {
+        "dialogue": "DIALOGUE_MOTHER_ROD",
+        "conditions": [
+          {
+            "type": "has_item",
+            "item": "ITEM_IMPROVISED_ROD"
+          }
+        ]
+      },
+      {
+        "dialogue": "DIALOGUE_MOTHER_IDLE"
+      }
+    ]
+  },
+  {
+    "id": "NPC_OLD_FISHERMAN",
+    "name": "Ông già câu cá",
+    "character": "CHAR_MAIN_OLD_FISHERMAN",
+    "appearance": {
+      "height": 1.62,
+      "skin": [
+        0.62,
+        0.44,
+        0.32
+      ],
+      "hair": "short",
+      "hair_color": [
+        0.72,
+        0.72,
+        0.7
+      ],
+      "hat": "non_la",
+      "shirt": [
+        0.56,
+        0.53,
+        0.4
+      ],
+      "pants": [
+        0.22,
+        0.22,
+        0.25
+      ],
+      "sleeves": "rolled",
+      "sandals": [
+        0.12,
+        0.12,
+        0.12
+      ],
+      "stoop": 8,
+      "pose": "sit_fishing"
+    },
+    "relationship": {
+      "Familiarity": 0,
+      "Respect": 10
+    },
+    "dialogues": [
+      {
+        "dialogue": "DIALOGUE_FISHERMAN_STREAM",
+        "conditions": [
+          {
+            "type": "map_unlocked",
+            "map": "MAP_STREAM"
+          },
+          {
+            "type": "not_flag",
+            "key": "dialogue_done:DIALOGUE_FISHERMAN_STREAM"
+          }
+        ]
+      },
+      {
+        "dialogue": "DIALOGUE_FISHERMAN_ROD",
+        "conditions": [
+          {
+            "type": "has_item",
+            "item": "ITEM_IMPROVISED_ROD"
+          },
+          {
+            "type": "not_flag",
+            "key": "GiantFishEncountered"
+          }
+        ]
+      },
+      {
+        "dialogue": "DIALOGUE_FISHERMAN_BASIC_ROD",
+        "conditions": [
+          {
+            "type": "has_item",
+            "item": "ITEM_ROD_BASIC"
+          }
+        ]
+      },
+      {
+        "dialogue": "DIALOGUE_FISHERMAN_BROKEN",
+        "conditions": [
+          {
+            "type": "flag",
+            "key": "GiantFishEncountered"
+          }
+        ]
+      },
+      {
+        "dialogue": "DIALOGUE_FISHERMAN_001"
+      }
+    ]
+  },
+  {
+    "id": "NPC_SHOP_OWNER",
+    "name": "Chú bán đồ câu",
+    "character": "CHAR_SUPPORT_SHOP_OWNER",
+    "appearance": {
+      "height": 1.68,
+      "skin": [
+        0.74,
+        0.55,
+        0.42
+      ],
+      "hair": "short",
+      "hair_color": [
+        0.14,
+        0.12,
+        0.11
+      ],
+      "shirt": [
+        0.28,
+        0.4,
+        0.55
+      ],
+      "pants": [
+        0.3,
+        0.27,
+        0.22
+      ],
+      "sleeves": "short",
+      "sandals": [
+        0.2,
+        0.2,
+        0.22
+      ],
+      "pose": "stand"
+    },
+    "spawn": {
+      "position": [
+        52.0,
+        0,
+        7.5
+      ],
+      "yaw": 180
+    },
+    "interactable": "INT_SHOP_OWNER",
+    "schedule": [
+      {
+        "from": 7,
+        "to": 12
+      },
+      {
+        "from": 13,
+        "to": 18
+      }
+    ],
+    "relationship": {
+      "Familiarity": 0,
+      "Respect": 10
+    },
+    "dialogues": [
+      {
+        "dialogue": "DIALOGUE_SHOP_OWNER_LAKE",
+        "conditions": [
+          {
+            "type": "stat_gte",
+            "key": "FishSold",
+            "value": 1
+          },
+          {
+            "type": "not_flag",
+            "key": "LAKE_TOLD"
+          }
+        ]
+      },
+      {
+        "dialogue": "DIALOGUE_SHOP_OWNER_001",
+        "conditions": [
+          {
+            "type": "not_flag",
+            "key": "dialogue_done:DIALOGUE_SHOP_OWNER_001"
+          }
+        ]
+      },
+      {
+        "dialogue": "DIALOGUE_SHOP_OWNER_SHOP"
+      }
+    ]
+  },
+  {
+    "id": "NPC_FISH_VENDOR",
+    "name": "Cô bán cá",
+    "character": "CHAR_SUPPORT_FISH_VENDOR",
+    "appearance": {
+      "height": 1.56,
+      "skin": [
+        0.76,
+        0.58,
+        0.45
+      ],
+      "hair": "bun",
+      "hair_color": [
+        0.1,
+        0.08,
+        0.07
+      ],
+      "shirt": [
+        0.85,
+        0.52,
+        0.3
+      ],
+      "pants": [
+        0.34,
+        0.22,
+        0.3
+      ],
+      "sleeves": "long",
+      "sandals": [
+        0.2,
+        0.5,
+        0.75
+      ],
+      "pose": "sit_chores"
+    },
+    "spawn": {
+      "position": [
+        88.0,
+        0,
+        17.4
+      ],
+      "yaw": 0,
+      "seat": 0.3
+    },
+    "interactable": "INT_FISH_VENDOR",
+    "schedule": [
+      {
+        "from": 5.5,
+        "to": 12
+      }
+    ],
+    "relationship": {
+      "Familiarity": 0,
+      "Business": 0
+    },
+    "dialogues": [
+      {
+        "dialogue": "DIALOGUE_FISH_VENDOR_001",
+        "conditions": [
+          {
+            "type": "not_flag",
+            "key": "dialogue_done:DIALOGUE_FISH_VENDOR_001"
+          }
+        ]
+      },
+      {
+        "dialogue": "DIALOGUE_FISH_VENDOR_SHOP"
+      }
+    ]
+  },
+  {
+    "id": "NPC_SCRAP_COLLECTOR",
+    "name": "Bà ve chai",
+    "character": "CHAR_SUPPORT_SCRAP_COLLECTOR",
+    "appearance": {
+      "height": 1.5,
+      "build": "slim",
+      "skin": [
+        0.66,
+        0.48,
+        0.36
+      ],
+      "hair": "bun",
+      "hair_color": [
+        0.55,
+        0.55,
+        0.53
+      ],
+      "hat": "non_la",
+      "shirt": [
+        0.35,
+        0.42,
+        0.38
+      ],
+      "pants": [
+        0.12,
+        0.12,
+        0.14
+      ],
+      "sleeves": "long",
+      "sandals": [
+        0.15,
+        0.15,
+        0.15
+      ],
+      "stoop": 10,
+      "pose": "sit_chores"
+    },
+    "spawn": {
+      "position": [
+        70.0,
+        0,
+        6.6
+      ],
+      "yaw": 180,
+      "seat": 0.42
+    },
+    "interactable": "INT_SCRAP_COLLECTOR",
+    "schedule": [
+      {
+        "from": 7,
+        "to": 17
+      }
+    ],
+    "relationship": {
+      "Familiarity": 0
+    },
+    "dialogues": [
+      {
+        "dialogue": "DIALOGUE_SCRAP_001",
+        "conditions": [
+          {
+            "type": "not_flag",
+            "key": "dialogue_done:DIALOGUE_SCRAP_001"
+          }
+        ]
+      },
+      {
+        "dialogue": "DIALOGUE_SCRAP_SHOP"
+      }
+    ]
+  },
+  {
+    "id": "NPC_VEG_VENDOR",
+    "name": "Bà bán rau",
+    "ambient": true,
+    "appearance": {
+      "height": 1.52,
+      "skin": [
+        0.7,
+        0.52,
+        0.4
+      ],
+      "hair": "bun",
+      "hair_color": [
+        0.4,
+        0.4,
+        0.38
+      ],
+      "hat": "non_la",
+      "shirt": [
+        0.3,
+        0.45,
+        0.62
+      ],
+      "pants": [
+        0.1,
+        0.1,
+        0.12
+      ],
+      "sleeves": "long",
+      "sandals": [
+        0.5,
+        0.2,
+        0.2
+      ],
+      "stoop": 6,
+      "pose": "sit_chores"
+    },
+    "spawn": {
+      "position": [
+        94.5,
+        0,
+        17.4
+      ],
+      "yaw": 0,
+      "seat": 0.3
+    },
+    "interactable": "INT_VEG_VENDOR",
+    "schedule": [
+      {
+        "from": 5.5,
+        "to": 11
+      }
+    ],
+    "dialogues": [
+      {
+        "dialogue": "DIALOGUE_VEG_VENDOR"
+      }
+    ]
+  },
+  {
+    "id": "NPC_LAKE_FISHERMAN",
+    "name": "Người câu ở hồ",
+    "ambient": true,
+    "appearance": {
+      "height": 1.66,
+      "skin": [
+        0.68,
+        0.5,
+        0.38
+      ],
+      "hair": "short",
+      "hair_color": [
+        0.12,
+        0.11,
+        0.1
+      ],
+      "shirt": [
+        0.55,
+        0.28,
+        0.25
+      ],
+      "pants": [
+        0.25,
+        0.3,
+        0.38
+      ],
+      "sleeves": "short",
+      "sandals": [
+        0.1,
+        0.1,
+        0.1
+      ],
+      "pose": "sit_fishing"
+    },
+    "spawn": {
+      "position": [
+        440.6,
+        0,
+        -22.0
+      ],
+      "yaw": -90,
+      "actor": "fisherman",
+      "water_y": -0.6
+    },
+    "interactable": "INT_LAKE_FISHERMAN",
+    "dialogues": [
+      {
+        "dialogue": "DIALOGUE_LAKE_FISHERMAN"
+      }
+    ]
+  },
+  {
+    "id": "NPC_LAKE_CHILD",
+    "name": "Thằng bé",
+    "ambient": true,
+    "appearance": {
+      "height": 1.2,
+      "skin": [
+        0.78,
+        0.6,
+        0.47
+      ],
+      "hair": "short",
+      "hair_color": [
+        0.08,
+        0.07,
+        0.06
+      ],
+      "shirt": [
+        0.9,
+        0.9,
+        0.85
+      ],
+      "pants": [
+        0.2,
+        0.3,
+        0.6
+      ],
+      "sleeves": "short",
+      "sandals": [
+        0.9,
+        0.3,
+        0.2
+      ],
+      "pose": "stand"
+    },
+    "spawn": {
+      "position": [
+        436.0,
+        0,
+        6.0
+      ],
+      "yaw": -80
+    },
+    "interactable": "INT_LAKE_CHILD",
+    "schedule": [
+      {
+        "from": 6,
+        "to": 11
+      },
+      {
+        "from": 15,
+        "to": 18.5
+      }
+    ],
+    "dialogues": [
+      {
+        "dialogue": "DIALOGUE_LAKE_CHILD"
+      }
+    ]
+  },
+  {
+    "id": "NPC_FISHING_FRIEND",
+    "name": "Cò",
+    "character": "CHAR_MAIN_FISHING_FRIEND",
+    "appearance": {
+      "height": 1.5,
+      "build": "slim",
+      "skin": [
+        0.72,
+        0.53,
+        0.4
+      ],
+      "hair": "short",
+      "hair_color": [
+        0.09,
+        0.08,
+        0.07
+      ],
+      "hat": "cap",
+      "shirt": [
+        0.85,
+        0.75,
+        0.2
+      ],
+      "pants": [
+        0.15,
+        0.2,
+        0.35
+      ],
+      "sleeves": "short",
+      "sandals": [
+        0.2,
+        0.45,
+        0.8
+      ],
+      "pose": "sit_fishing"
+    },
+    "interactable": "INT_FISHING_FRIEND",
+    "schedule": [
+      {
+        "from": 6,
+        "to": 18.5
+      }
+    ],
+    "spawns": [
+      {
+        "position": [
+          469.3,
+          0,
+          140.0
+        ],
+        "yaw": -90,
+        "actor": "fisherman",
+        "water_y": -0.5,
+        "conditions": [
+          {
+            "type": "quest_state",
+            "quest": "QUEST_MAIN_WRONG_POND",
+            "state": "ACTIVE"
+          },
+          {
+            "type": "not_flag",
+            "key": "POND_CAUGHT"
+          }
+        ]
+      },
+      {
+        "position": [
+          3.2,
+          0,
+          10.9
+        ],
+        "yaw": 0,
+        "pose": "stand",
+        "conditions": [
+          {
+            "type": "flag",
+            "key": "POND_CAUGHT"
+          },
+          {
+            "type": "event_done",
+            "event": "EVENT_FAMILY_FISHING_BAN"
+          },
+          {
+            "type": "not_flag",
+            "key": "dialogue_done:DIALOGUE_FRIEND_AFTER_POND"
+          }
+        ]
+      },
+      {
+        "position": [
+          470.0,
+          0,
+          354.3
+        ],
+        "yaw": 180,
+        "actor": "fisherman",
+        "water_y": -0.35,
+        "conditions": [
+          {
+            "type": "flag",
+            "key": "dialogue_done:DIALOGUE_FRIEND_AFTER_POND"
+          },
+          {
+            "type": "not_flag",
+            "key": "FRIEND_DISTANCE"
+          }
+        ]
+      },
+      {
+        "position": [
+          439.3,
+          0,
+          22.0
+        ],
+        "yaw": -90,
+        "actor": "fisherman",
+        "water_y": -0.6,
+        "conditions": [
+          {
+            "type": "flag",
+            "key": "ACT_II_COMPLETE"
+          },
+          {
+            "type": "not_flag",
+            "key": "POND_CAUGHT"
+          }
+        ]
+      },
+      {
+        "position": [
+          439.3,
+          0,
+          22.0
+        ],
+        "yaw": -90,
+        "actor": "fisherman",
+        "water_y": -0.6,
+        "conditions": [
+          {
+            "type": "flag",
+            "key": "FRIEND_DISTANCE"
+          }
+        ]
+      }
+    ],
+    "relationship": {
+      "Familiarity": 0,
+      "Friendship": 10,
+      "Trust": 20
+    },
+    "dialogues": [
+      {
+        "dialogue": "DIALOGUE_FRIEND_AFTER_POND",
+        "conditions": [
+          {
+            "type": "flag",
+            "key": "POND_CAUGHT"
+          },
+          {
+            "type": "not_flag",
+            "key": "dialogue_done:DIALOGUE_FRIEND_AFTER_POND"
+          }
+        ]
+      },
+      {
+        "dialogue": "DIALOGUE_FRIEND_POND",
+        "conditions": [
+          {
+            "type": "current_map",
+            "map": "MAP_POND"
+          }
+        ]
+      },
+      {
+        "dialogue": "DIALOGUE_FRIEND_INVITE",
+        "conditions": [
+          {
+            "type": "stat_gte",
+            "key": "FishWithFriend",
+            "value": 2
+          },
+          {
+            "type": "not_flag",
+            "key": "dialogue_done:DIALOGUE_FRIEND_INVITE"
+          }
+        ]
+      },
+      {
+        "dialogue": "DIALOGUE_FRIEND_001",
+        "conditions": [
+          {
+            "type": "not_flag",
+            "key": "dialogue_done:DIALOGUE_FRIEND_001"
+          }
+        ]
+      },
+      {
+        "dialogue": "DIALOGUE_FRIEND_STREAM",
+        "conditions": [
+          {
+            "type": "current_map",
+            "map": "MAP_STREAM"
+          }
+        ]
+      },
+      {
+        "dialogue": "DIALOGUE_FRIEND_DISTANT",
+        "conditions": [
+          {
+            "type": "flag",
+            "key": "FRIEND_DISTANCE"
+          }
+        ]
+      },
+      {
+        "dialogue": "DIALOGUE_FRIEND_FISHING",
+        "conditions": [
+          {
+            "type": "quest_state",
+            "quest": "QUEST_MAIN_NEW_FRIEND",
+            "state": "ACTIVE"
+          }
+        ]
+      },
+      {
+        "dialogue": "DIALOGUE_FRIEND_IDLE"
+      }
+    ]
+  },
+  {
+    "id": "NPC_POND_OWNER",
+    "name": "Chú chủ ao",
+    "character": "CHAR_SUPPORT_POND_OWNER",
+    "appearance": {
+      "height": 1.7,
+      "build": "stocky",
+      "skin": [
+        0.6,
+        0.43,
+        0.31
+      ],
+      "hair": "short",
+      "hair_color": [
+        0.2,
+        0.19,
+        0.18
+      ],
+      "shirt": [
+        0.3,
+        0.33,
+        0.28
+      ],
+      "pants": [
+        0.18,
+        0.18,
+        0.2
+      ],
+      "sleeves": "long",
+      "sandals": [
+        0.12,
+        0.12,
+        0.12
+      ],
+      "pose": "stand"
+    },
+    "interactable": "INT_POND_OWNER",
+    "schedule": [
+      {
+        "from": 5,
+        "to": 19
+      }
+    ],
+    "spawns": [
+      {
+        "position": [
+          538.0,
+          0,
+          131.5
+        ],
+        "yaw": -120,
+        "conditions": [
+          {
+            "type": "flag",
+            "key": "POND_CAUGHT"
+          }
+        ]
+      }
+    ],
+    "relationship": {
+      "Familiarity": 0,
+      "Respect": 0
+    },
+    "dialogues": [
+      {
+        "dialogue": "DIALOGUE_POND_OWNER_IDLE"
+      }
+    ]
+  },
+  {
+    "id": "NPC_RIVER_FISHERMAN",
+    "name": "Ông câu ở bến sông",
+    "ambient": true,
+    "appearance": {
+      "height": 1.64,
+      "skin": [
+        0.58,
+        0.41,
+        0.3
+      ],
+      "hair": "short",
+      "hair_color": [
+        0.6,
+        0.6,
+        0.58
+      ],
+      "hat": "non_la",
+      "shirt": [
+        0.35,
+        0.4,
+        0.5
+      ],
+      "pants": [
+        0.2,
+        0.2,
+        0.22
+      ],
+      "sleeves": "rolled",
+      "sandals": [
+        0.1,
+        0.1,
+        0.1
+      ],
+      "stoop": 6,
+      "pose": "sit_fishing"
+    },
+    "interactable": "INT_RIVER_FISHERMAN",
+    "spawn": {
+      "position": [
+        562.0,
+        0,
+        598.6
+      ],
+      "yaw": 180,
+      "actor": "fisherman",
+      "water_y": -1.0
+    },
+    "dialogues": [
+      {
+        "dialogue": "DIALOGUE_RIVER_FISHERMAN"
+      }
+    ]
+  }
 ]

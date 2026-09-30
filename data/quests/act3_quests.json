@@ -1,0 +1,30 @@
+[
+  {"id": "QUEST_MAIN_NEW_FRIEND", "mq": "MQ_011", "title": "Bạn câu", "type": "MAIN", "sequential": true,
+   "objectives": [
+     {"id": "meet", "text": "Ở hồ có đứa nào trạc tuổi mình đang câu", "condition": {"type": "flag", "key": "dialogue_done:DIALOGUE_FRIEND_001"}},
+     {"id": "together", "text": "Câu cùng Cò ở hồ (2 con)", "condition": {"type": "stat_gte", "key": "FishWithFriend", "value": 2}},
+     {"id": "talk", "text": "Nói chuyện với Cò", "condition": {"type": "flag", "key": "dialogue_done:DIALOGUE_FRIEND_INVITE"}}
+   ],
+   "next": ["QUEST_MAIN_WRONG_POND"]},
+  {"id": "QUEST_MAIN_WRONG_POND", "mq": "MQ_012", "title": "Cái ao", "type": "MAIN", "sequential": true,
+   "objectives": [
+     {"id": "go", "text": "Theo Cò qua chỗ rào thủng phía nam hồ", "condition": {"type": "current_map", "map": "MAP_POND"}},
+     {"id": "fish", "text": "Câu thử", "condition": {"type": "flag", "key": "POND_CAUGHT"}}
+   ],
+   "next": ["QUEST_MAIN_KEEP_GOING"]},
+  {"id": "QUEST_MAIN_KEEP_GOING", "mq": "MQ_013", "title": "Làm lại", "type": "MAIN", "sequential": true,
+   "objectives": [
+     {"id": "home", "text": "Về nhà", "condition": {"type": "event_done", "event": "EVENT_FAMILY_FISHING_BAN"}},
+     {"id": "gear", "text": "Có lại cần câu — chuộc ở cổng ao, hoặc mua cây khác", "condition": {"type": "has_category", "category": "FISHING_GEAR"}},
+     {"id": "friend", "text": "Gặp lại Cò", "condition": {"type": "flag", "key": "dialogue_done:DIALOGUE_FRIEND_AFTER_POND"}},
+     {"id": "stream", "text": "Lên suối — xe buýt ở đầu chợ", "condition": {"type": "current_map", "map": "MAP_STREAM"}},
+     {"id": "catch", "text": "Câu một con cá ở suối (nước chảy xiết)", "condition": {"type": "stat_gte", "key": "FishCaught.MAP_STREAM", "value": 1}}
+   ],
+   "next": ["QUEST_MAIN_THE_RIVER"]},
+  {"id": "QUEST_MAIN_THE_RIVER", "mq": "MQ_014", "title": "Con sông", "type": "MAIN", "sequential": true,
+   "objectives": [
+     {"id": "gear", "text": "Cá sông khỏe lắm. Dành tiền mua cần máy (380.000đ)", "condition": {"type": "has_item", "item": "ITEM_ROD_REEL_BASIC"}},
+     {"id": "go", "text": "Đón xe ra bến sông", "condition": {"type": "current_map", "map": "MAP_RIVER"}},
+     {"id": "catch", "text": "Câu một con cá sông", "condition": {"type": "stat_gte", "key": "FishCaught.MAP_RIVER", "value": 1}}
+   ]}
+]

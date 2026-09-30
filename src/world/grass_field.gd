@@ -10,6 +10,7 @@ var density: float = 5.0  # tufts per m²
 var view_distance: float = 42.0
 var _mesh: ArrayMesh
 var _material: ShaderMaterial
+var _area: Array = []
 
 
 func _init(p_density: float = 5.0, p_view_distance: float = 42.0) -> void:
@@ -22,6 +23,7 @@ func _init(p_density: float = 5.0, p_view_distance: float = 42.0) -> void:
 
 ## area: [x0, z0, x1, z1]; exclude: list of [x0, z0, x1, z1] kept clear (roads, yards, water).
 func build(parent: Node3D, area: Array, exclude: Array, rng: RandomNumberGenerator) -> int:
+	_area = area
 	var total := 0
 	var x := float(area[0])
 	while x < float(area[2]):
@@ -38,6 +40,9 @@ func _chunk(parent: Node3D, x0: float, z0: float, exclude: Array, rng: RandomNum
 	var wanted := int(CHUNK * CHUNK * density)
 	for i in wanted:
 		var p := Vector3(x0 + rng.randf() * CHUNK, 0.0, z0 + rng.randf() * CHUNK)
+		# Chunks are whole squares; the last row/column may reach past the area (into water).
+		if p.x > float(_area[2]) or p.z > float(_area[3]):
+			continue
 		if not _excluded(p, exclude):
 			points.append(p)
 	if points.is_empty():

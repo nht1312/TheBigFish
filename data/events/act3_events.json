@@ -1,0 +1,69 @@
+[
+  {"id": "EVENT_ACT3_START", "category": "STORY", "story_state": "ACT_III",
+   "trigger": {"on": "ChapterStarted", "match": {"chapter": "ACT_III"}}, "once": true, "autosave": true,
+   "effects": [
+     {"type": "start_quest", "quest": "QUEST_MAIN_NEW_FRIEND"},
+     {"type": "message", "text": "Hồ rộng vậy chắc còn nhiều người câu giỏi hơn mình.", "style": "thought", "delay": 1.0}
+   ]},
+  {"id": "EVENT_MEET_FRIEND", "category": "STORY",
+   "trigger": {"on": "DialogueEnded", "match": {"dialogue": "DIALOGUE_FRIEND_001"}}, "once": true,
+   "effects": [
+     {"type": "message", "text": "Ngồi câu chung với người khác cũng vui.", "style": "thought", "delay": 1.0}
+   ]},
+  {"id": "EVENT_FISH_WITH_FRIEND", "category": "STORY",
+   "trigger": {"on": "FishLanded", "match": {"map": "MAP_LAKE"}}, "once": false,
+   "conditions": [
+     {"type": "quest_state", "quest": "QUEST_MAIN_NEW_FRIEND", "state": "ACTIVE"},
+     {"type": "flag", "key": "dialogue_done:DIALOGUE_FRIEND_001"}
+   ],
+   "effects": [
+     {"type": "add_stat", "key": "FishWithFriend", "value": 1},
+     {"type": "modify_relationship", "npc": "NPC_FISHING_FRIEND", "dim": "Friendship", "delta": 2},
+     {"type": "message", "text": "Cò huýt sáo: “Được đó!”", "style": "narration", "delay": 1.5}
+   ]},
+  {"id": "EVENT_POND_CAUGHT", "category": "STORY", "story_state": "ACT_III_POND",
+   "trigger": {"on": "FishLanded", "match": {"map": "MAP_POND"}}, "once": true,
+   "conditions": [{"type": "quest_state", "quest": "QUEST_MAIN_WRONG_POND", "state": "ACTIVE"}],
+   "dialogue": "DIALOGUE_POND_CAUGHT"},
+  {"id": "EVENT_FAMILY_FISHING_BAN", "category": "FAMILY",
+   "trigger": {"on": "LocationEntered", "match": {"location": "LOC_HOME_YARD"}}, "once": true,
+   "conditions": [{"type": "flag", "key": "POND_CAUGHT"}],
+   "dialogue": "DIALOGUE_MOTHER_BAN"},
+  {"id": "EVENT_ARRIVE_STREAM", "category": "STORY",
+   "trigger": {"on": "MapEntered", "match": {"map": "MAP_STREAM"}}, "once": true,
+   "effects": [
+     {"type": "message", "text": "Nước suối trong vắt, chảy ào ào qua mấy tảng đá.", "style": "thought", "delay": 0.5}
+   ]},
+  {"id": "EVENT_STREAM_FIRST_CAST", "category": "TUTORIAL",
+   "trigger": {"on": "CastMade", "match": {"spot": "SPOT_STREAM_RUN"}}, "once": true,
+   "effects": [
+     {"type": "message", "text": "Nước chảy mạnh quá, phao trôi tuột đi. Chỗ nước lặng sau mấy tảng đá chắc dễ hơn.", "style": "thought", "delay": 2.5}
+   ]},
+  {"id": "EVENT_FIRST_STREAM_FISH", "category": "STORY",
+   "trigger": {"on": "FishLanded", "match": {"map": "MAP_STREAM"}}, "once": true,
+   "effects": [
+     {"type": "add_stat", "key": "Knowledge.Fishing", "value": 1},
+     {"type": "message", "text": "Cá nước chảy khỏe hơn hẳn cá hồ.", "style": "thought", "delay": 1.5}
+   ]},
+  {"id": "EVENT_BOUGHT_REEL", "category": "STORY", "autosave": true,
+   "trigger": {"on": "ItemBought", "match": {"item": "ITEM_ROD_REEL_BASIC"}}, "once": true,
+   "effects": [
+     {"type": "unlock_map", "map": "MAP_RIVER"},
+     {"type": "message", "text": "Chú chủ tiệm: “Có máy rồi thì ra sông mà thử. Xe buýt đầu chợ có tuyến ra bến sông.”", "style": "narration", "delay": 0.8}
+   ]},
+  {"id": "EVENT_ARRIVE_RIVER", "category": "STORY",
+   "trigger": {"on": "MapEntered", "match": {"map": "MAP_RIVER"}}, "once": true,
+   "effects": [
+     {"type": "message", "text": "Sông rộng quá. Nước đục ngầu, chảy chậm mà nặng.", "style": "thought", "delay": 0.5}
+   ]},
+  {"id": "EVENT_ACT3_COMPLETE", "category": "STORY", "story_state": "ACT_III_COMPLETE", "autosave": true,
+   "trigger": {"on": "QuestCompleted", "match": {"quest": "QUEST_MAIN_THE_RIVER"}}, "once": true,
+   "effects": [
+     {"type": "set_flag", "key": "ACT_III_COMPLETE"},
+     {"type": "set_var", "key": "story.chapter", "value": "ACT_IV"},
+     {"type": "add_stat", "key": "FishingPassion", "value": 5},
+     {"type": "message", "text": "Từ cái ống cống tới con sông này. Xa thật.", "style": "thought"},
+     {"type": "cue", "cue": "chapter_end", "delay": 5.0,
+      "end_text": "HẾT CHƯƠNG III\n\nChương IV đang được viết.\nBạn vẫn có thể câu ở hồ, suối và sông."}
+   ]}
+]

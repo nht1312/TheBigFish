@@ -1,5 +1,5 @@
 extends SceneTree
-## Boots the real main scene headless and drives the Vertical Slice through the actual
+## Boots the real main scene headless and drives Prologue → Act III through the actual
 ## world nodes (player, actors, fishing controller, HUD). Catches runtime script errors
 ## that unit tests on the logic layer cannot see.
 ##   godot --headless --path . -s tests/smoke_world.gd
@@ -20,7 +20,7 @@ func _initialize() -> void:
 
 func _process(delta: float) -> bool:
 	elapsed += delta
-	if elapsed > 600.0:
+	if elapsed > 1500.0:
 		_fail("timeout at step %d" % step)
 		return _done()
 	if wait > 0.0:
@@ -75,7 +75,8 @@ func _process(delta: float) -> bool:
 		8:
 			_check(game.ctx.state.current_map == "MAP_DRAIN", "drain reached")
 			_check(game.ctx.quests.is_active("QUEST_MAIN_FIRST_FISH"), "first fish quest")
-			world.fishing._toggle_rod()
+			if not world.fishing.in_hand:
+				world.fishing._toggle_rod()
 			_check(world.fishing.in_hand, "rod in hand")
 			world.fishing._release_cast(0.8)
 			_check(world.fishing.session.state == FishingSession.CASTING, "casting: " + world.fishing.session.state)
@@ -222,52 +223,227 @@ func _process(delta: float) -> bool:
 			world.teleport("home_stop")
 			wait = 0.3
 		30:
-			var money: int = game.ctx.state.money
+			_money_mark = game.ctx.state.money
 			game.ctx.interactions.interact("INT_BUS_STOP_HOME")
-			_check(game.ctx.state.money == money - 5, "bus fare paid")
-			wait = 8.0  # bus fade
+			_check(game.ctx.dialogue.current_id == "DIALOGUE_BUS_STOP", "bus stop asks where to")
 		31:
+			if _run_dialogue(game.ctx.dialogue, "ra hồ"):
+				return false
+			_check(game.ctx.state.money == _money_mark - 5, "bus fare paid")
+			wait = 8.0  # bus fade
+		32:
 			_check(game.ctx.state.current_map == "MAP_LAKE", "arrived at the lake: " + game.ctx.state.current_map)
+			_check(world.builder.act2.lake_region.visible and not world.builder.act3.stream_region.visible, "only the lake region drawn")
 			world.teleport("lake")
 			wait = 0.3
-		32:
-			if not world.fishing.in_hand:
-				world.fishing._toggle_rod()
-			if game.ctx.inventory.count("ITEM_BASIC_BAIT") == 0:
-				game.ctx.inventory.add("ITEM_BASIC_BAIT", 5)
-			world.fishing._release_cast(0.8)
 		33:
+			if not _cast_ready():
+				return false
+			world.fishing._release_cast(0.8)
+		34:
 			if not _bot_fish(world.fishing.session):
 				return false
 			print("  lake cast: ", world.fishing.session.result)
 			wait = 2.5
 			if world.fishing.session.result.get("outcome", "") != FishingSession.LANDED:
-				step = 32
+				step = 33
 				return false
-		34:
-			_check(game.ctx.state.get_stat("FishCaught.MAP_LAKE") >= 1.0, "caught a lake fish")
+		35:
 			_check(game.ctx.quests.get_state("QUEST_MAIN_THE_LAKE") == QuestSystem.COMPLETED, "MQ_010 complete")
 			_check(game.ctx.state.has_flag("ACT_II_COMPLETE"), "act II complete")
-			wait = 14.0  # chapter-end card
-		35:
-			_check(main._world == world and not world._cutscene, "free play after chapter II")
-			game.ctx.clock.minutes = 20 * 60.0
-			world.teleport("home_stop")
-			game.ctx.interactions.interact("INT_HOME_DOOR")  # too far away is fine: logic only
-			_check(game.ctx.clock.day == 3 and game.ctx.clock.hour() == 6, "slept to the next morning")
-			wait = 7.5
+			wait = 19.0  # chapter II end card + chapter III title
 		36:
+			# --- Act III: MQ_011 the fishing friend ---
+			if world._cutscene:
+				return false
+			_check(game.ctx.state.has_flag("event_done:EVENT_ACT3_START"), "chapter III started")
+			_check(game.ctx.quests.is_active("QUEST_MAIN_NEW_FRIEND"), "MQ_011 active")
+			_check(world.npc_actors.has("NPC_FISHING_FRIEND") and world.npc_actors["NPC_FISHING_FRIEND"].visible, "Cò at the lake")
+			game.ctx.interactions.interact("INT_FISHING_FRIEND")
+			_check(game.ctx.dialogue.current_id == "DIALOGUE_FRIEND_001", "meeting Cò")
+		37:
+			if _run_dialogue(game.ctx.dialogue):
+				return false
+			wait = 0.2
+		38:
+			if not _cast_ready():
+				return false
+			world.fishing._release_cast(0.8)
+		39:
+			if not _bot_fish(world.fishing.session):
+				return false
+			print("  fishing with Cò: ", world.fishing.session.result.get("outcome", ""))
+			wait = 2.5
+			if game.ctx.state.get_stat("FishWithFriend") < 2.0:
+				step = 38
+				return false
+		40:
+			game.ctx.interactions.interact("INT_FISHING_FRIEND")
+			_check(game.ctx.dialogue.current_id == "DIALOGUE_FRIEND_INVITE", "Cò's invitation")
+		41:
+			if _run_dialogue(game.ctx.dialogue, "đi"):
+				return false
+			_check(game.ctx.quests.is_active("QUEST_MAIN_WRONG_POND"), "MQ_012 active")
+			wait = 1.2
+		42:
+			_check(world.builder.barriers["BARRIER_POND_GAP"]["body"].get_child(0).disabled, "fence gap open")
+			world.teleport("pond")
+			wait = 1.2
+		43:
+			_check(game.ctx.state.current_map == "MAP_POND", "at the pond: " + game.ctx.state.current_map)
+			if world.npc_actors["NPC_FISHING_FRIEND"].global_position.z < 120.0:
+				_fail("Cò moved to the pond")
+			if not _cast_ready():
+				return false
+			world.fishing._release_cast(0.6)
+		44:
+			if not _bot_fish(world.fishing.session):
+				return false
+			print("  pond cast: ", world.fishing.session.result.get("outcome", ""))
+			wait = 1.0
+			if world.fishing.session.result.get("outcome", "") != FishingSession.LANDED:
+				wait = 2.5
+				step = 43
+				return false
+			_check(game.ctx.dialogue.current_id == "DIALOGUE_POND_CAUGHT", "the owner shows up")
+		45:
+			if _run_dialogue(game.ctx.dialogue, "xin lỗi"):
+				return false
+			wait = 8.0  # walked out
+		46:
+			_check(game.ctx.state.has_flag("POND_CAUGHT"), "caught trespassing")
+			_check(game.ctx.inventory.entries_in_category("FISHING_GEAR").is_empty(), "rod confiscated")
+			_check(not world.fishing.in_hand, "hands empty")
+			_check(game.ctx.state.current_map == "MAP_LAKE", "escorted out to the lake")
+			_check(not world.builder.barriers["BARRIER_POND_GAP"]["body"].get_child(0).disabled, "gap mended")
+			_check(game.ctx.quests.is_active("QUEST_MAIN_KEEP_GOING"), "MQ_013 active")
+			world.teleport("home")
+			wait = 0.5
+		47:
+			_check(game.ctx.dialogue.current_id == "DIALOGUE_MOTHER_BAN", "Mother's fishing ban")
+		48:
+			if _run_dialogue(game.ctx.dialogue, "dạ."):
+				return false
+			game.ctx.state.add_money(maxi(0, 60 - game.ctx.state.money))
+			game.ctx.interactions.interact("INT_POND_GATE")  # logic only; the gate is at the lake
+		49:
+			if _run_dialogue(game.ctx.dialogue, "năm chục"):
+				return false
+			_check(game.ctx.inventory.count("ITEM_ROD_BASIC") == 1, "rod redeemed")
+			world.fishing._toggle_rod()
+			world.teleport("drain")
+			wait = 0.3
+		50:
+			var banned: bool = game.ctx.state.get_var("fishing.banned_day") == str(game.ctx.clock.day)
+			if banned:
+				world.fishing._release_cast(0.8)
+				_check(world.fishing.session.state == FishingSession.IDLE, "promised Mother: no fishing today")
+			# Sleep until the ban is over.
+			game.ctx.clock.minutes = 20 * 60.0
+			game.ctx.interactions.interact("INT_HOME_DOOR")
+			wait = 7.5
+			if game.ctx.state.get_var("fishing.banned_day") == str(game.ctx.clock.day):
+				step = 50
+				return false
+		51:
 			_check(not game.ctx.interactions.is_depleted("INT_SCRAP_01"), "scrap respawned overnight")
-			_check(world.save_game("manual"), "manual save in act II")
+			world.teleport("home")
+			wait = 1.2
+		52:
+			_check(world.npc_actors["NPC_FISHING_FRIEND"].global_position.distance_to(Vector3(3.2, 0, 10.9)) < 0.5, "Cò waits at the gate")
+			game.ctx.interactions.interact("INT_FISHING_FRIEND")
+			_check(game.ctx.dialogue.current_id == "DIALOGUE_FRIEND_AFTER_POND", "Cò apologises")
+		53:
+			if _run_dialogue(game.ctx.dialogue, "lần sau"):
+				return false
+			_check(game.ctx.state.is_map_unlocked("MAP_STREAM"), "stream unlocked")
+			world.teleport("home_stop")
+			game.ctx.interactions.interact("INT_BUS_STOP_HOME")
+		54:
+			if _run_dialogue(game.ctx.dialogue, "suối"):
+				return false
+			wait = 8.0
+		55:
+			_check(game.ctx.state.current_map == "MAP_STREAM", "at the stream: " + game.ctx.state.current_map)
+			_check(world.builder.act3.stream_region.visible and not world.builder.act2.lake_region.visible, "only the stream region drawn")
+			world.teleport("stream")
+			wait = 1.2
+		56:
+			_check(world.npc_actors["NPC_FISHING_FRIEND"].global_position.z > 350.0, "Cò at the stream")
+			if not _cast_ready():
+				return false
+			world.fishing._release_cast(0.4)
+			_check(world.fishing.session.current < 0.2, "cast into the slack water: current %.2f" % world.fishing.session.current)
+		57:
+			if not _bot_fish(world.fishing.session):
+				if world.fishing.session.state == FishingSession.IDLE:
+					step = 56  # drifted
+				return false
+			print("  stream cast: ", world.fishing.session.result.get("outcome", ""), " ", world.fishing.session.result.get("fish", ""))
+			wait = 2.5
+			if world.fishing.session.result.get("outcome", "") != FishingSession.LANDED:
+				step = 56
+				return false
+		58:
+			_check(game.ctx.quests.is_active("QUEST_MAIN_THE_RIVER"), "MQ_014 active")
+			game.ctx.state.add_money(maxi(0, 420 - game.ctx.state.money))  # a few days of fishing and selling
+			_check(game.ctx.economy.buy("SHOP_FISHING", "ITEM_ROD_REEL_BASIC") == "", "bought the reel rod")
+			_check(game.ctx.state.is_map_unlocked("MAP_RIVER"), "river unlocked")
+			world.teleport("stream_stop")
+			game.ctx.interactions.interact("INT_BUS_STOP_STREAM")
+		59:
+			if _run_dialogue(game.ctx.dialogue, "sông"):
+				return false
+			wait = 8.0
+		60:
+			_check(game.ctx.state.current_map == "MAP_RIVER", "at the river: " + game.ctx.state.current_map)
+			world.teleport("river")
+			if world.fishing.in_hand:
+				world.fishing._toggle_rod()
+			world.fishing._toggle_rod()
+			_check(game.ctx.inventory.equipped_item_id("rod") == "ITEM_ROD_REEL_BASIC", "strongest rod picked")
+			wait = 0.3
+		61:
+			if not _cast_ready():
+				return false
+			world.fishing._release_cast(0.3)
+		62:
+			if not _bot_fish(world.fishing.session):
+				return false
+			print("  river cast: ", world.fishing.session.result)
+			wait = 2.5
+			if world.fishing.session.result.get("outcome", "") != FishingSession.LANDED:
+				step = 61
+				return false
+		63:
+			_check(game.ctx.quests.get_state("QUEST_MAIN_THE_RIVER") == QuestSystem.COMPLETED, "MQ_014 complete")
+			_check(game.ctx.state.has_flag("ACT_III_COMPLETE"), "act III complete")
+			wait = 14.0  # chapter-end card
+		64:
+			_check(main._world == world and not world._cutscene, "free play after chapter III")
+			_check(world.save_game("manual"), "manual save in act III")
 			main._load("manual")
 			wait = 0.5
-		37:
+		65:
 			world = main._world
-			_check(world != null and game.ctx.state.has_flag("ACT_II_COMPLETE"), "loaded save keeps act II")
-			_check(game.ctx.inventory.count("ITEM_ROD_BASIC") == 1, "rod survives load")
+			_check(world != null and game.ctx.state.has_flag("ACT_III_COMPLETE"), "loaded save keeps act III")
+			_check(game.ctx.inventory.count("ITEM_ROD_REEL_BASIC") == 1, "reel rod survives load")
+			_check(game.ctx.relationships.has_memory("NPC_MOTHER", "OBEYED_BAN"), "Mother remembers")
 			return _done()
 	step += 1
 	return false
+
+
+## Rod in hand and bait on the hook, ready for _release_cast.
+func _cast_ready() -> bool:
+	if world.fishing.session.state != FishingSession.IDLE:
+		return false
+	var game: Node = root.get_node("Game")
+	if game.ctx.inventory.count("ITEM_BASIC_BAIT") == 0:
+		game.ctx.inventory.add("ITEM_BASIC_BAIT", 10)
+	if not world.fishing.in_hand:
+		world.fishing._toggle_rod()
+	return world.fishing.in_hand
 
 
 ## Steps a dialogue; picks the choice containing `prefer` (else the first).
@@ -306,6 +482,8 @@ func _bot_fish(s: FishingSession) -> bool:
 			s.rod_dir = -signf(s.fish.lateral) if absf(s.fish.lateral) > 0.2 else 0.0
 		FishingSession.LANDED, FishingSession.LOST, FishingSession.BROKEN:
 			return true
+		FishingSession.IDLE:
+			return str(s.result.get("outcome", "")) == "DRIFTED"
 	return false
 
 

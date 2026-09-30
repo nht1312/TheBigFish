@@ -163,18 +163,27 @@ func test_bus_needs_the_lake_and_the_fare() -> void:
 	ctx.state.money = 20
 	ctx.interactions.interact("INT_BUS_STOP_HOME")
 	assert_eq(ctx.state.money, 20, "locked before the lake is known")
+	assert_false(ctx.dialogue.is_active())
 	ctx.state.unlock_map("MAP_LAKE")
+	ctx.state.enter_map("MAP_HOME")
 	var start := ctx.clock.total_minutes()
-	assert_true(ctx.interactions.prompt("INT_BUS_STOP_HOME").contains("5.000đ"), "fare shown")
 	ctx.interactions.interact("INT_BUS_STOP_HOME")
+	assert_eq(ctx.dialogue.current_id, "DIALOGUE_BUS_STOP", "the stop asks where to")
+	var choices := ctx.dialogue.visible_choices()
+	assert_eq(choices.size(), 2, "only the lake (and staying) while nothing else is unlocked")
+	assert_true(str(choices[0]["text"]).contains("5.000đ"), "fare shown")
+	ctx.dialogue.choose(0)
+	assert_false(ctx.dialogue.is_active())
 	assert_eq(ctx.state.money, 15)
 	assert_eq(ctx.clock.total_minutes() - start, 40.0)
 	var travel := _cues("travel")
 	assert_eq(travel.size(), 1)
 	assert_eq(travel[0][1]["destination"], "lake_stop")
+	ctx.state.enter_map("MAP_LAKE")
 	ctx.state.money = 3
-	var refused: String = ctx.interactions.interact("INT_BUS_STOP_LAKE")["text"]
-	assert_true(refused.begins_with("Không đủ tiền"), "cannot ride without the fare")
+	ctx.interactions.interact("INT_BUS_STOP_LAKE")
+	ctx.dialogue.choose(0)  # home
+	assert_eq(ctx.state.money, 3, "cannot ride without the fare")
 	assert_eq(_cues("travel").size(), 1)
 
 

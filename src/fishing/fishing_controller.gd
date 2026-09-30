@@ -14,10 +14,16 @@ const REASON_TEXT := {
 	"HOOK_MISSED": "Giật hụt. Cá nhả mồi rồi.",
 	"BAIT_STOLEN": "Phao chìm mà không giật. Cá ăn mất mồi.",
 	"SLACK": "Dây chùng quá lâu, cá nhả lưỡi.",
-	"HOOK": "Lưỡi kẽm bị kéo thẳng ra. Căng dây quá lâu.",
+	"HOOK": "Lưỡi bị kéo thẳng ra. Căng dây quá lâu.",
 	"LINE": "Đứt dây! Căng quá mức rồi.",
+	"ROD": "Rắc! Cần gãy rồi.",
+}
+## Texts that only fit the home-made bamboo rod.
+const IMPROVISED_TEXT := {
+	"HOOK": "Lưỡi kẽm bị kéo thẳng ra. Căng dây quá lâu.",
 	"ROD": "Rắc! Cây tre gãy.",
 }
+const BAMBOO_COLOR := Color(0.62, 0.62, 0.3)
 
 var player: PlayerController
 var session := FishingSession.new()
@@ -36,6 +42,9 @@ var _result_timer: float = 0.0
 var _hooked_once: bool = false
 var _fight_time: float = 0.0
 var _reel_tick: float = 0.0
+var _flow := Vector3.ZERO  # downstream direction × current at the cast spot
+var _rod_item: String = ""
+var _rod_mat: StandardMaterial3D
 
 var _rod_pivot: Node3D
 var _rod_tip_joint: Node3D
@@ -98,6 +107,8 @@ func _process(delta: float) -> void:
 
 func _handle_input(delta: float) -> void:
 	var inv := ctx().inventory
+	if in_hand and inv.get_entry(_rod_uid).is_empty() and not session.is_busy():
+		in_hand = false  # the rod was taken, sold or lost
 	if autopilot:
 		return
 	if not enabled:
@@ -153,6 +164,9 @@ func _toggle_rod() -> void:
 	gear.sort_custom(func(a, b): return _rod_strength(a) > _rod_strength(b))
 	_rod_uid = int(gear[0]["uid"])
 	inv.equip(_rod_uid)
+	_rod_item = str(gear[0]["id"])
+	var c: Array = ctx().data.get_item(_rod_item).get("rod", {}).get("color", [])
+	_rod_mat.albedo_color = Color(float(c[0]), float(c[1]), float(c[2])) if c.size() == 3 else BAMBOO_COLOR
 	if inv.equipped_item_id("bait") == "":
 		inv.cycle_bait()
 	in_hand = true
@@ -169,6 +183,9 @@ func _release_cast(power: float) -> void:
 	if rod.is_empty():
 		in_hand = false
 		return
+	if ctx().state.get_var("fishing.banned_day") == str(ctx().clock.day):
+		message.emit("Đã hứa với mẹ hôm nay không đi câu.", "thought")
+		return
 	if inv.equipped_item_id("bait") == "" and not inv.cycle_bait():
 		message.emit("Chưa có mồi. Móc lưỡi không thì cá nào ăn.", "thought")
 		return
@@ -180,7 +197,7 @@ func _release_cast(power: float) -> void:
 		message.emit("Không có nước ở đó.", "info")
 		return
 	var spot: Dictionary = aim["spot"]
-	if not spot.get("fishable", true):
+	if not spot_fishable(spot):
 		message.emit(str(spot.get("blocked_text", "Không câu ở đây được.")), "thought")
 		return
 	_cast_spot = spot
@@ -192,8 +209,31 @@ func _release_cast(power: float) -> void:
 	var skill := FishingSkill.level_index(ctx().state.get_stat("FishingSkill"))
 	session.rod_durability = float(rod["props"].get("durability", 1.0))
 	session.drag = clampf(session.drag, 0.0, 1.0)
-	session.cast(power, pick, ctx().clock.fish_activity(), attraction, skill)
+	# Only spots with a flow direction have moving water (the drain's "current" is descriptive).
+	var current := float(spot.get("current", 0.0)) if spot.has("flow") else 0.0
+	var f: Array = spot.get("flow", [0, 0])
+	_flow = Vector3(float(f[0]), 0, float(f[1])).normalized() * current
+	var cast_dir := (_cast_point - player.global_position) * Vector3(1, 0, 1)
+	var right := cast_dir.normalized().cross(Vector3.UP)
+	session.set_water(current, clampf(right.dot(_flow.normalized()), -1.0, 1.0) if current > 0.0 else 0.0)
+	var activity := ctx().clock.fish_activity() * float(spot.get("bite_rate", 1.0))
+	session.cast(power, pick, activity, attraction, skill)
 	sound.emit("whoosh", player.global_position, -6.0)
+	ctx().bus.emit_event(GameEvents.CAST_MADE, {"spot": str(spot.get("id", "")), "map": ctx().state.current_map, "current": current})
+
+
+## Static "fishable", then optional "fishable_conditions" (e.g. a pond closed after an incident).
+func spot_fishable(spot: Dictionary) -> bool:
+	if not spot.get("fishable", true):
+		return false
+	return ctx().conditions.check(spot.get("fishable_conditions", []))
+
+
+func _map_has_fishing(map_id: String) -> bool:
+	for entry in spots:
+		if entry["map"] == map_id and entry["spot"].get("fishable", true):
+			return true
+	return false
 
 
 ## Finds the water spot the bait would land in at `distance` straight ahead.
@@ -216,7 +256,7 @@ func hint_text() -> String:
 		return ""
 	var learning := ctx().state.get_stat("FishCaught") < 1.0
 	if not in_hand:
-		return "[1]  Cầm cần câu" if has_rod() and ctx().state.current_map == "MAP_DRAIN" else ""
+		return "[1]  Cầm cần câu" if has_rod() and _map_has_fishing(ctx().state.current_map) else ""
 	match session.state:
 		FishingSession.IDLE:
 			if charge >= 0.0:
@@ -270,7 +310,8 @@ func _finish(result: Dictionary) -> void:
 		FishingSession.LOST, FishingSession.BROKEN:
 			var reason := str(result.get("reason", ""))
 			if not session.fish_def.get("giant", false) or reason != "ROD":
-				message.emit(REASON_TEXT.get(reason, "Mất cá rồi."), "info")
+				var texts: Dictionary = IMPROVISED_TEXT if _rod_item == "ITEM_IMPROVISED_ROD" and IMPROVISED_TEXT.has(reason) else REASON_TEXT
+				message.emit(texts.get(reason, "Mất cá rồi."), "info")
 			if reason == "ROD":
 				_break_rod_visual()
 			elif reason == "LINE":
@@ -304,13 +345,16 @@ func _on_cue(cue_name: String, data: Dictionary) -> void:
 			sound.emit("drag", _rod_tip.global_position, -10.0)
 		"fish_exhausted":
 			message.emit("Con cá đuối sức rồi.", "hint")
+		"drifted":
+			message.emit("Nước cuốn phao trôi xa rồi. Thu dây quăng lại.", "info")
 
 
 # --- Visuals ------------------------------------------------------------------
 
 func _build_visuals() -> void:
 	var bamboo := StandardMaterial3D.new()
-	bamboo.albedo_color = Color(0.62, 0.62, 0.3)
+	bamboo.albedo_color = BAMBOO_COLOR
+	_rod_mat = bamboo
 	_rod_pivot = Node3D.new()
 	_rod_pivot.rotation_degrees = Vector3(32, 0, 0)
 	player.hand.add_child(_rod_pivot)
@@ -446,10 +490,10 @@ func _update_visuals(delta: float) -> void:
 			var bob := sin(Time.get_ticks_msec() * 0.003) * 0.01
 			if session._nibble_left > 0.0:
 				bob += sin(Time.get_ticks_msec() * 0.06) * 0.025
-			_float_node.global_position = _cast_point + Vector3(0, bob, 0)
+			_float_node.global_position = _drifted_point() + Vector3(0, bob, 0)
 		FishingSession.BITE:
 			var depth := 0.1 if session.bite_ai.bite_strength == "LIGHT" else 0.22
-			_float_node.global_position = _cast_point + Vector3(0, -depth, 0)
+			_float_node.global_position = _drifted_point() + Vector3(0, -depth, 0)
 		FishingSession.HOOKED, FishingSession.FIGHTING, FishingSession.EXHAUSTED:
 			_float_node.global_position = _fish_position()
 		FishingSession.LANDED:
@@ -492,6 +536,11 @@ func _update_visuals(delta: float) -> void:
 			var t := i / 12.0
 			_line_mesh.surface_add_vertex(a.lerp(b, t) - Vector3(0, sin(t * PI) * sag, 0))
 		_line_mesh.surface_end()
+
+
+## The float carried downstream by the current while waiting.
+func _drifted_point() -> Vector3:
+	return _cast_point + _flow * minf(session.drift_time, 30.0) * 0.5
 
 
 ## Where the hooked fish is: along the cast direction at line_distance, offset sideways by its run.

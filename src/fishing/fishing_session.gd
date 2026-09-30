@@ -6,6 +6,12 @@ extends RefCounted
 ##
 ## States: IDLE → CASTING → WAITING → BITE → HOOKED → FIGHTING ⇄ EXHAUSTED → LANDED
 ##         any fight state → LOST (fish escaped) / BROKEN (gear failed)
+##         WAITING → IDLE with outcome DRIFTED when moving water carries the bait away
+##
+## Moving water (docs/07 §14, §29; docs/12 §7): `current` 0..1 from the spot. The bait
+## drifts while waiting, and a fish running downstream loads the line harder, while
+## one fighting upstream tires faster. `current_side` is where downstream lies relative
+## to the cast direction (-1 left .. 1 right).
 
 signal state_changed(new_state: String, old_state: String)
 signal cue(cue_name: String, data: Dictionary)
@@ -41,6 +47,9 @@ const DEFAULT_TUNING := {
 	"stamina_regen": 8.0,
 	"stamina_recover_threshold": 25.0,
 	"nibble_seconds": 0.35,
+	"drift_seconds": 5.0,  # waiting time before the bait leaves the fish at current 1.0
+	"current_load": 22.0,  # extra line load at current 1.0 when the fish runs downstream
+	"current_push": 0.35,  # how fast the current swings a hooked fish downstream
 }
 
 var tuning: Dictionary = DEFAULT_TUNING.duplicate()
@@ -76,6 +85,9 @@ var bite_ai: FishBiteAI
 var skill_level: int = 0
 var cast_distance: float = 0.0
 var slack_time: float = 0.0  # how long the line has been slack (HUD warns before the fish escapes)
+var current: float = 0.0
+var current_side: float = 0.0
+var drift_time: float = 0.0  # seconds the bait has drifted since landing
 
 var _state_time: float = 0.0
 var _nibble_left: float = 0.0
@@ -120,6 +132,7 @@ func cast(power: float, pick: Dictionary, activity: float, attraction: float, p_
 	_pending_fish = pick
 	_activity = activity
 	_attraction = attraction
+	drift_time = 0.0
 	result = {}
 	_set_state(CASTING)
 
@@ -137,6 +150,19 @@ func strike() -> void:
 				cue.emit("strike_empty", {})
 		BITE:
 			_attempt_hook()
+
+
+## Moving water at the spot the bait lands in. Call before cast().
+func set_water(p_current: float, p_current_side: float) -> void:
+	current = clampf(p_current, 0.0, 1.0)
+	current_side = clampf(p_current_side, -1.0, 1.0)
+
+
+## Seconds a bait stays in place before the current carries it off (INF in still water).
+func drift_limit() -> float:
+	if current < 0.05:
+		return INF
+	return float(tuning["drift_seconds"]) / current
 
 
 ## Reel in without a fish (keeps bait).
@@ -204,6 +230,12 @@ func _schedule_new_fish(delay_factor: float) -> void:
 
 func _tick_waiting(delta: float) -> void:
 	_nibble_left = maxf(0.0, _nibble_left - delta)
+	drift_time += delta
+	if drift_time > drift_limit():
+		result = {"outcome": "DRIFTED", "bait_consumed": false}
+		cue.emit("drifted", {})
+		_set_state(IDLE)
+		return
 	if bite_ai == null:
 		return
 	match bite_ai.tick(delta):
@@ -258,7 +290,15 @@ func _tick_fight(delta: float) -> void:
 	var tension_mult := 1.0 - 0.15 * maxf(0.0, -align)
 	var fatigue_mult := 1.0 + maxf(0.0, align) - 0.5 * maxf(0.0, -align)
 
-	var raw := pull * tension_mult + (reel_power if can_reel else 0.0)
+	# Current: swings the fish downstream; running with it loads the line, against it tires the fish.
+	var flow_load := 0.0
+	if current > 0.0:
+		fish.lateral = clampf(fish.lateral + current_side * current * float(tuning["current_push"]) * delta, -1.0, 1.0)
+		var with_flow := clampf(fish.lateral * current_side, -1.0, 1.0)
+		flow_load = current * float(tuning["current_load"]) * (0.35 + maxf(0.0, with_flow))
+		fatigue_mult += current * maxf(0.0, -with_flow)
+
+	var raw := pull * tension_mult + flow_load + (reel_power if can_reel else 0.0)
 	var drag_limit := lerpf(float(tuning["drag_min_limit"]), 100.0, clampf(drag, 0.0, 1.0))
 	var at_line_end := line_distance >= line_length - 0.01
 	var target := raw

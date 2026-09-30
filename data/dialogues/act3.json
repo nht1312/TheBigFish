@@ -1,0 +1,1267 @@
+[
+ {
+  "id": "DIALOGUE_FRIEND_001",
+  "tags": [
+   "FRIEND",
+   "STORY"
+  ],
+  "start": "n1",
+  "nodes": {
+   "n1": {
+    "speaker": "NARRATION",
+    "text": "Một đứa trạc tuổi bạn ngồi trên cái xô úp ngược, cần câu kẹp giữa hai đầu gối.",
+    "next": "n2"
+   },
+   "n2": {
+    "speaker": "NPC_FISHING_FRIEND",
+    "text": "Cần tay ba mét sáu hả? Tao cũng có một cây y chang.",
+    "choices": [
+     {
+      "text": "Mới mua. Dành dụm mấy bữa mới đủ.",
+      "next": "saved",
+      "effects": [
+       {
+        "type": "modify_relationship",
+        "npc": "NPC_FISHING_FRIEND",
+        "dim": "Respect",
+        "delta": 2
+       }
+      ]
+     },
+     {
+      "text": "Mày câu ở đây lâu chưa?",
+      "next": "long"
+     }
+    ]
+   },
+   "saved": {
+    "speaker": "NPC_FISHING_FRIEND",
+    "text": "Giỏi. Cây của tao xin tiền ba tao đó.",
+    "next": "name"
+   },
+   "long": {
+    "speaker": "NPC_FISHING_FRIEND",
+    "text": "Từ hồi lớp sáu. Hồ này tao thuộc từng gốc cây.",
+    "next": "name"
+   },
+   "name": {
+    "speaker": "NPC_FISHING_FRIEND",
+    "text": "Tao tên Cò. Ốm nhom nên tụi nó kêu vậy.",
+    "next": "sit"
+   },
+   "sit": {
+    "speaker": "NPC_FISHING_FRIEND",
+    "text": "Ngồi đây câu chung nè. Hai đứa quăng gần nhau, cá tụ về đông hơn.",
+    "next": "tip"
+   },
+   "tip": {
+    "speaker": "NARRATION",
+    "text": "Cò xích qua một bên, chừa chỗ cho bạn."
+   }
+  },
+  "end_effects": [
+   {
+    "type": "modify_relationship",
+    "npc": "NPC_FISHING_FRIEND",
+    "dim": "Familiarity",
+    "delta": 5
+   },
+   {
+    "type": "add_memory",
+    "npc": "NPC_FISHING_FRIEND",
+    "memory": "MET_PLAYER_AT_LAKE"
+   }
+  ]
+ },
+ {
+  "id": "DIALOGUE_FRIEND_FISHING",
+  "tags": [
+   "FRIEND",
+   "FISHING"
+  ],
+  "start": "n1",
+  "nodes": {
+   "n1": {
+    "speaker": "NPC_FISHING_FRIEND",
+    "text": "Suỵt. Nói nhỏ thôi.",
+    "branch": [
+     {
+      "conditions": [
+       {
+        "type": "stat_gte",
+        "key": "FishWithFriend",
+        "value": 1
+       }
+      ],
+      "next": "one"
+     }
+    ],
+    "next": "tip"
+   },
+   "tip": {
+    "speaker": "NPC_FISHING_FRIEND",
+    "text": "Cá chép nó rỉa mồi lâu lắm. Phao nhấp nhấp là kệ nó, chìm hẳn mới giật."
+   },
+   "one": {
+    "speaker": "NPC_FISHING_FRIEND",
+    "text": "Một con rồi đó. Tao chưa được con nào. Hôm nay hồ thương mày."
+   }
+  },
+  "end_effects": [
+   {
+    "type": "add_stat",
+    "key": "Knowledge.Fishing",
+    "value": 0.5
+   }
+  ]
+ },
+ {
+  "id": "DIALOGUE_FRIEND_INVITE",
+  "tags": [
+   "FRIEND",
+   "STORY"
+  ],
+  "start": "n1",
+  "nodes": {
+   "n1": {
+    "speaker": "NPC_FISHING_FRIEND",
+    "text": "Mày câu được đó. Mai tao dẫn đi chỗ này, cá ăn như điên.",
+    "next": "n2"
+   },
+   "n2": {
+    "speaker": "NPC_FISHING_FRIEND",
+    "text": "Phía nam hồ có cái ao. Qua chỗ rào thủng là tới.",
+    "choices": [
+     {
+      "text": "Ao của ai vậy?",
+      "next": "whose"
+     },
+     {
+      "text": "Đi!",
+      "next": "go",
+      "effects": [
+       {
+        "type": "modify_relationship",
+        "npc": "NPC_FISHING_FRIEND",
+        "dim": "Friendship",
+        "delta": 2
+       }
+      ]
+     }
+    ]
+   },
+   "whose": {
+    "speaker": "NPC_FISHING_FRIEND",
+    "text": "Ao bỏ lâu rồi. Nghe nói ông chủ lên thành phố ở, không ai canh đâu.",
+    "next": "go"
+   },
+   "go": {
+    "speaker": "NPC_FISHING_FRIEND",
+    "text": "Tao ra đó trước. Chỗ rào thủng có bụi cỏ che, vạch ra là thấy."
+   }
+  },
+  "end_effects": [
+   {
+    "type": "set_flag",
+    "key": "POND_INVITED"
+   },
+   {
+    "type": "message",
+    "text": "Chỗ rào thủng phía nam hồ...",
+    "style": "thought",
+    "delay": 0.8
+   }
+  ]
+ },
+ {
+  "id": "DIALOGUE_FRIEND_POND",
+  "tags": [
+   "FRIEND"
+  ],
+  "start": "n1",
+  "nodes": {
+   "n1": {
+    "speaker": "NPC_FISHING_FRIEND",
+    "text": "Thấy chưa? Nước đục ngầu vầy là cá đông lắm.",
+    "next": "n2"
+   },
+   "n2": {
+    "speaker": "NPC_FISHING_FRIEND",
+    "text": "Quăng đi. Ở đây quăng đâu trúng đó."
+   }
+  }
+ },
+ {
+  "id": "DIALOGUE_POND_CAUGHT",
+  "tags": [
+   "STORY",
+   "CONSEQUENCE"
+  ],
+  "start": "n1",
+  "nodes": {
+   "n1": {
+    "speaker": "NARRATION",
+    "text": "Có tiếng quát từ phía cái chòi tre.",
+    "next": "n2"
+   },
+   "n2": {
+    "speaker": "NPC_POND_OWNER",
+    "text": "Ê! Hai đứa kia! Câu cá nhà ai đó?",
+    "next": "n3"
+   },
+   "n3": {
+    "speaker": "NARRATION",
+    "text": "Cò quăng luôn cần, chạy thẳng về phía rào thủng. Bạn còn đứng đó, tay cầm con cá.",
+    "next": "n4",
+    "effects": [
+     {
+      "type": "set_flag",
+      "key": "FRIEND_RAN"
+     }
+    ]
+   },
+   "n4": {
+    "speaker": "NPC_POND_OWNER",
+    "text": "Ao này chú nuôi, bỏ tiền mua cá giống. Câu vầy là ăn trộm, biết không?",
+    "choices": [
+     {
+      "text": "Dạ con xin lỗi. Con không biết ao có chủ.",
+      "next": "sorry",
+      "effects": [
+       {
+        "type": "set_var",
+        "key": "pond.fine",
+        "value": "50"
+       },
+       {
+        "type": "modify_relationship",
+        "npc": "NPC_POND_OWNER",
+        "dim": "Respect",
+        "delta": 3
+       },
+       {
+        "type": "add_memory",
+        "npc": "NPC_POND_OWNER",
+        "memory": "PLAYER_APOLOGIZED"
+       }
+      ]
+     },
+     {
+      "text": "Bạn con rủ. Con không biết gì hết.",
+      "next": "blame",
+      "effects": [
+       {
+        "type": "set_var",
+        "key": "pond.fine",
+        "value": "50"
+       },
+       {
+        "type": "set_flag",
+        "key": "BLAMED_FRIEND"
+       }
+      ]
+     },
+     {
+      "text": "(Bỏ chạy)",
+      "next": "run",
+      "effects": [
+       {
+        "type": "set_var",
+        "key": "pond.fine",
+        "value": "80"
+       },
+       {
+        "type": "set_flag",
+        "key": "RAN_FROM_POND"
+       },
+       {
+        "type": "modify_relationship",
+        "npc": "NPC_POND_OWNER",
+        "dim": "Respect",
+        "delta": -3
+       }
+      ]
+     }
+    ]
+   },
+   "sorry": {
+    "speaker": "NPC_POND_OWNER",
+    "text": "Không biết... Rào thì thủng, bảng thì ngã. Chú cũng có lỗi một phần.",
+    "next": "keep"
+   },
+   "blame": {
+    "speaker": "NPC_POND_OWNER",
+    "text": "Rủ thì cũng tự đi bằng chân mình. Đứa kia chạy rồi, còn mình con thì con chịu.",
+    "next": "keep"
+   },
+   "keep": {
+    "speaker": "NPC_POND_OWNER",
+    "text": "Cần với cá chú giữ. Muốn lấy lại cần thì mang năm chục ngàn ra cổng ao mà chuộc."
+   },
+   "run": {
+    "speaker": "NARRATION",
+    "text": "Chưa được mấy bước thì bị nắm cổ áo lôi lại.",
+    "next": "run2"
+   },
+   "run2": {
+    "speaker": "NPC_POND_OWNER",
+    "text": "Chạy hả? Nhà ở đâu? Chú biết mẹ mày đó, xóm đầu chợ chứ gì.",
+    "next": "run3"
+   },
+   "run3": {
+    "speaker": "NPC_POND_OWNER",
+    "text": "Cần chú giữ. Tám chục ngàn, ra cổng ao mà chuộc. Để chú gọi cho mẹ mày luôn."
+   }
+  },
+  "end_effects": [
+   {
+    "type": "confiscate",
+    "key": "POND",
+    "slots": [
+     "rod"
+    ],
+    "categories": [
+     "FISH"
+    ],
+    "props_match": {
+     "map": "MAP_POND"
+    }
+   },
+   {
+    "type": "set_flag",
+    "key": "POND_CAUGHT"
+   },
+   {
+    "type": "set_flag",
+    "key": "POND_CLOSED"
+   },
+   {
+    "type": "add_memory",
+    "npc": "NPC_POND_OWNER",
+    "memory": "CAUGHT_PLAYER_TRESPASSING"
+   },
+   {
+    "type": "cue",
+    "cue": "pond_escort",
+    "destination": "lake",
+    "lines": [
+     "Chú chủ ao dắt bạn ra tận bờ hồ.",
+     "Sau lưng, tiếng kẽm gai kéo lại chỗ rào thủng."
+    ]
+   },
+   {
+    "type": "message",
+    "text": "Cò đâu mất rồi...",
+    "style": "thought",
+    "delay": 1.0
+   },
+   {
+    "type": "autosave",
+    "reason": "pond_caught"
+   }
+  ]
+ },
+ {
+  "id": "DIALOGUE_MOTHER_BAN",
+  "tags": [
+   "FAMILY",
+   "STORY",
+   "CONFLICT"
+  ],
+  "start": "n1",
+  "nodes": {
+   "n1": {
+    "speaker": "NARRATION",
+    "text": "Mẹ ngồi ở bậc cửa. Mẹ không lặt rau.",
+    "branch": [
+     {
+      "conditions": [
+       {
+        "type": "flag",
+        "key": "RAN_FROM_POND"
+       }
+      ],
+      "next": "told"
+     }
+    ],
+    "next": "notice"
+   },
+   "told": {
+    "speaker": "NARRATION",
+    "text": "Điện thoại còn nằm trong tay mẹ.",
+    "next": "told2"
+   },
+   "told2": {
+    "speaker": "NPC_MOTHER",
+    "text": "Có ông nào gọi. Nói con câu trộm cá ao nhà người ta, còn bỏ chạy.",
+    "next": "ban",
+    "effects": [
+     {
+      "type": "modify_relationship",
+      "npc": "NPC_MOTHER",
+      "dim": "Trust",
+      "delta": -3
+     }
+    ]
+   },
+   "notice": {
+    "speaker": "NPC_MOTHER",
+    "text": "Cây cần đâu?",
+    "choices": [
+     {
+      "text": "Bị người ta lấy. Con câu ở ao nhà người ta mà không biết.",
+      "next": "truth",
+      "effects": [
+       {
+        "type": "modify_relationship",
+        "npc": "NPC_MOTHER",
+        "dim": "Trust",
+        "delta": 2
+       },
+       {
+        "type": "add_memory",
+        "npc": "NPC_MOTHER",
+        "memory": "TOLD_TRUTH_ABOUT_POND"
+       }
+      ]
+     },
+     {
+      "text": "Con để quên ở hồ.",
+      "next": "lie",
+      "effects": [
+       {
+        "type": "modify_relationship",
+        "npc": "NPC_MOTHER",
+        "dim": "Trust",
+        "delta": -2
+       },
+       {
+        "type": "set_flag",
+        "key": "LIED_ABOUT_POND"
+       }
+      ]
+     }
+    ]
+   },
+   "truth": {
+    "speaker": "NPC_MOTHER",
+    "text": "Không biết... Cây đó con dành dụm bao lâu mới mua được?",
+    "next": "ban"
+   },
+   "lie": {
+    "speaker": "NARRATION",
+    "text": "Mẹ nhìn bạn một lúc lâu, rồi nhìn xuống đôi dép dính bùn.",
+    "next": "ban"
+   },
+   "ban": {
+    "speaker": "NPC_MOTHER",
+    "text": "Mai ở nhà. Không đi câu nữa. Một ngày thôi cũng được.",
+    "choices": [
+     {
+      "text": "Dạ.",
+      "next": "obey",
+      "effects": [
+       {
+        "type": "fishing_ban"
+       },
+       {
+        "type": "modify_relationship",
+        "npc": "NPC_MOTHER",
+        "dim": "Trust",
+        "delta": 2
+       },
+       {
+        "type": "modify_relationship",
+        "npc": "NPC_MOTHER",
+        "dim": "Understanding",
+        "delta": 1
+       },
+       {
+        "type": "add_memory",
+        "npc": "NPC_MOTHER",
+        "memory": "OBEYED_BAN"
+       }
+      ]
+     },
+     {
+      "text": "Con có cố ý đâu mà mẹ cấm!",
+      "next": "argue",
+      "effects": [
+       {
+        "type": "fishing_ban"
+       },
+       {
+        "type": "modify_relationship",
+        "npc": "NPC_MOTHER",
+        "dim": "Conflict",
+        "delta": 4
+       },
+       {
+        "type": "modify_relationship",
+        "npc": "NPC_MOTHER",
+        "dim": "Understanding",
+        "delta": 2
+       },
+       {
+        "type": "add_memory",
+        "npc": "NPC_MOTHER",
+        "memory": "ARGUED_BAN"
+       }
+      ]
+     },
+     {
+      "text": "(Không nói gì, đi thẳng vô nhà)",
+      "next": "ignore",
+      "effects": [
+       {
+        "type": "modify_relationship",
+        "npc": "NPC_MOTHER",
+        "dim": "Conflict",
+        "delta": 3
+       },
+       {
+        "type": "modify_relationship",
+        "npc": "NPC_MOTHER",
+        "dim": "Trust",
+        "delta": -2
+       },
+       {
+        "type": "add_memory",
+        "npc": "NPC_MOTHER",
+        "memory": "IGNORED_BAN"
+       }
+      ]
+     }
+    ]
+   },
+   "obey": {
+    "speaker": "NPC_MOTHER",
+    "text": "Ừ. Vô ăn cơm đi."
+   },
+   "argue": {
+    "speaker": "NPC_MOTHER",
+    "text": "Cố ý hay không thì cũng mất cây cần rồi đó.",
+    "next": "argue2"
+   },
+   "argue2": {
+    "speaker": "NPC_MOTHER",
+    "text": "Một ngày. Coi như mẹ xin."
+   },
+   "ignore": {
+    "speaker": "NARRATION",
+    "text": "Sau lưng, mẹ thở dài một tiếng rất nhỏ."
+   }
+  },
+  "end_effects": [
+   {
+    "type": "modify_relationship",
+    "npc": "NPC_MOTHER",
+    "dim": "Concern",
+    "delta": 4
+   }
+  ]
+ },
+ {
+  "id": "DIALOGUE_MOTHER_AFTER_IGNORE",
+  "tags": [
+   "FAMILY",
+   "CONFLICT"
+  ],
+  "start": "n1",
+  "nodes": {
+   "n1": {
+    "speaker": "NPC_MOTHER",
+    "text": "Hôm bữa mẹ nói mà con bỏ đi luôn.",
+    "choices": [
+     {
+      "text": "Con xin lỗi mẹ.",
+      "next": "sorry",
+      "effects": [
+       {
+        "type": "modify_relationship",
+        "npc": "NPC_MOTHER",
+        "dim": "Conflict",
+        "delta": -2
+       },
+       {
+        "type": "modify_relationship",
+        "npc": "NPC_MOTHER",
+        "dim": "Understanding",
+        "delta": 1
+       }
+      ]
+     },
+     {
+      "text": "Con lớn rồi mà mẹ.",
+      "next": "grown",
+      "effects": [
+       {
+        "type": "modify_relationship",
+        "npc": "NPC_MOTHER",
+        "dim": "Conflict",
+        "delta": 1
+       }
+      ]
+     }
+    ]
+   },
+   "sorry": {
+    "speaker": "NPC_MOTHER",
+    "text": "Ừ. Mẹ không cấm con câu. Mẹ chỉ sợ."
+   },
+   "grown": {
+    "speaker": "NPC_MOTHER",
+    "text": "Lớn thì lớn. Đi đâu cũng phải nói một tiếng."
+   }
+  }
+ },
+ {
+  "id": "DIALOGUE_POND_GATE",
+  "tags": [
+   "STORY"
+  ],
+  "start": "n1",
+  "nodes": {
+   "n1": {
+    "speaker": "NARRATION",
+    "text": "Cổng sắt khóa. Trong sân có tiếng chó sủa.",
+    "branch": [
+     {
+      "conditions": [
+       {
+        "type": "flag",
+        "key": "confiscated:POND"
+       }
+      ],
+      "next": "open"
+     },
+     {
+      "conditions": [
+       {
+        "type": "flag",
+        "key": "POND_CAUGHT"
+       }
+      ],
+      "next": "after"
+     }
+    ]
+   },
+   "after": {
+    "speaker": "NPC_POND_OWNER",
+    "text": "Lại gì nữa? Đi câu chỗ khác đi con."
+   },
+   "open": {
+    "speaker": "NARRATION",
+    "text": "Một lúc sau chú chủ ao ra mở hé cổng.",
+    "next": "ask"
+   },
+   "ask": {
+    "speaker": "NPC_POND_OWNER",
+    "text": "Mang tiền chưa?",
+    "choices": [
+     {
+      "text": "Dạ, con gửi chú năm chục.",
+      "next": "paid",
+      "conditions": [
+       {
+        "type": "var_equals",
+        "key": "pond.fine",
+        "value": "50"
+       },
+       {
+        "type": "money_gte",
+        "value": 50
+       }
+      ],
+      "effects": [
+       {
+        "type": "add_money",
+        "amount": -50
+       },
+       {
+        "type": "return_confiscated",
+        "key": "POND",
+        "categories": [
+         "FISHING_GEAR"
+        ]
+       },
+       {
+        "type": "add_memory",
+        "npc": "NPC_POND_OWNER",
+        "memory": "PLAYER_PAID_FINE"
+       }
+      ]
+     },
+     {
+      "text": "Dạ, con gửi chú tám chục.",
+      "next": "paid",
+      "conditions": [
+       {
+        "type": "var_equals",
+        "key": "pond.fine",
+        "value": "80"
+       },
+       {
+        "type": "money_gte",
+        "value": 80
+       }
+      ],
+      "effects": [
+       {
+        "type": "add_money",
+        "amount": -80
+       },
+       {
+        "type": "return_confiscated",
+        "key": "POND",
+        "categories": [
+         "FISHING_GEAR"
+        ]
+       },
+       {
+        "type": "add_memory",
+        "npc": "NPC_POND_OWNER",
+        "memory": "PLAYER_PAID_FINE"
+       }
+      ]
+     },
+     {
+      "text": "Con chưa đủ tiền.",
+      "next": "poor"
+     }
+    ]
+   },
+   "paid": {
+    "speaker": "NPC_POND_OWNER",
+    "text": "Cầm lấy. Lần sau đi câu chỗ nào thì hỏi người ta trước.",
+    "next": "paid2"
+   },
+   "paid2": {
+    "speaker": "NARRATION",
+    "text": "Cây cần dính đầy bùn khô. Chú chủ ao không nói gì thêm, đóng cổng lại."
+   },
+   "poor": {
+    "speaker": "NPC_POND_OWNER",
+    "text": "Thì đi kiếm. Cần chú để đó, không mất đâu."
+   }
+  }
+ },
+ {
+  "id": "DIALOGUE_POND_OWNER_IDLE",
+  "tags": [
+   "AMBIENT"
+  ],
+  "start": "n1",
+  "nodes": {
+   "n1": {
+    "speaker": "NPC_POND_OWNER",
+    "text": "Nhìn gì? Ra cổng mà nói."
+   }
+  }
+ },
+ {
+  "id": "DIALOGUE_FRIEND_AFTER_POND",
+  "tags": [
+   "FRIEND",
+   "STORY",
+   "CONFLICT"
+  ],
+  "start": "n1",
+  "nodes": {
+   "n1": {
+    "speaker": "NARRATION",
+    "text": "Cò đứng ngoài cổng, đá đá cục đá dưới chân.",
+    "branch": [
+     {
+      "conditions": [
+       {
+        "type": "flag",
+        "key": "BLAMED_FRIEND"
+       }
+      ],
+      "next": "blamed"
+     }
+    ],
+    "next": "sorry"
+   },
+   "sorry": {
+    "speaker": "NPC_FISHING_FRIEND",
+    "text": "Hôm qua... tao xin lỗi. Tao tưởng ao bỏ hoang thiệt.",
+    "next": "ask"
+   },
+   "blamed": {
+    "speaker": "NPC_FISHING_FRIEND",
+    "text": "Nghe nói mày khai tên tao với ông chủ ao hả? Ổng nói với ba tao rồi.",
+    "choices": [
+     {
+      "text": "Ừ. Mày chạy mất, bỏ tao lại mà.",
+      "next": "blamed2"
+     },
+     {
+      "text": "Đâu có.",
+      "next": "denied",
+      "effects": [
+       {
+        "type": "modify_relationship",
+        "npc": "NPC_FISHING_FRIEND",
+        "dim": "Trust",
+        "delta": -4
+       }
+      ]
+     }
+    ]
+   },
+   "blamed2": {
+    "speaker": "NPC_FISHING_FRIEND",
+    "text": "...Ừ. Tao chạy trước. Tao sai trước.",
+    "next": "ask"
+   },
+   "denied": {
+    "speaker": "NARRATION",
+    "text": "Cò nhìn bạn, không nói gì.",
+    "next": "ask"
+   },
+   "ask": {
+    "speaker": "NPC_FISHING_FRIEND",
+    "text": "Cây cần của mày... lấy lại được chưa?",
+    "choices": [
+     {
+      "text": "Thôi. Lần sau hỏi kỹ rồi hẵng rủ.",
+      "next": "forgive",
+      "effects": [
+       {
+        "type": "modify_relationship",
+        "npc": "NPC_FISHING_FRIEND",
+        "dim": "Friendship",
+        "delta": 6
+       },
+       {
+        "type": "add_memory",
+        "npc": "NPC_FISHING_FRIEND",
+        "memory": "PLAYER_FORGAVE_POND"
+       }
+      ]
+     },
+     {
+      "text": "Mày bỏ tao chạy một mình. Thôi, từ giờ tao tự đi.",
+      "next": "distance",
+      "effects": [
+       {
+        "type": "modify_relationship",
+        "npc": "NPC_FISHING_FRIEND",
+        "dim": "Friendship",
+        "delta": -6
+       },
+       {
+        "type": "set_flag",
+        "key": "FRIEND_DISTANCE"
+       },
+       {
+        "type": "add_memory",
+        "npc": "NPC_FISHING_FRIEND",
+        "memory": "PLAYER_KEPT_DISTANCE"
+       }
+      ]
+     }
+    ]
+   },
+   "forgive": {
+    "speaker": "NPC_FISHING_FRIEND",
+    "text": "Để tao chuộc lỗi. Tao biết một con suối trên núi, nước chảy mạnh, cá bống nhiều lắm.",
+    "next": "forgive2"
+   },
+   "forgive2": {
+    "speaker": "NPC_FISHING_FRIEND",
+    "text": "Đón xe buýt ở đầu chợ. Tao ra đó chờ mày, tao chỉ cho cách câu nước chảy."
+   },
+   "distance": {
+    "speaker": "NPC_FISHING_FRIEND",
+    "text": "...Ừ.",
+    "next": "distance2"
+   },
+   "distance2": {
+    "speaker": "NARRATION",
+    "text": "Cò đứng đó thêm một chút. Rồi quay đi được mấy bước thì dừng lại.",
+    "next": "distance3"
+   },
+   "distance3": {
+    "speaker": "NPC_FISHING_FRIEND",
+    "text": "Có con suối trên núi, đi xe buýt từ đầu chợ. Cá bống nhiều. Mày muốn thì tự đi."
+   }
+  },
+  "end_effects": [
+   {
+    "type": "unlock_map",
+    "map": "MAP_STREAM"
+   },
+   {
+    "type": "add_stat",
+    "key": "Knowledge.Fishing",
+    "value": 1
+   }
+  ]
+ },
+ {
+  "id": "DIALOGUE_FRIEND_STREAM",
+  "tags": [
+   "FRIEND",
+   "FISHING",
+   "TUTORIAL"
+  ],
+  "start": "n1",
+  "nodes": {
+   "n1": {
+    "speaker": "NPC_FISHING_FRIEND",
+    "text": "Tới rồi hả!",
+    "branch": [
+     {
+      "conditions": [
+       {
+        "type": "stat_gte",
+        "key": "FishCaught.MAP_STREAM",
+        "value": 1
+       }
+      ],
+      "next": "done"
+     }
+    ],
+    "next": "n2"
+   },
+   "n2": {
+    "speaker": "NPC_FISHING_FRIEND",
+    "text": "Quăng giữa dòng là phao trôi tuột, cá chưa kịp thấy mồi.",
+    "next": "n3"
+   },
+   "n3": {
+    "speaker": "NPC_FISHING_FRIEND",
+    "text": "Thấy mấy tảng đá không? Phía sau đá nước lặng, cá bống nằm đó chờ mồi trôi xuống.",
+    "next": "n4"
+   },
+   "n4": {
+    "speaker": "NPC_FISHING_FRIEND",
+    "text": "Mà dính cá rồi thì coi chừng. Nó chạy xuôi dòng là kéo nặng tay gấp đôi."
+   },
+   "done": {
+    "speaker": "NPC_FISHING_FRIEND",
+    "text": "Thấy chưa, cá suối nhỏ mà khỏe. Bán cá bống được giá lắm đó."
+   }
+  },
+  "end_effects": [
+   {
+    "type": "add_stat",
+    "key": "Knowledge.Fishing",
+    "value": 1
+   },
+   {
+    "type": "modify_relationship",
+    "npc": "NPC_FISHING_FRIEND",
+    "dim": "Friendship",
+    "delta": 1
+   }
+  ]
+ },
+ {
+  "id": "DIALOGUE_FRIEND_DISTANT",
+  "tags": [
+   "FRIEND"
+  ],
+  "start": "n1",
+  "nodes": {
+   "n1": {
+    "speaker": "NARRATION",
+    "text": "Cò gật đầu chào, rồi quay lại nhìn cái phao."
+   }
+  }
+ },
+ {
+  "id": "DIALOGUE_FRIEND_IDLE",
+  "tags": [
+   "FRIEND"
+  ],
+  "start": "n1",
+  "nodes": {
+   "n1": {
+    "speaker": "NPC_FISHING_FRIEND",
+    "text": "Hôm nay cá lười ăn ghê.",
+    "branch": [
+     {
+      "conditions": [
+       {
+        "type": "day_phase",
+        "phase": "EVENING"
+       }
+      ],
+      "next": "evening"
+     }
+    ]
+   },
+   "evening": {
+    "speaker": "NPC_FISHING_FRIEND",
+    "text": "Chiều mát cá mới chịu ăn. Ngồi thêm chút nữa đi."
+   }
+  }
+ },
+ {
+  "id": "DIALOGUE_FISHERMAN_STREAM",
+  "tags": [
+   "FISHING"
+  ],
+  "start": "n1",
+  "nodes": {
+   "n1": {
+    "speaker": "NARRATION",
+    "text": "Ông nghe bạn kể về con suối, gật gù.",
+    "next": "n2"
+   },
+   "n2": {
+    "speaker": "NPC_OLD_FISHERMAN",
+    "text": "Nước chảy thì cá không đứng giữa dòng đâu. Nó nằm chỗ nước quẩn.",
+    "next": "n3"
+   },
+   "n3": {
+    "speaker": "NPC_OLD_FISHERMAN",
+    "text": "Quăng phía trên cho mồi trôi xuống tới chỗ đó."
+   }
+  },
+  "end_effects": [
+   {
+    "type": "add_stat",
+    "key": "Knowledge.Fishing",
+    "value": 1
+   },
+   {
+    "type": "modify_relationship",
+    "npc": "NPC_OLD_FISHERMAN",
+    "dim": "Familiarity",
+    "delta": 2
+   }
+  ]
+ },
+ {
+  "id": "DIALOGUE_RIVER_FISHERMAN",
+  "tags": [
+   "FISHING",
+   "AMBIENT"
+  ],
+  "start": "n1",
+  "nodes": {
+   "n1": {
+    "speaker": "NPC_RIVER_FISHERMAN",
+    "text": "Cần máy hả? Được. Cần tay ra sông này là gãy.",
+    "next": "n2",
+    "branch": [
+     {
+      "conditions": [
+       {
+        "type": "flag",
+        "key": "dialogue_done:DIALOGUE_RIVER_FISHERMAN"
+       }
+      ],
+      "next": "again"
+     }
+    ]
+   },
+   "n2": {
+    "speaker": "NPC_RIVER_FISHERMAN",
+    "text": "Cá lăng nằm chỗ nước sâu dưới chân cầu. Nó cắn là kéo như trâu, cứ nhả dây cho nó chạy.",
+    "next": "n3"
+   },
+   "n3": {
+    "speaker": "NPC_RIVER_FISHERMAN",
+    "text": "Trắm cỏ thì thích mồi cám. Nó khôn, phải kiên nhẫn."
+   },
+   "again": {
+    "speaker": "NPC_RIVER_FISHERMAN",
+    "text": "Nước lên rồi. Chiều nay cá ăn.",
+    "branch": [
+     {
+      "conditions": [
+       {
+        "type": "stat_gte",
+        "key": "FishCaught.MAP_RIVER",
+        "value": 1
+       }
+      ],
+      "next": "caught"
+     }
+    ]
+   },
+   "caught": {
+    "speaker": "NPC_RIVER_FISHERMAN",
+    "text": "Được con nào chưa? Được rồi hả. Cá sông ăn ngọt thịt lắm."
+   }
+  },
+  "end_effects": [
+   {
+    "type": "add_stat",
+    "key": "Knowledge.Fishing",
+    "value": 1
+   }
+  ]
+ },
+ {
+  "id": "DIALOGUE_BUS_STOP",
+  "tags": [
+   "TRAVEL"
+  ],
+  "start": "n1",
+  "nodes": {
+   "n1": {
+    "speaker": "NARRATION",
+    "text": "Tấm bảng tuyến xe dán giấy đã bạc màu. Đi đâu?",
+    "choices": [
+     {
+      "text": "Về đầu chợ  (5.000đ)",
+      "conditions": [
+       {
+        "type": "current_map",
+        "map": "MAP_LAKE"
+       }
+      ],
+      "effects": [
+       {
+        "type": "travel",
+        "destination": "home_stop",
+        "cost": 5,
+        "minutes": 40,
+        "lines": [
+         "Xe về đông người. Đứng suốt đường.",
+         "Về tới đầu chợ."
+        ]
+       }
+      ]
+     },
+     {
+      "text": "Về đầu chợ  (8.000đ)",
+      "conditions": [
+       {
+        "type": "current_map",
+        "map": "MAP_STREAM"
+       }
+      ],
+      "effects": [
+       {
+        "type": "travel",
+        "destination": "home_stop",
+        "cost": 8,
+        "minutes": 60,
+        "lines": [
+         "Xe về đông người. Đứng suốt đường.",
+         "Về tới đầu chợ."
+        ]
+       }
+      ]
+     },
+     {
+      "text": "Về đầu chợ  (10.000đ)",
+      "conditions": [
+       {
+        "type": "current_map",
+        "map": "MAP_RIVER"
+       }
+      ],
+      "effects": [
+       {
+        "type": "travel",
+        "destination": "home_stop",
+        "cost": 10,
+        "minutes": 70,
+        "lines": [
+         "Xe về đông người. Đứng suốt đường.",
+         "Về tới đầu chợ."
+        ]
+       }
+      ]
+     },
+     {
+      "text": "Ra hồ  (5.000đ, 40 phút)",
+      "conditions": [
+       {
+        "type": "map_unlocked",
+        "map": "MAP_LAKE"
+       },
+       {
+        "type": "not",
+        "condition": {
+         "type": "current_map",
+         "map": "MAP_LAKE"
+        }
+       }
+      ],
+      "effects": [
+       {
+        "type": "travel",
+        "destination": "lake_stop",
+        "cost": 5,
+        "minutes": 40,
+        "lines": [
+         "Xe buýt lắc lư qua mấy con đường lạ.",
+         "Tới hồ."
+        ]
+       }
+      ]
+     },
+     {
+      "text": "Lên suối  (8.000đ, 1 tiếng)",
+      "conditions": [
+       {
+        "type": "map_unlocked",
+        "map": "MAP_STREAM"
+       },
+       {
+        "type": "not",
+        "condition": {
+         "type": "current_map",
+         "map": "MAP_STREAM"
+        }
+       }
+      ],
+      "effects": [
+       {
+        "type": "travel",
+        "destination": "stream_stop",
+        "cost": 8,
+        "minutes": 60,
+        "lines": [
+         "Đường lên núi quanh co. Xe leo dốc gầm gừ.",
+         "Nghe tiếng nước chảy trước khi thấy suối."
+        ]
+       }
+      ]
+     },
+     {
+      "text": "Ra bến sông  (10.000đ, 70 phút)",
+      "conditions": [
+       {
+        "type": "map_unlocked",
+        "map": "MAP_RIVER"
+       },
+       {
+        "type": "not",
+        "condition": {
+         "type": "current_map",
+         "map": "MAP_RIVER"
+        }
+       }
+      ],
+      "effects": [
+       {
+        "type": "travel",
+        "destination": "river_stop",
+        "cost": 10,
+        "minutes": 70,
+        "lines": [
+         "Xe chạy dọc con đê dài.",
+         "Gió sông thổi lồng lộng qua cửa kính."
+        ]
+       }
+      ]
+     },
+     {
+      "text": "Thôi."
+     }
+    ]
+   }
+  }
+ }
+]

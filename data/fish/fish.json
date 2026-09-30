@@ -256,5 +256,189 @@
     ],
     "skill_xp": 5,
     "price_per_kg": 30
+  },
+  {
+    "id": "FISH_STREAM_MINNOW",
+    "name": "Cá mương",
+    "archetype": "SURFACE_RUNNER",
+    "species_archetype": "SMALL_FRESHWATER",
+    "weight_kg": [
+      0.05,
+      0.25
+    ],
+    "length_cm": [
+      8,
+      17
+    ],
+    "strength": 20,
+    "speed": 1.4,
+    "stamina": 45,
+    "fight_seconds": 6,
+    "aggression": 0.4,
+    "caution": 0.25,
+    "turn_rate": 3.2,
+    "depth_preference": "SURFACE",
+    "water_preference": [
+      "Stream"
+    ],
+    "bait_preference": [
+      "INSECT",
+      "BREAD"
+    ],
+    "approach_seconds": [
+      3,
+      7
+    ],
+    "hook_bonus": 0.1,
+    "skill_xp": 5,
+    "value": 3,
+    "price_per_kg": 40
+  },
+  {
+    "id": "FISH_STREAM_GOBY",
+    "name": "Cá bống suối",
+    "archetype": "BOTTOM_FEEDER",
+    "species_archetype": "SMALL_FRESHWATER",
+    "weight_kg": [
+      0.08,
+      0.35
+    ],
+    "length_cm": [
+      9,
+      18
+    ],
+    "strength": 26,
+    "speed": 0.8,
+    "stamina": 55,
+    "fight_seconds": 8,
+    "aggression": 0.3,
+    "caution": 0.3,
+    "turn_rate": 1.8,
+    "depth_preference": "BOTTOM",
+    "water_preference": [
+      "Stream"
+    ],
+    "bait_preference": [
+      "WORM"
+    ],
+    "approach_seconds": [
+      4,
+      10
+    ],
+    "hook_bonus": 0.05,
+    "skill_xp": 7,
+    "value": 8,
+    "price_per_kg": 90
+  },
+  {
+    "id": "FISH_STREAM_LOACH",
+    "name": "Cá chạch suối",
+    "archetype": "ERRATIC",
+    "species_archetype": "SMALL_FRESHWATER",
+    "weight_kg": [
+      0.1,
+      0.4
+    ],
+    "length_cm": [
+      15,
+      30
+    ],
+    "strength": 30,
+    "speed": 1.3,
+    "stamina": 60,
+    "fight_seconds": 9,
+    "aggression": 0.45,
+    "caution": 0.35,
+    "turn_rate": 3.5,
+    "depth_preference": "BOTTOM",
+    "water_preference": [
+      "Stream"
+    ],
+    "bait_preference": [
+      "WORM",
+      "INSECT"
+    ],
+    "approach_seconds": [
+      5,
+      12
+    ],
+    "hook_bonus": 0.0,
+    "skill_xp": 8,
+    "value": 8,
+    "price_per_kg": 80
+  },
+  {
+    "id": "FISH_RIVER_CATFISH",
+    "name": "Cá lăng",
+    "archetype": "DEEP_DIVER",
+    "species_archetype": "AGGRESSIVE_RIVER",
+    "weight_kg": [
+      1.5,
+      5.5
+    ],
+    "length_cm": [
+      45,
+      80
+    ],
+    "strength": 76,
+    "speed": 1.1,
+    "stamina": 140,
+    "fight_seconds": 22,
+    "aggression": 0.6,
+    "caution": 0.35,
+    "turn_rate": 1.6,
+    "depth_preference": "DEEP",
+    "water_preference": [
+      "River"
+    ],
+    "bait_preference": [
+      "WORM",
+      "SMALL_FISH"
+    ],
+    "approach_seconds": [
+      10,
+      22
+    ],
+    "hook_bonus": 0.05,
+    "skill_xp": 25,
+    "value": 60,
+    "price_per_kg": 120
+  },
+  {
+    "id": "FISH_GRASS_CARP",
+    "name": "Cá trắm cỏ",
+    "archetype": "CAUTIOUS",
+    "species_archetype": "AGGRESSIVE_RIVER",
+    "weight_kg": [
+      1.2,
+      5.0
+    ],
+    "length_cm": [
+      40,
+      75
+    ],
+    "strength": 70,
+    "speed": 1.0,
+    "stamina": 130,
+    "fight_seconds": 20,
+    "aggression": 0.35,
+    "caution": 0.55,
+    "turn_rate": 1.4,
+    "depth_preference": "MID",
+    "water_preference": [
+      "River",
+      "Lake"
+    ],
+    "bait_preference": [
+      "BREAD"
+    ],
+    "approach_seconds": [
+      12,
+      25
+    ],
+    "hook_bonus": 0.0,
+    "skill_xp": 22,
+    "value": 40,
+    "price_per_kg": 60
   }
 ]

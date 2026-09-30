@@ -9,6 +9,7 @@ extends RefCounted
 ##   talk:    npc (closed_text when the NPC is not there)
 ##   craft:   recipe
 ##   travel:  destination (spawn name), cost, minutes
+##   dialogue: dialogue — a place that asks something (a bus stop: where to?)
 ##   sleep:   wake_hour
 ##   inspect: text
 ## Optional "position"/"size" let the world place the interactable itself.
@@ -67,6 +68,8 @@ func interact(interactable_id: String) -> Dictionary:
 		match str(def.get("kind", "inspect")):
 			"collect":
 				result["text"] = _collect(interactable_id, def)
+			"dialogue":
+				ctx.dialogue.start(str(def["dialogue"]))
 			"talk":
 				var npc := str(def["npc"])
 				if not ctx.npcs.is_present(npc):
@@ -117,12 +120,9 @@ func _collect(interactable_id: String, def: Dictionary) -> String:
 
 func _travel(def: Dictionary) -> String:
 	var cost := int(def.get("cost", 0))
-	if not ctx.state.add_money(-cost):
+	if ctx.state.money < cost:
 		return "Không đủ tiền đi xe. Vé %s." % EconomySystem.format_money(cost)
-	ctx.clock.advance_minutes(float(def.get("minutes", 30)))
-	ctx.bus.emit_event(TRAVEL, {"destination": str(def["destination"]), "cost": cost})
-	ctx.bus.emit_event(GameEvents.CUE, {"cue": "travel", "destination": str(def["destination"]), "lines": def.get("travel_lines", [])})
-	return ""
+	return ctx.effects.travel(def)
 
 
 func _waiting_to_respawn(def: Dictionary) -> bool:

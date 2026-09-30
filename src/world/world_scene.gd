@@ -22,10 +22,11 @@ var mother: NpcActor
 var lighting: WorldLighting
 var graphics: Dictionary  # active quality preset from config/graphics.json
 var zones: Array = []  # [{ map, location, rect }] first match wins
-var npc_actors: Dictionary = {}  # npc id -> NpcActor spawned from data "spawn"
+var npc_actors: Dictionary = {}  # npc id -> NpcActor spawned from data "spawn"/"spawns"
+var _npc_spawn_index: Dictionary = {}  # npc id -> active spawn entry the actor was built for
 
 ## Cues that open UI or fade the screen wait until the dialogue that caused them ends.
-const DEFERRED_CUES := ["open_shop", "work", "travel", "sleep"]
+const DEFERRED_CUES := ["open_shop", "work", "travel", "sleep", "pond_escort"]
 var _pending_cues: Array = []
 var _presence_timer: float = 0.0
 
@@ -108,6 +109,8 @@ func start(player_save: Dictionary) -> void:
 
 	_refresh_presence()
 	_refresh_placed()
+	_refresh_regions()
+	_refresh_barriers()
 	_update_objective()
 	_apply_weather()
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
@@ -120,6 +123,8 @@ func teleport(place: String) -> bool:
 	player.global_position = builder.spawns[place]["position"]
 	player.set_yaw_degrees(float(builder.spawns[place]["yaw"]))
 	player.velocity = Vector3.ZERO
+	_refresh_regions()
+	_refresh_barriers()
 	return true
 
 
@@ -145,6 +150,8 @@ func _process(_delta: float) -> void:
 	if _presence_timer <= 0.0:
 		_presence_timer = 1.0
 		_refresh_presence()
+		_refresh_regions()
+		_refresh_barriers()
 	var talking := ctx.dialogue.is_active()
 	var menu_open := hud.pause_menu.visible or hud.debug_console.visible or hud.shop_panel.visible
 	if talking or _cutscene or menu_open:
@@ -276,7 +283,9 @@ func _on_cue(data: Dictionary) -> void:
 		"sleep":
 			_play_fade(data.get("lines", []))
 		"chapter_end":
-			_play_chapter_end()
+			_play_chapter_end(data)
+		"pond_escort":
+			_play_travel(str(data.get("destination", "lake")), data.get("lines", []))
 		"craft":
 			_play_craft(data.get("lines", []))
 		"giant_sign":
@@ -352,17 +361,26 @@ func _start_chapter_two() -> void:
 	ctx.bus.emit_event(GameEvents.CHAPTER_STARTED, {"chapter": "ACT_II"})
 
 
-func _play_chapter_end() -> void:
+## Cue data: { end_text, next_title?, next_chapter? } — the card texts live with the event.
+func _play_chapter_end(data: Dictionary) -> void:
 	_cutscene = true
 	await hud.fade_sequence([], 0.0, true)
-	await hud.title_card("HẾT CHƯƠNG II\n\nChương III đang được viết.\nBạn vẫn có thể câu cá, bán cá và dành dụm tiếp.", 5.0)
+	await hud.title_card(str(data.get("end_text", "")), 4.0)
+	if data.has("next_title"):
+		await hud.title_card(str(data["next_title"]), 3.5)
 	await hud.fade_from_black()
 	_cutscene = false
+	if data.has("next_chapter"):
+		ctx.bus.emit_event(GameEvents.CHAPTER_STARTED, {"chapter": str(data["next_chapter"])})
 
 
 func _resume_story() -> void:
-	if ctx.state.has_flag("VERTICAL_SLICE_COMPLETE") and not ctx.state.has_flag("event_done:EVENT_ACT2_MORNING") and not _cutscene:
+	if _cutscene:
+		return
+	if ctx.state.has_flag("VERTICAL_SLICE_COMPLETE") and not ctx.state.has_flag("event_done:EVENT_ACT2_MORNING"):
 		_start_chapter_two()
+	elif ctx.state.has_flag("ACT_II_COMPLETE") and not ctx.state.has_flag("event_done:EVENT_ACT3_START"):
+		ctx.bus.emit_event(GameEvents.CHAPTER_STARTED, {"chapter": "ACT_III"})  # saved during the chapter card
 
 
 func _giant_sign() -> void:
@@ -450,37 +468,76 @@ func _update_zone() -> void:
 
 func _spawn_npcs() -> void:
 	for def in App.data().all("npcs"):
-		if not def.has("spawn"):
-			continue
-		var sp: Dictionary = def["spawn"]
-		var p: Array = sp["position"]
-		var id := str(def["id"])
-		var actor: NpcActor
-		if str(sp.get("actor", "")) == "fisherman":
-			var angler := OldFishermanActor.new()
-			angler.water_y = float(sp.get("water_y", 0.0))
-			angler.position = Vector3(float(p[0]), float(p[1]), float(p[2]))
-			angler.rotation_degrees.y = float(sp.get("yaw", 0.0))
-			angler.build(ctx.bus, def.get("appearance", {}), id, str(def["interactable"]))
-			actor = angler
-		else:
-			actor = NpcActor.new()
-			actor.position = Vector3(float(p[0]), float(p[1]), float(p[2]))
-			actor.rotation_degrees.y = float(sp.get("yaw", 0.0))
-			actor.setup(id, str(def["interactable"]), def.get("appearance", {}), float(sp.get("seat", -1.0)))
-		actor.look_target = player
-		add_child(actor)
-		npc_actors[id] = actor
+		if def.has("spawn") or def.has("spawns"):
+			_npc_spawn_index[str(def["id"])] = -2  # built by the first _refresh_presence()
 
 
-## NPCs with a schedule are only there during their hours (docs/13 §4).
+func _build_npc(id: String, sp: Dictionary) -> NpcActor:
+	var def := App.data().get_def("npcs", id)
+	var p: Array = sp["position"]
+	var appearance: Dictionary = def.get("appearance", {}).duplicate()
+	if sp.has("pose"):
+		appearance["pose"] = sp["pose"]
+	var actor: NpcActor
+	if str(sp.get("actor", "")) == "fisherman":
+		var angler := OldFishermanActor.new()
+		angler.water_y = float(sp.get("water_y", 0.0))
+		angler.position = Vector3(float(p[0]), float(p[1]), float(p[2]))
+		angler.rotation_degrees.y = float(sp.get("yaw", 0.0))
+		angler.build(ctx.bus, appearance, id, str(def["interactable"]))
+		actor = angler
+	else:
+		actor = NpcActor.new()
+		actor.position = Vector3(float(p[0]), float(p[1]), float(p[2]))
+		actor.rotation_degrees.y = float(sp.get("yaw", 0.0))
+		actor.setup(id, str(def["interactable"]), appearance, float(sp.get("seat", -1.0)))
+		if float(sp.get("seat", -1.0)) >= 0.0 and sp.get("stool", false):
+			builder.stool(actor.position, float(sp["seat"]), Color(0.2, 0.35, 0.7))
+	actor.look_target = player
+	actor.process_mode = Node.PROCESS_MODE_PAUSABLE
+	add_child(actor)
+	return actor
+
+
+## NPCs keep hours (docs/13 §4) and move with the story: the active "spawns" entry
+## decides where they are, and the actor is rebuilt when that changes.
 func _refresh_presence() -> void:
-	for id in npc_actors:
+	for id in _npc_spawn_index:
+		var index := ctx.npcs.spawn_index(id)
+		if index != _npc_spawn_index[id]:
+			_npc_spawn_index[id] = index
+			if npc_actors.has(id):
+				npc_actors[id].queue_free()
+				npc_actors.erase(id)
+			if index >= 0:
+				npc_actors[id] = _build_npc(id, ctx.npcs.spawn_def(id))
+		if not npc_actors.has(id):
+			continue
 		var actor: Node3D = npc_actors[id]
 		var here := ctx.npcs.is_present(id)
 		if actor.visible != here:
 			actor.visible = here
 			actor.process_mode = Node.PROCESS_MODE_PAUSABLE if here else Node.PROCESS_MODE_DISABLED
+
+
+## Only the far area the player is in is drawn (the lake, stream and river are hundreds
+## of metres apart), which keeps draw calls down.
+func _refresh_regions() -> void:
+	var p := player.global_position
+	for region in builder.regions:
+		var r: Array = region["rect"]
+		region["node"].visible = p.x >= float(r[0]) and p.x <= float(r[2]) and p.z >= float(r[1]) and p.z <= float(r[3])
+
+
+## Story barriers (a fence gap that is only open while Cò is showing the way).
+func _refresh_barriers() -> void:
+	for id in builder.barriers:
+		var entry: Dictionary = builder.barriers[id]
+		var open := ctx.conditions.check(entry["def"].get("open_conditions", []))
+		var shape: CollisionShape3D = entry["body"].get_child(0)
+		if shape.disabled != open:
+			shape.set_deferred("disabled", open)
+		entry["visual"].visible = not open
 
 
 ## Scrap spots already picked today stay empty until they respawn.

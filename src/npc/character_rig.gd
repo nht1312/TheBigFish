@@ -74,7 +74,7 @@ func build(npc_id: String, appearance: Dictionary) -> void:
 	var sandal := _cloth(_color(appearance, "sandals", Color(0.3, 0.2, 0.15)))
 	var hair := _cloth(_color(appearance, "hair_color", Color(0.08, 0.07, 0.06)), 0.55)
 	var sleeves := str(appearance.get("sleeves", "long"))
-	var slim := 0.9 if appearance.get("build", "") == "slim" else 1.0
+	var slim: float = {"slim": 0.9, "stocky": 1.12}.get(str(appearance.get("build", "")), 1.0)
 
 	var hips := _joint("hips", self, Vector3(0, hip_height, 0))
 	_limb(hips, 0.06 * h, 0.13 * h * slim, pants, Vector3(0, 0.02 * h, 0), 0.08 * h)  # pelvis
@@ -236,6 +236,16 @@ func _head(parent: Node3D, h: float, skin: Material, hair: Material, appearance:
 		hat.material_override = straw
 		hat.position = Vector3(0, r * 2.05, 0)
 		parent.add_child(hat)
+	elif str(appearance.get("hat", "")) == "cap":
+		var cap_mat := _cloth(_color(appearance, "cap_color", Color(0.75, 0.15, 0.12)))
+		_sphere(parent, r * 1.08, cap_mat, Vector3(0, r * 1.3, r * 0.05), Vector3(0.95, 0.62, 1.0))
+		var brim := MeshInstance3D.new()
+		var bm := BoxMesh.new()
+		bm.size = Vector3(r * 1.5, r * 0.08, r * 1.0)
+		brim.mesh = bm
+		brim.material_override = cap_mat
+		brim.position = Vector3(0, r * 1.25, -r * 1.2)
+		parent.add_child(brim)
 
 
 func _sphere(parent: Node3D, radius: float, mat: Material, pos: Vector3, scale_xyz: Vector3 = Vector3.ONE) -> MeshInstance3D:

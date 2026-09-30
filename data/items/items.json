@@ -156,7 +156,12 @@
       "reel_power": 24,
       "reel_speed": 1.15,
       "line_length": 24,
-      "max_cast": 12
+      "max_cast": 12,
+      "color": [
+        0.12,
+        0.12,
+        0.14
+      ]
     }
   },
   {
@@ -176,7 +181,12 @@
       "reel_power": 32,
       "reel_speed": 1.8,
       "line_length": 45,
-      "max_cast": 22
+      "max_cast": 22,
+      "color": [
+        0.16,
+        0.24,
+        0.42
+      ]
     }
   },
   {
@@ -190,5 +200,17 @@
     "equip_slot": "bait",
     "bait_type": "BREAD",
     "attraction": 1.3
+  },
+  {
+    "id": "ITEM_BAIT_INSECT",
+    "name": "Dế mồi",
+    "category": "BAIT",
+    "description": "Dế sống đựng trong hộp nhựa đục lỗ. Cá suối mê lắm.",
+    "stackable": true,
+    "max_stack": 20,
+    "value": 1,
+    "equip_slot": "bait",
+    "bait_type": "INSECT",
+    "attraction": 1.35
   }
 ]

@@ -134,3 +134,32 @@ func test_act2_ids_present() -> void:
 	assert_true(data.has_def("maps", "MAP_LAKE"), "MAP_LAKE")
 	for id in ["NPC_SHOP_OWNER", "NPC_FISH_VENDOR", "NPC_SCRAP_COLLECTOR"]:
 		assert_true(data.has_def("npcs", id), id)
+
+
+func test_act3_ids_present() -> void:
+	for id in ["QUEST_MAIN_NEW_FRIEND", "QUEST_MAIN_WRONG_POND", "QUEST_MAIN_KEEP_GOING", "QUEST_MAIN_THE_RIVER"]:
+		assert_true(data.has_def("quests", id), id)
+	assert_eq(data.get_def("quests", "QUEST_MAIN_NEW_FRIEND").get("mq", ""), "MQ_011")
+	assert_eq(data.get_def("quests", "QUEST_MAIN_THE_RIVER").get("mq", ""), "MQ_014")
+	for id in ["MAP_STREAM", "MAP_RIVER", "MAP_POND"]:
+		assert_true(data.has_def("maps", id), id)
+	assert_true(data.has_def("npcs", "NPC_FISHING_FRIEND"), "NPC_FISHING_FRIEND")
+	assert_true(data.has_def("events", "EVENT_FAMILY_FISHING_BAN"), "docs/06 §6 id")
+
+
+func test_moving_water_spots() -> void:
+	for map_id in ["MAP_STREAM", "MAP_RIVER"]:
+		var spots: Array = data.get_def("maps", map_id)["fishing_spots"]
+		assert_true(spots.any(func(s): return float(s.get("current", 0)) > 0.3), "%s has fast water" % map_id)
+		for s in spots:
+			assert_eq(s.get("flow", []).size(), 2, "%s needs a flow direction" % s["id"])
+		# A "no_mesh" pocket must come before the spot that contains it, or it can never be aimed at.
+		for i in spots.size():
+			if spots[i].get("no_mesh", false):
+				var r: Array = spots[i]["rect"]
+				var outer := -1
+				for j in spots.size():
+					var o: Array = spots[j]["rect"]
+					if j != i and o[0] <= r[0] and o[1] <= r[1] and o[2] >= r[2] and o[3] >= r[3]:
+						outer = j
+				assert_true(outer > i, "%s listed before its surrounding spot" % spots[i]["id"])

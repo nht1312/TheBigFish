@@ -12,7 +12,7 @@ func _init(context: GameContext) -> void:
 
 func apply(result: Dictionary, rod_uid: int) -> void:
 	var outcome := str(result.get("outcome", ""))
-	if outcome in ["", "CANCELLED"]:
+	if outcome in ["", "CANCELLED", "DRIFTED"]:
 		return
 	if result.get("bait_consumed", false):
 		ctx.inventory.consume_equipped_bait()

@@ -79,7 +79,8 @@ assets/        art/audio (empty: the Vertical Slice uses greybox primitives)
 |---|---|---|
 | Prologue + Act I (Vertical Slice) | MQ_001–MQ_007 | playable |
 | Act II "Học nghề" | MQ_008–MQ_010 | playable |
-| Act III onward | — | not started |
+| Act III "Những vùng nước mới" | MQ_011–MQ_014 | playable |
+| Act IV onward | — | not started |
 
 **Vertical Slice.** Playable from the title screen to "Còn tiếp...". The unit tests cover the story, exploration, crafting, fishing, giant-fish and save items of the checklist in VERTICAL-SLICE §32.
 
@@ -91,7 +92,18 @@ assets/        art/audio (empty: the Vertical Slice uses greybox primitives)
 
 Shopkeepers and vendors keep opening hours, so the market is only there in the morning. You can sleep at the home door at night. Mother notices the new rod, and she remembers whether you were honest about where it came from.
 
-`tools/dev.sh smoke` plays Prologue → Act I → Act II through the real world nodes, then saves and loads. How movement and fishing *feel* still needs hands-on play, which no automated test can judge.
+**Act III** (docs/00 §9 "Expansion": lake → stream → river). You:
+
+- meet **Cò**, the fishing friend (NPC_FISHING_FRIEND), at the lake and catch two fish together;
+- follow Cò through a hole in the fence to a pond that looks abandoned. It isn't. On your first catch the owner shows up, Cò runs off, and your rod and the pond's fish are confiscated (docs/03 §25). You can apologise, blame Cò, or run; running raises the fine from 50k to 80k and the owner phones Mother;
+- come home to Mother's fishing ban (`EVENT_FAMILY_FISHING_BAN`, docs/06 §6). Obey, argue or ignore it, and she remembers which. You also tell her the truth about the rod or lie;
+- redeem the rod at the pond gate (or buy another), then meet Cò at your gate. Forgive Cò and you meet again at the stream; keep your distance and Cò fishes alone at the lake. Either way you learn about the stream;
+- learn **moving water** at the stream: the bait drifts downstream and gets carried off in fast water, a fish running downstream pulls much harder, and fish hold in the slack water behind the rocks;
+- buy the reel rod (380k), which opens the bus route to the **river**, and catch a river fish (cá lăng under the bridge, trắm cỏ).
+
+Bus stops now ask where to go; every unlocked place is on the route.
+
+`tools/dev.sh smoke` plays Prologue → Act I → Act II → Act III through the real world nodes, then saves and loads. How movement and fishing *feel* still needs hands-on play, which no automated test can judge.
 
 ## Implementation decisions (where the docs disagreed or left gaps)
 
@@ -103,5 +115,12 @@ Shopkeepers and vendors keep opening hours, so the market is only there in the m
 - **Saving.** You can't save during a fight. A save while the float is in the water reels it in first. Autosaves happen after main quests and major story events.
 - **Money** is stored in thousands of đồng (`20` = 20.000đ). Shops never buy what they sell (docs/10 §18).
 - **Act II pacing.** Every scrap spot in a day plus the one sorting job comes to about 60–70k, and you start with 20k, so the rod takes one night of saving. That night is the "saving up" beat. Act I leaves you without a rod, so the first money has to come from scrap.
-- **NPC schedules** only control presence for now (docs/13 §4): NPCs appear and disappear at their spot by the hour, with no walking between places.
+- **NPC schedules** only control presence for now (docs/13 §4): NPCs appear and disappear at their spot by the hour, with no walking between places. An NPC can have several `spawns` chosen by story conditions (Cò moves from the lake to the pond, your gate, then the stream).
+- **Act III choices that were TBD in the docs** (easy to change in `data/`):
+  - The friend is called **Cò**, a nickname for a skinny kid.
+  - The stream unlocks through Cò after the pond incident, and the river through buying the reel rod (docs/12 §16 says "Exact conditions: TBD").
+  - The fishing ban lasts one day: today, or tomorrow if it's already afternoon.
+  - Only the rod you were holding and the fish caught at the pond are confiscated.
+- **Current** (docs/07 §14, §29): each spot has `current` 0–1 and a `flow` direction. At full current the bait drifts off in about 5 s, and in the slack water behind a rock it takes about 40 s. In a fight, a fish running downstream adds up to +22 line load, and one fighting upstream tires faster.
+- **Regions.** The lake/pond, stream and river are hundreds of metres apart. Only the one you're in is drawn.
 - Weather has no automatic simulation yet: it only changes through story or debug.

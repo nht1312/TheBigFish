@@ -34,6 +34,7 @@
      {"type": "set_var", "key": "story.chapter", "value": "ACT_III"},
      {"type": "add_stat", "key": "FishingPassion", "value": 5},
      {"type": "message", "text": "Một ngày nào đó mình sẽ quay lại cái ống cống đó.", "style": "thought"},
-     {"type": "cue", "cue": "chapter_end", "chapter": "ACT_II", "delay": 5.0}
+     {"type": "cue", "cue": "chapter_end", "delay": 5.0, "end_text": "HẾT CHƯƠNG II",
+      "next_title": "CHƯƠNG III\n\nNhững vùng nước mới", "next_chapter": "ACT_III"}
    ]}
 ]

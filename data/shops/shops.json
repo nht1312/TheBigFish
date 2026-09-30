@@ -1,16 +1,72 @@
 [
-  {"id": "SHOP_FISHING", "name": "Tiệm đồ câu", "npc": "NPC_SHOP_OWNER",
-   "sells": [
-     {"item": "ITEM_ROD_BASIC", "price": 100},
-     {"item": "ITEM_BASIC_BAIT", "price": 3, "qty": 5, "note": "Giun, 5 con"},
-     {"item": "ITEM_BAIT_BRAN", "price": 5, "qty": 5, "note": "Mồi cám, 5 viên"},
-     {"item": "ITEM_ROD_REEL_BASIC", "price": 380, "conditions": [{"type": "has_item", "item": "ITEM_ROD_BASIC"}]}
-   ],
-   "buys": {}},
-  {"id": "SHOP_FISH_VENDOR", "name": "Sạp cá", "npc": "NPC_FISH_VENDOR",
-   "sells": [],
-   "buys": {"categories": ["FISH"], "multiplier": 1.0}},
-  {"id": "SHOP_SCRAP", "name": "Vựa ve chai", "npc": "NPC_SCRAP_COLLECTOR",
-   "sells": [],
-   "buys": {"tags": ["SCRAP"], "multiplier": 1.0}}
+  {
+    "id": "SHOP_FISHING",
+    "name": "Tiệm đồ câu",
+    "npc": "NPC_SHOP_OWNER",
+    "sells": [
+      {
+        "item": "ITEM_ROD_BASIC",
+        "price": 100
+      },
+      {
+        "item": "ITEM_BASIC_BAIT",
+        "price": 3,
+        "qty": 5,
+        "note": "Giun, 5 con"
+      },
+      {
+        "item": "ITEM_BAIT_BRAN",
+        "price": 5,
+        "qty": 5,
+        "note": "Mồi cám, 5 viên"
+      },
+      {
+        "item": "ITEM_BAIT_INSECT",
+        "price": 6,
+        "qty": 5,
+        "note": "Dế mồi, 5 con",
+        "conditions": [
+          {
+            "type": "map_unlocked",
+            "map": "MAP_STREAM"
+          }
+        ]
+      },
+      {
+        "item": "ITEM_ROD_REEL_BASIC",
+        "price": 380,
+        "conditions": [
+          {
+            "type": "has_item",
+            "item": "ITEM_ROD_BASIC"
+          }
+        ]
+      }
+    ],
+    "buys": {}
+  },
+  {
+    "id": "SHOP_FISH_VENDOR",
+    "name": "Sạp cá",
+    "npc": "NPC_FISH_VENDOR",
+    "sells": [],
+    "buys": {
+      "categories": [
+        "FISH"
+      ],
+      "multiplier": 1.0
+    }
+  },
+  {
+    "id": "SHOP_SCRAP",
+    "name": "Vựa ve chai",
+    "npc": "NPC_SCRAP_COLLECTOR",
+    "sells": [],
+    "buys": {
+      "tags": [
+        "SCRAP"
+      ],
+      "multiplier": 1.0
+    }
+  }
 ]

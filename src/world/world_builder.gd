@@ -39,6 +39,10 @@ var root: Node3D
 var lib := MaterialLibrary.new()
 var spawns: Dictionary = {}  # name -> { position: Vector3, yaw: float (degrees) }
 var act2: Act2Areas
+var act3: Act3Areas
+var regions: Array = []  # [{ node, rect }] — see begin_region()
+var barriers: Dictionary = {}  # id -> { body, visual, def } from maps' "barriers"
+var _outer_root: Node3D
 var fisherman_spot: Vector3 = Vector3(-8, 0, 16.3)
 var mother_spot: Vector3 = Vector3(1.8, 0, 4.8)
 var grass_density: float = 5.0
@@ -56,15 +60,20 @@ func build(p_root: Node3D, data: DataRegistry) -> void:
 	_neighborhood()
 	_canal()
 	_drain()
-	_water(data)
 	_trees()
 	_backdrop()
 	_bounds()
 	act2 = Act2Areas.new(self)
 	act2.build(data)
+	act3 = Act3Areas.new(self)
+	act3.build(data)
+	act2.place_interactables(data)
+	_water(data)
+	_barriers(data)
 	if grass_density > 0.0:
 		GrassField.new(grass_density, grass_distance).build(root, [-45, -25, 100, 110], GRASS_EXCLUDE, _rng)
-		GrassField.new(grass_density, grass_distance).build(root, [398, -82, 582, 82], Act2Areas.LAKE_GRASS_EXCLUDE, _rng)
+		for g in act2.grass_fields() + act3.grass_fields():
+			GrassField.new(grass_density, grass_distance).build(g["parent"], g["area"], g["exclude"], _rng)
 	spawns = {
 		"start": {"position": Vector3(30, 1, 12), "yaw": 90.0},
 		"home": {"position": Vector3(0, 1, 7), "yaw": 0.0},
@@ -75,6 +84,11 @@ func build(p_root: Node3D, data: DataRegistry) -> void:
 		"home_stop": {"position": Vector3(97, 1, 11), "yaw": 90.0},
 		"lake_stop": {"position": Vector3(420, 1, -10), "yaw": -90.0},
 		"lake": {"position": Vector3(450, 1, 0), "yaw": -90.0},
+		"pond": {"position": Vector3(500, 1, 122.5), "yaw": 180.0},
+		"stream_stop": {"position": Vector3(407.5, 1, 333), "yaw": -90.0},
+		"stream": {"position": Vector3(455, 1, 352.5), "yaw": 180.0},
+		"river_stop": {"position": Vector3(407.5, 1, 563), "yaw": -90.0},
+		"river": {"position": Vector3(575, 1, 596), "yaw": 180.0},
 	}
 
 
@@ -144,6 +158,54 @@ func cylinder(parent: Node3D, pos: Vector3, radius: float, height: float, surfac
 		body.add_child(shape)
 		mesh.add_child(body)
 	return mesh
+
+
+## Ground slab over area [x0, z0, x1, z1] (top at y = 0) with holes where water pits are.
+func ground_with_pits(area: Array, pits: Array, surface, depth: float = 4.0) -> void:
+	var xs: Array = [float(area[0]), float(area[2])]
+	for pit in pits:
+		xs.append(float(pit[0]))
+		xs.append(float(pit[2]))
+	xs.sort()
+	for i in xs.size() - 1:
+		var xa: float = xs[i]
+		var xb: float = xs[i + 1]
+		if xb - xa < 0.01:
+			continue
+		var cut: Array = []  # pits that span this whole column
+		for pit in pits:
+			if float(pit[0]) <= xa + 0.001 and float(pit[2]) >= xb - 0.001:
+				cut.append(pit)
+		var zs: Array = [float(area[1]), float(area[3])]
+		for pit in cut:
+			zs.append(float(pit[1]))
+			zs.append(float(pit[3]))
+		zs.sort()
+		for j in zs.size() - 1:
+			var za: float = zs[j]
+			var zb: float = zs[j + 1]
+			if zb - za < 0.01:
+				continue
+			var mid := (za + zb) * 0.5
+			if cut.any(func(p): return mid > float(p[1]) and mid < float(p[3])):
+				continue
+			box(root, Vector3(xa, -depth, za), Vector3(xb, 0, zb), surface)
+
+
+## Far areas (lake, stream, river) build under their own node so the world can hide
+## whichever one the player is not in. rect = [x0, z0, x1, z1] where it is shown.
+func begin_region(region_name: String, rect: Array) -> Node3D:
+	var node := Node3D.new()
+	node.name = "Region_" + region_name
+	_outer_root = root
+	root.add_child(node)
+	root = node
+	regions.append({"node": node, "rect": rect})
+	return node
+
+
+func end_region() -> void:
+	root = _outer_root
 
 
 func invisible_wall(from: Vector3, to: Vector3) -> void:
@@ -537,26 +599,83 @@ func _drain() -> void:
 		reed.rotation_degrees = Vector3(_rng.randf_range(-12, 12), 0, _rng.randf_range(-12, 12))
 
 
+## One water surface per fishing spot (except "no_mesh" spots inside a bigger one).
+## Moving water gets its own material with the ripples flowing downstream.
 func _water(data: DataRegistry) -> void:
 	var shader := load("res://src/world/shaders/water.gdshader")
-	var water := ShaderMaterial.new()
-	water.shader = shader
-	water.set_shader_parameter("normal_a", _noise_normal(1, 0.035))
-	water.set_shader_parameter("normal_b", _noise_normal(2, 0.07))
+	var normal_a := _noise_normal(1, 0.035)
+	var normal_b := _noise_normal(2, 0.07)
+	var materials: Dictionary = {}
 	for map in data.all("maps"):
 		for spot in map.get("fishing_spots", []):
+			if spot.get("no_mesh", false):
+				continue
+			var f: Array = spot.get("flow", [0, 1])
+			var flow := Vector2(float(f[0]), float(f[1])).normalized() * float(spot.get("flow_speed", 0.025))
+			var key := str(flow)
+			if not materials.has(key):
+				var water := ShaderMaterial.new()
+				water.shader = shader
+				water.set_shader_parameter("normal_a", normal_a)
+				water.set_shader_parameter("normal_b", normal_b)
+				water.set_shader_parameter("flow", flow)
+				materials[key] = water
 			var r: Array = spot["rect"]
 			var wy := float(spot["water_y"])
 			var mesh := MeshInstance3D.new()
 			var pm := PlaneMesh.new()
 			pm.size = Vector2(float(r[2]) - float(r[0]), float(r[3]) - float(r[1]))
-			pm.subdivide_width = int(pm.size.x)
-			pm.subdivide_depth = int(pm.size.y)
+			pm.subdivide_width = mini(int(pm.size.x), 120)
+			pm.subdivide_depth = mini(int(pm.size.y), 120)
 			mesh.mesh = pm
-			mesh.material_override = water
-			mesh.position = Vector3((float(r[0]) + float(r[2])) * 0.5, wy, (float(r[1]) + float(r[3])) * 0.5)
+			mesh.material_override = materials[key]
+			var center := Vector3((float(r[0]) + float(r[2])) * 0.5, wy, (float(r[1]) + float(r[3])) * 0.5)
+			mesh.position = center
 			mesh.name = "Water_" + str(spot["id"])
-			root.add_child(mesh)
+			region_at(center).add_child(mesh)
+
+
+## The region node containing a point (or the world root).
+func region_at(p: Vector3) -> Node3D:
+	for region in regions:
+		var r: Array = region["rect"]
+		if p.x >= float(r[0]) and p.x <= float(r[2]) and p.z >= float(r[1]) and p.z <= float(r[3]):
+			return region["node"]
+	return root
+
+
+## Invisible walls that open with the story ("barriers" in map data), with a visual
+## (a bush in a fence gap) that disappears while open.
+func _barriers(data: DataRegistry) -> void:
+	for map in data.all("maps"):
+		for def in map.get("barriers", []):
+			var a: Array = def["from"]
+			var b: Array = def["to"]
+			var from := Vector3(float(a[0]), float(a[1]), float(a[2]))
+			var to := Vector3(float(b[0]), float(b[1]), float(b[2]))
+			var parent := region_at((from + to) * 0.5)
+			var body := StaticBody3D.new()
+			body.position = (from + to) * 0.5
+			var shape := CollisionShape3D.new()
+			var bs := BoxShape3D.new()
+			bs.size = (to - from).abs()
+			shape.shape = bs
+			body.add_child(shape)
+			parent.add_child(body)
+			var visual := Node3D.new()
+			visual.position = Vector3((from.x + to.x) * 0.5, 0, (from.z + to.z) * 0.5)
+			parent.add_child(visual)
+			if str(def.get("visual", "")) == "bush":
+				for k in 5:
+					var blob := MeshInstance3D.new()
+					var sm := SphereMesh.new()
+					sm.radius = 0.8
+					sm.height = 1.2
+					blob.mesh = sm
+					blob.material_override = material(C_LEAF.darkened(0.1 * (k % 2)))
+					blob.position = Vector3(-1.4 + k * 0.7, 0.45 + (k % 2) * 0.2, (k % 3 - 1) * 0.3)
+					visual.add_child(blob)
+			barriers[str(def["id"])] = {"body": body, "visual": visual, "def": def}
 
 
 func _noise_normal(seed: int, frequency: float) -> NoiseTexture2D:

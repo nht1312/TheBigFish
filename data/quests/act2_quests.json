@@ -16,5 +16,6 @@
      {"id": "ask", "text": "Hỏi chú bán đồ câu chỗ nào câu được cá lớn hơn", "condition": {"type": "flag", "key": "LAKE_TOLD"}},
      {"id": "go", "text": "Đón xe buýt ở trạm đầu chợ ra hồ (vé 5.000đ)", "condition": {"type": "current_map", "map": "MAP_LAKE"}},
      {"id": "catch", "text": "Câu một con cá ở hồ", "condition": {"type": "stat_gte", "key": "FishCaught.MAP_LAKE", "value": 1}}
-   ]}
+   ],
+   "next": ["QUEST_MAIN_NEW_FRIEND"]}
 ]
