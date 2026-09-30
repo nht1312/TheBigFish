@@ -1,0 +1,22 @@
+{
+  "_comment": "Third-party assets fetched by tools/fetch_assets.py. All from Poly Haven (polyhaven.com), license CC0.",
+  "textures": {
+    "grass":        {"source": "sparse_grass",          "scale": 0.3},
+    "dirt":         {"source": "dirt",                  "scale": 0.35},
+    "mud":          {"source": "brown_mud_02",          "scale": 0.4},
+    "concrete":     {"source": "concrete_floor_02",     "scale": 0.35},
+    "concrete_old": {"source": "dirty_concrete",        "scale": 0.3},
+    "asphalt":      {"source": "asphalt_02",            "scale": 0.25},
+    "plaster":      {"source": "painted_plaster_wall",  "scale": 0.4},
+    "plaster_worn": {"source": "peeling_painted_wall",  "scale": 0.35},
+    "tin_roof":     {"source": "rusty_corrugated_iron", "scale": 0.5},
+    "shutter":      {"source": "rusty_metal_shutter",   "scale": 0.45},
+    "rust":         {"source": "rusty_metal_02",        "scale": 0.6},
+    "tiles":        {"source": "floor_tiles_06",        "scale": 0.5},
+    "bark":         {"source": "bark_brown_01",         "scale": 1.0}
+  },
+  "hdris": {
+    "sky_clear":    {"source": "kloofendal_48d_partly_cloudy_puresky", "resolution": "2k"},
+    "sky_overcast": {"source": "kloofendal_overcast",                  "resolution": "2k"}
+  }
+}

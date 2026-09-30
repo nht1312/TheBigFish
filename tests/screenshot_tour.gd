@@ -18,6 +18,8 @@ var out_dir := "user://screenshots"
 var index := 0
 var timer := 1.0
 var prepared := false
+var _frames := 0
+var _frame_time := 0.0
 
 
 func _initialize() -> void:
@@ -31,6 +33,9 @@ func _initialize() -> void:
 
 func _process(delta: float) -> bool:
 	timer -= delta
+	if prepared and timer < 2.0:  # steady-state window just before the capture
+		_frames += 1
+		_frame_time += delta
 	if timer > 0.0:
 		return false
 	if index >= SHOTS.size():
@@ -40,11 +45,13 @@ func _process(delta: float) -> bool:
 	if not prepared:
 		_prepare(shot)
 		prepared = true
-		timer = float(shot.get("wait", 1.2))
+		timer = float(shot.get("wait", 1.2)) + 2.0
+		_frames = 0
+		_frame_time = 0.0
 		return false
 	var img := root.get_texture().get_image()
 	img.save_png(out_dir.path_join(shot["name"] + ".png"))
-	print("saved ", shot["name"])
+	print("saved %s  avg fps %.0f" % [shot["name"], _frames / maxf(_frame_time, 0.001)])
 	index += 1
 	prepared = false
 	timer = 0.2

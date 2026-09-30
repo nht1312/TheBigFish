@@ -1,0 +1,9 @@
+{
+  "_comment": "Rendering quality. 'quality' selects a preset; low runs on integrated GPUs, high enables global illumination (SDFGI).",
+  "quality": "medium",
+  "presets": {
+    "low":    {"ssao": false, "ssil": false, "ssr": false, "sdfgi": false, "volumetric_fog": false, "glow": true, "shadow_size": 2048, "msaa": 0, "fxaa": true,  "grass_density": 3.0, "grass_distance": 28},
+    "medium": {"ssao": true,  "ssil": false, "ssr": true,  "sdfgi": false, "volumetric_fog": true,  "glow": true, "shadow_size": 4096, "msaa": 2, "fxaa": false, "grass_density": 7.0, "grass_distance": 40},
+    "high":   {"ssao": true,  "ssil": true,  "ssr": true,  "sdfgi": true,  "volumetric_fog": true,  "glow": true, "shadow_size": 4096, "msaa": 4, "fxaa": false, "grass_density": 11.0, "grass_distance": 60}
+  }
+}

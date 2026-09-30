@@ -17,10 +17,8 @@ var hud: Hud
 var audio: GameAudio
 var fisherman: OldFishermanActor
 var mother: NpcActor
-var sun: DirectionalLight3D
-var environment: Environment
-var sky_material: ProceduralSkyMaterial
-var rain: CPUParticles3D
+var lighting: WorldLighting
+var graphics: Dictionary  # active quality preset from config/graphics.json
 var zones: Array = []  # [{ map, location, rect }] first match wins
 
 var _cutscene: bool = false
@@ -30,8 +28,14 @@ var _input_cooldown: int = 0
 func start(player_save: Dictionary) -> void:
 	ctx = App.ctx()
 	process_mode = Node.PROCESS_MODE_ALWAYS  # so Esc can close the pause menu
+	graphics = _graphics_preset()
+	builder.grass_density = float(graphics.get("grass_density", 5.0))
+	builder.grass_distance = float(graphics.get("grass_distance", 42.0))
 	builder.build(self, App.data())
-	_setup_environment()
+	lighting = WorldLighting.new()
+	add_child(lighting)
+	lighting.setup(graphics)
+	lighting.apply_viewport(get_viewport())
 	_setup_zones()
 
 	player = PlayerController.new()
@@ -142,9 +146,7 @@ func _process(_delta: float) -> void:
 	hud.set_prompt(prompt)
 	var wants_mouse := menu_open or (talking and hud.dialogue_panel.choices_box.visible)
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE if wants_mouse else Input.MOUSE_MODE_CAPTURED
-	_update_sun()
-	if rain.emitting:
-		rain.global_position = player.global_position + Vector3(0, 8, 0)
+	lighting.set_time(ctx.clock.minutes / 60.0, player.global_position)
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -337,70 +339,14 @@ func _update_zone() -> void:
 			return
 
 
-func _setup_environment() -> void:
-	environment = Environment.new()
-	environment.background_mode = Environment.BG_SKY
-	var sky := Sky.new()
-	sky_material = ProceduralSkyMaterial.new()
-	sky_material.sky_top_color = Color(0.38, 0.55, 0.78)
-	sky_material.sky_horizon_color = Color(0.78, 0.8, 0.78)
-	sky_material.ground_horizon_color = Color(0.6, 0.6, 0.55)
-	sky.sky_material = sky_material
-	environment.sky = sky
-	environment.ambient_light_source = Environment.AMBIENT_SOURCE_SKY
-	environment.ambient_light_energy = 0.8
-	environment.tonemap_mode = Environment.TONE_MAPPER_FILMIC
-	environment.fog_enabled = true
-	environment.fog_density = 0.004
-	environment.fog_light_color = Color(0.75, 0.78, 0.8)
-	var world_env := WorldEnvironment.new()
-	world_env.environment = environment
-	add_child(world_env)
-	sun = DirectionalLight3D.new()
-	sun.shadow_enabled = true
-	sun.directional_shadow_max_distance = 80.0
-	add_child(sun)
-	rain = CPUParticles3D.new()
-	rain.emitting = false
-	rain.amount = 600
-	rain.lifetime = 0.9
-	rain.emission_shape = CPUParticles3D.EMISSION_SHAPE_BOX
-	rain.emission_box_extents = Vector3(14, 0.5, 14)
-	rain.direction = Vector3.DOWN
-	rain.spread = 3.0
-	rain.gravity = Vector3(0, -30, 0)
-	rain.initial_velocity_min = 8.0
-	rain.initial_velocity_max = 10.0
-	var drop := BoxMesh.new()
-	drop.size = Vector3(0.01, 0.35, 0.01)
-	var drop_mat := StandardMaterial3D.new()
-	drop_mat.albedo_color = Color(0.75, 0.8, 0.9, 0.5)
-	drop_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	drop.material = drop_mat
-	rain.mesh = drop
-	rain.top_level = true
-	add_child(rain)
-
-
-func _update_sun() -> void:
-	var hours := ctx.clock.minutes / 60.0
-	var day_t := clampf((hours - 5.5) / 13.5, 0.0, 1.0)  # 05:30 → 19:00
-	var elevation := sin(day_t * PI) * 65.0
-	sun.rotation_degrees = Vector3(-maxf(elevation, 4.0), 90.0 - day_t * 180.0 + 180.0, 0)
-	var daylight := clampf(elevation / 25.0, 0.0, 1.0)
-	var weather_dim := {"SUNNY": 1.0, "CLOUDY": 0.65, "LIGHT_RAIN": 0.5, "HEAVY_RAIN": 0.35, "STORM": 0.25}
-	sun.light_energy = lerpf(0.05, 1.1, daylight) * float(weather_dim.get(ctx.clock.weather, 1.0))
-	sun.light_color = Color(1.0, 0.75, 0.55).lerp(Color(1.0, 0.97, 0.9), daylight)
-	environment.ambient_light_energy = lerpf(0.15, 0.8, daylight)
+func _graphics_preset() -> Dictionary:
+	var cfg: Dictionary = App.config().get("graphics", {})
+	var quality := str(cfg.get("quality", "medium"))
+	return cfg.get("presets", {}).get(quality, {})
 
 
 func _apply_weather() -> void:
-	var w := ctx.clock.weather
-	var grey := w != "SUNNY"
-	sky_material.sky_top_color = Color(0.5, 0.53, 0.56) if grey else Color(0.38, 0.55, 0.78)
-	environment.fog_density = {"SUNNY": 0.004, "CLOUDY": 0.006, "LIGHT_RAIN": 0.01, "HEAVY_RAIN": 0.018, "STORM": 0.025}.get(w, 0.004)
-	rain.emitting = w in ["LIGHT_RAIN", "HEAVY_RAIN", "STORM"]
-	rain.amount = 300 if w == "LIGHT_RAIN" else 900
+	lighting.set_weather(ctx.clock.weather)
 
 
 func _toggle_pause() -> void:

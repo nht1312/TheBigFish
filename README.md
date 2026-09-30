@@ -31,6 +31,16 @@ tools/dev.sh edit    # open the Godot editor
 | F5 / F9 | save / load · Esc pause |
 | F1 / F3 | debug console / debug overlay (debug builds only; type `help`) |
 
+## Graphics
+
+- **Textures and skies** are CC0 assets from [Poly Haven](https://polyhaven.com), listed in `assets/asset_manifest.json`. They're committed to the repo; run `python tools/fetch_assets.py` to fetch them again, and see `assets/CREDITS.md` for sources.
+- **Surfaces** use PBR materials with world-space triplanar mapping (`src/world/material_library.gd`). If a texture is missing, the surface falls back to a flat colour.
+- **Rendering** uses:
+  - an HDRI sky that switches with the weather, and a sun that follows the game clock;
+  - AgX tonemapping, SSAO, screen-space reflections on the water, volumetric fog and glow (`src/world/world_lighting.gd`);
+  - water from `src/world/shaders/water.gdshader`, and chunked wind-animated grass from `src/world/grass_field.gd`.
+- **Quality presets** (`low` / `medium` / `high`) are in `config/graphics.json`. `medium` runs at about 60–75 FPS on a GTX 1050 at 1600×900. `high` adds SDFGI global illumination and denser grass.
+
 ## Structure
 
 ```text
