@@ -433,6 +433,40 @@ func _plastic_stool(pos: Vector3, color: Color) -> void:
 			box(root, pos + Vector3(dx - 0.02, 0, dz - 0.02), pos + Vector3(dx + 0.02, 0.25, dz + 0.02), plastic, false)
 
 
+## A plastic stool with its seat at `height` (for seated NPCs).
+func stool(pos: Vector3, height: float, color: Color) -> void:
+	var plastic := StandardMaterial3D.new()
+	plastic.albedo_color = color
+	plastic.roughness = 0.35
+	box(root, pos + Vector3(-0.17, height - 0.03, -0.17), pos + Vector3(0.17, height, 0.17), plastic, false)
+	for dx in [-0.14, 0.14]:
+		for dz in [-0.14, 0.14]:
+			box(root, pos + Vector3(dx - 0.025, 0, dz - 0.025), pos + Vector3(dx + 0.025, height - 0.03, dz + 0.025), plastic, false)
+
+
+## A round woven basket of greens on the ground (rổ rau).
+func vegetable_basket(pos: Vector3) -> void:
+	var basket := MeshInstance3D.new()
+	var cm := CylinderMesh.new()
+	cm.top_radius = 0.26
+	cm.bottom_radius = 0.2
+	cm.height = 0.12
+	basket.mesh = cm
+	basket.material_override = surf("bark", Color(1.0, 0.85, 0.6), Color(0.6, 0.45, 0.25))
+	basket.position = pos + Vector3(0, 0.06, 0)
+	root.add_child(basket)
+	for i in 9:
+		var leaf := MeshInstance3D.new()
+		var sm := SphereMesh.new()
+		sm.radius = 0.07
+		sm.height = 0.07
+		leaf.mesh = sm
+		leaf.scale = Vector3(1.4, 0.6, 1.0)
+		leaf.material_override = material(Color(0.25, 0.55, 0.18).lerp(Color(0.4, 0.62, 0.22), _rng.randf()))
+		leaf.position = pos + Vector3(_rng.randf_range(-0.16, 0.16), 0.13, _rng.randf_range(-0.16, 0.16))
+		root.add_child(leaf)
+
+
 func _canal() -> void:
 	# Concrete lips and railings; the water surface is added by _water().
 	var lip := surf("concrete_old", Color(0.9, 0.9, 0.88), Color(0.62, 0.61, 0.58))

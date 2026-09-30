@@ -1,5 +1,7 @@
 [
   {"id": "NPC_MOTHER", "name": "Mẹ", "character": "CHAR_MAIN_MOTHER",
+   "appearance": {"height": 1.55, "build": "slim", "skin": [0.80, 0.62, 0.50], "hair": "bun", "hair_color": [0.07, 0.06, 0.06],
+                  "shirt": [0.52, 0.30, 0.44], "pants": [0.06, 0.06, 0.07], "sleeves": "long", "sandals": [0.55, 0.35, 0.25], "pose": "sit_chores"},
    "relationship": {"Trust": 50, "Concern": 30, "Understanding": 20, "Respect": 40, "Conflict": 10, "Support": 20},
    "dialogues": [
      {"dialogue": "DIALOGUE_MOTHER_001", "conditions": [{"type": "flag", "key": "STORY_PROLOGUE_FISHERMAN"}, {"type": "not_flag", "key": "dialogue_done:DIALOGUE_MOTHER_001"}]},
@@ -8,6 +10,8 @@
      {"dialogue": "DIALOGUE_MOTHER_IDLE"}
    ]},
   {"id": "NPC_OLD_FISHERMAN", "name": "Ông già câu cá", "character": "CHAR_MAIN_OLD_FISHERMAN",
+   "appearance": {"height": 1.62, "skin": [0.62, 0.44, 0.32], "hair": "short", "hair_color": [0.72, 0.72, 0.70], "hat": "non_la",
+                  "shirt": [0.56, 0.53, 0.40], "pants": [0.22, 0.22, 0.25], "sleeves": "rolled", "sandals": [0.12, 0.12, 0.12], "stoop": 8, "pose": "sit_fishing"},
    "relationship": {"Familiarity": 0, "Respect": 10},
    "dialogues": [
      {"dialogue": "DIALOGUE_FISHERMAN_ROD", "conditions": [{"type": "has_item", "item": "ITEM_IMPROVISED_ROD"}, {"type": "not_flag", "key": "GiantFishEncountered"}]},

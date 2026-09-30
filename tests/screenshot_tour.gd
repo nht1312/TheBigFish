@@ -10,6 +10,8 @@ const SHOTS := [
 	{"name": "05_bamboo", "pos": Vector3(-4.5, 1, -5.5), "yaw": 40.0, "pitch": -5.0},
 	{"name": "06_drain", "pos": Vector3(57.5, 1, 45), "yaw": -60.0, "pitch": -15.0},
 	{"name": "07_drain_pipe", "pos": Vector3(58, 1, 40), "yaw": -140.0, "pitch": -18.0},
+	{"name": "09_mother_close", "pos": Vector3(1.1, 1, 6.7), "yaw": -18.0, "pitch": -22.0},
+	{"name": "10_fisherman_close", "pos": Vector3(-6.3, 1, 18.3), "yaw": 38.0, "pitch": -14.0, "wait": 1.5},
 	{"name": "08_fight", "pos": Vector3(57.5, 1, 45), "yaw": -90.0, "pitch": -20.0, "fight": true},
 ]
 

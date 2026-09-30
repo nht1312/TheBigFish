@@ -1,64 +1,40 @@
 class_name NpcActor
 extends Node3D
 ## Visual + physical presence of an NPC. Talking goes through the Interactable id,
-## so dialogue selection stays in NpcSystem/data.
+## so dialogue selection stays in NpcSystem/data. The body is a CharacterRig built
+## from the NPC's "appearance" data (or a model from assets/characters/).
 
 var npc_id: String = ""
 var look_target: Node3D
+var rig: CharacterRig
 var head: Node3D
-var body_root: Node3D
-var _base_yaw: float = 0.0
+var seat_height: float = -1.0  # >= 0: sitting on a seat of this height
 
 
-func setup(p_npc_id: String, interactable_id: String, shirt: Color, pants: Color, seated: bool = false, hat: bool = false) -> void:
+func setup(p_npc_id: String, interactable_id: String, appearance: Dictionary, p_seat_height: float = -1.0) -> void:
 	npc_id = p_npc_id
 	name = p_npc_id
-	body_root = Node3D.new()
-	add_child(body_root)
-	var hip := 0.45 if seated else 0.9
-	_part(body_root, Vector3(0, hip + 0.32, 0), Vector3(0.42, 0.62, 0.26), shirt)  # torso
-	for side in [-1.0, 1.0]:
-		_part(body_root, Vector3(side * 0.27, hip + 0.32, -0.05 if seated else 0.0), Vector3(0.11, 0.55, 0.12), shirt)  # arms
-		if seated:
-			_part(body_root, Vector3(side * 0.11, hip, -0.25), Vector3(0.14, 0.14, 0.5), pants)
-			_part(body_root, Vector3(side * 0.11, hip * 0.5, -0.48), Vector3(0.13, hip, 0.14), pants)
-		else:
-			_part(body_root, Vector3(side * 0.11, hip * 0.5, 0), Vector3(0.15, hip, 0.16), pants)
-	head = Node3D.new()
-	head.position = Vector3(0, hip + 0.78, 0)
-	body_root.add_child(head)
-	var face := MeshInstance3D.new()
-	var sphere := SphereMesh.new()
-	sphere.radius = 0.13
-	sphere.height = 0.28
-	face.mesh = sphere
-	face.material_override = _mat(Color(0.80, 0.62, 0.48))
-	head.add_child(face)
-	var hair := MeshInstance3D.new()
-	var hair_mesh := SphereMesh.new()
-	hair_mesh.radius = 0.135
-	hair_mesh.height = 0.2
-	hair.mesh = hair_mesh
-	hair.position = Vector3(0, 0.05, 0.02)
-	hair.material_override = _mat(Color(0.12, 0.1, 0.1) if not seated else Color(0.75, 0.75, 0.75))
-	head.add_child(hair)
-	if hat:  # nón lá
-		var cone := MeshInstance3D.new()
-		var cm := CylinderMesh.new()
-		cm.top_radius = 0.0
-		cm.bottom_radius = 0.34
-		cm.height = 0.2
-		cone.mesh = cm
-		cone.position = Vector3(0, 0.15, 0)
-		cone.material_override = _mat(Color(0.85, 0.78, 0.55))
-		head.add_child(cone)
-	var it := Interactable.create(interactable_id, Vector3(0.7, hip + 1.0, 0.7), Vector3(0, (hip + 1.0) * 0.5, 0))
+	seat_height = p_seat_height
+	rig = CharacterRig.new()
+	add_child(rig)
+	rig.build(p_npc_id, appearance)
+	head = rig.head
+	if seat_height >= 0.0:
+		rig.position.y = rig.seated_offset(seat_height)
+	var body_height := rig.height if seat_height < 0.0 else seat_height + rig.height * 0.47
+	var it := Interactable.create(interactable_id, Vector3(0.7, body_height, 0.8), Vector3(0, body_height * 0.5, 0))
 	add_child(it)
-	_base_yaw = rotation.y
+
+
+## Stand up (or sit) and blend into another pose.
+func set_pose(pose: String, p_seat_height: float = -1.0) -> void:
+	seat_height = p_seat_height
+	rig.position.y = rig.seated_offset(seat_height) if seat_height >= 0.0 else 0.0
+	rig.set_pose(pose)
 
 
 func _process(delta: float) -> void:
-	if look_target == null or head == null:
+	if look_target == null or head == null or rig.model_override:
 		return
 	var to_target := look_target.global_position - global_position
 	var desired := 0.0
@@ -76,18 +52,8 @@ func face(point: Vector3) -> void:
 		look_at(global_position + dir, Vector3.UP)
 
 
-func _part(parent: Node3D, pos: Vector3, size: Vector3, color: Color) -> void:
-	var m := MeshInstance3D.new()
-	var b := BoxMesh.new()
-	b.size = size
-	m.mesh = b
-	m.position = pos
-	m.material_override = _mat(color)
-	parent.add_child(m)
-
-
 func _mat(color: Color) -> StandardMaterial3D:
 	var m := StandardMaterial3D.new()
 	m.albedo_color = color
-	m.roughness = 0.95
+	m.roughness = 0.85
 	return m

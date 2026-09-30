@@ -1,0 +1,394 @@
+<title>Cá Lớn Model Sheets</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: drafting-table model sheets. Each character is one wide sheet: to-scale turnaround on the left, production notes on the right. */
+:root {
+  --paper: #e9eeed;
+  --panel: #f7f9f8;
+  --ink: #1d2a2d;
+  --muted: #5a6a6d;
+  --rule: #cfd8d6;
+  --accent: #2c6b64;
+  /* The drawing surface stays light in both themes so costume colours read true. */
+  --sheet: #f3f6f5;
+  --sheet-grid: #dfe6e4;
+  --fig-line: #24302f;
+  --display: "Be Vietnam Pro", "Segoe UI", system-ui, sans-serif;
+  --body: "Be Vietnam Pro", "Segoe UI", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #121819; --panel: #1a2123; --ink: #e2eae8; --muted: #93a4a6; --rule: #2b3638; --accent: #74b8ae;
+    --sheet: #dde3e1; --sheet-grid: #c9d2d0;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #121819; --panel: #1a2123; --ink: #e2eae8; --muted: #93a4a6; --rule: #2b3638; --accent: #74b8ae;
+  --sheet: #dde3e1; --sheet-grid: #c9d2d0;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 15px;
+  line-height: 1.6;
+  padding-inline: clamp(16px, 4vw, 48px);
+  padding-block: 40px 64px;
+}
+.wrap { max-width: 1180px; margin-inline: auto; display: grid; gap: 40px; }
+
+header { display: grid; gap: 10px; max-width: 70ch; }
+.eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); }
+h1 { font-family: var(--display); font-weight: 800; font-size: clamp(30px, 5vw, 46px); line-height: 1.1; margin: 0; text-wrap: balance; letter-spacing: -0.01em; }
+header p { margin: 0; color: var(--muted); }
+
+.sheet {
+  background: var(--panel);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+}
+.drawing {
+  background: var(--sheet);
+  border-right: 1px solid var(--rule);
+  border-radius: 6px 0 0 6px;
+  padding: 18px 18px 10px;
+  display: grid;
+  gap: 6px;
+  align-content: start;
+}
+.drawing svg { width: 100%; height: auto; display: block; }
+.drawing .caption { font-family: var(--mono); font-size: 11.5px; color: var(--fig-line); opacity: 0.75; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+
+.notes { padding: 26px 28px 28px; display: grid; gap: 22px; align-content: start; min-width: 0; }
+.name { display: grid; gap: 2px; }
+.name h2 { font-family: var(--display); font-weight: 700; font-size: 28px; margin: 0; line-height: 1.15; text-wrap: balance; }
+.name .role { color: var(--muted); }
+.id { font-family: var(--mono); font-size: 12.5px; color: var(--accent); }
+
+.facts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; background: var(--rule); border: 1px solid var(--rule); border-radius: 4px; overflow: hidden; }
+.facts div { background: var(--panel); padding: 8px 10px; display: grid; gap: 1px; }
+.facts dt { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.facts dd { margin: 0; font-family: var(--mono); font-size: 14px; font-variant-numeric: tabular-nums; }
+
+h3 { font-size: 11.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin: 0 0 8px; font-weight: 500; }
+.notes p, .notes ul { margin: 0; }
+.notes ul { padding-left: 1.1em; display: grid; gap: 4px; }
+.traits { display: flex; flex-wrap: wrap; gap: 6px; }
+.traits span { border: 1px solid var(--rule); border-radius: 999px; padding: 2px 10px; font-size: 13.5px; }
+
+.swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 10px; }
+.swatch { display: grid; grid-template-columns: 30px 1fr; gap: 9px; align-items: center; }
+.chip { width: 30px; height: 30px; border-radius: 4px; border: 1px solid var(--rule); }
+.swatch b { display: block; font-weight: 500; font-size: 13.5px; line-height: 1.25; }
+.swatch code { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+
+.spec { font-family: var(--mono); font-size: 13px; background: var(--paper); border: 1px solid var(--rule); border-radius: 4px; padding: 10px 12px; display: grid; gap: 3px; overflow-x: auto; }
+.spec span { white-space: nowrap; }
+.spec .k { color: var(--muted); }
+
+.shared { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; border-top: 1px solid var(--rule); padding-top: 28px; }
+.shared h2 { font-family: var(--display); font-size: 20px; margin: 0 0 8px; font-weight: 700; }
+.shared p, .shared ul { margin: 0; color: var(--ink); }
+.shared ul { padding-left: 1.1em; display: grid; gap: 4px; }
+.shared code, .notes code { font-family: var(--mono); font-size: 0.9em; }
+
+@media (max-width: 860px) {
+  .sheet { grid-template-columns: minmax(0, 1fr); }
+  .drawing { border-right: 0; border-bottom: 1px solid var(--rule); border-radius: 6px 6px 0 0; }
+  .shared { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 480px) {
+  .facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .notes { padding: 20px 18px 22px; }
+}
+
+/* Figure drawing */
+.fig-line { stroke: var(--fig-line); stroke-width: 0.6; stroke-linejoin: round; stroke-linecap: round; }
+.grid-line { stroke: var(--sheet-grid); stroke-width: 0.35; }
+.ruler { stroke: var(--fig-line); stroke-width: 0.5; }
+.ruler-text { fill: var(--fig-line); font-family: var(--mono); font-size: 4.2px; }
+.view-label { fill: var(--fig-line); font-family: var(--mono); font-size: 4.4px; letter-spacing: 0.4px; }
+.height-mark { stroke: var(--accent); stroke-width: 0.5; stroke-dasharray: 2 1.5; }
+.height-text { fill: var(--accent); font-family: var(--mono); font-size: 4.4px; font-weight: 500; }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Cá Lớn — The Last Cast · Art reference</div>
+    <h1>Character model sheets</h1>
+    <p>Front and side views drawn to scale in centimetres, with costume, palette and the delivery spec the game expects. Colours come from the in-game appearance data in <code>data/npcs/npcs.json</code>. The target is believable people from a contemporary Vietnamese neighbourhood, not stylised heroes.</p>
+  </header>
+
+  <!-- ============ MOTHER ============ -->
+  <section class="sheet" aria-labelledby="mother-name">
+    <div class="drawing">
+      <svg viewBox="0 0 250 200" role="img" aria-label="Mother, front and side views, 155 centimetres tall">
+        <g id="grid-m"></g>
+        <!-- Height guide -->
+        <line class="height-mark" x1="22" y1="35" x2="245" y2="35"/>
+        <text class="height-text" x="206" y="32">155 cm</text>
+        <!-- FRONT -->
+        <g>
+          <ellipse cx="70" cy="42" rx="9.8" ry="9" fill="#121010" class="fig-line"/>
+          <ellipse cx="70" cy="47" rx="8.4" ry="10.4" fill="#cc9e80" class="fig-line"/>
+          <path d="M61.4,45 Q62,33.5 70,33 Q78,33.5 78.6,45 Q75,38.5 70,38.4 Q65,38.5 61.4,45 Z" fill="#121010"/>
+          <path d="M65,44.2 L68,43.8 M72,43.8 L75,44.2" class="fig-line" fill="none"/>
+          <ellipse cx="66.6" cy="46.6" rx="0.9" ry="0.6" fill="#24302f"/>
+          <ellipse cx="73.4" cy="46.6" rx="0.9" ry="0.6" fill="#24302f"/>
+          <path d="M70,47.5 L69.3,50.6 L70.6,50.8" class="fig-line" fill="none"/>
+          <path d="M67.6,53.4 Q70,54.2 72.4,53.4" class="fig-line" fill="none"/>
+          <rect x="66.4" y="56" width="7.2" height="6" fill="#c2937a" class="fig-line"/>
+          <!-- áo bà ba -->
+          <path d="M50.5,64.5 L57,62 L45.6,106 L51.8,107.2 Z" fill="#854d70" class="fig-line"/>
+          <path d="M89.5,64.5 L83,62 L94.4,106 L88.2,107.2 Z" fill="#854d70" class="fig-line"/>
+          <path d="M56.4,62.6 Q70,58.4 83.6,62.6 L86.8,110.5 L53.2,110.5 Z" fill="#854d70" class="fig-line"/>
+          <path d="M66.8,61 Q70,63.8 73.2,61" class="fig-line" fill="none"/>
+          <path d="M70,63.5 L70,110" class="fig-line" fill="none" opacity="0.5"/>
+          <circle cx="70" cy="70" r="0.7" fill="#f3f6f5"/><circle cx="70" cy="80" r="0.7" fill="#f3f6f5"/><circle cx="70" cy="90" r="0.7" fill="#f3f6f5"/><circle cx="70" cy="100" r="0.7" fill="#f3f6f5"/>
+          <path d="M54,100 L55.6,110.5 M86,100 L84.4,110.5" class="fig-line" fill="none"/>
+          <ellipse cx="48.6" cy="110" rx="3" ry="3.8" fill="#cc9e80" class="fig-line"/>
+          <ellipse cx="91.4" cy="110" rx="3" ry="3.8" fill="#cc9e80" class="fig-line"/>
+          <!-- quần lãnh đen -->
+          <path d="M54.2,110 L69.2,110 L68.4,185 L55.4,185 Z" fill="#0f0f12" class="fig-line"/>
+          <path d="M70.8,110 L85.8,110 L84.6,185 L71.6,185 Z" fill="#0f0f12" class="fig-line"/>
+          <path d="M55,185 L68.8,185 L68.6,189.4 Q62,190.6 55.2,189.4 Z" fill="#cc9e80" class="fig-line"/>
+          <path d="M71.2,185 L85,185 L84.8,189.4 Q78,190.6 71.4,189.4 Z" fill="#cc9e80" class="fig-line"/>
+          <path d="M54.2,189 Q62,191.6 69.4,189 L69.4,190.4 L54.2,190.4 Z" fill="#8c5940"/>
+          <path d="M70.6,189 Q78,191.6 85.8,189 L85.8,190.4 L70.6,190.4 Z" fill="#8c5940"/>
+          <text class="view-label" x="62" y="198">FRONT</text>
+        </g>
+        <!-- SIDE -->
+        <g>
+          <circle cx="160.4" cy="45" r="5.2" fill="#121010" class="fig-line"/>
+          <ellipse cx="170" cy="46.5" rx="9.6" ry="10.8" fill="#cc9e80" class="fig-line"/>
+          <path d="M160.6,49 Q159.6,34.6 170,34.4 Q178.6,34.8 179.4,42 Q173,38.2 167,41 Q164.6,46 160.6,49 Z" fill="#121010"/>
+          <path d="M179.3,45.4 L182,49.6 L179.2,50.6" fill="#cc9e80" class="fig-line"/>
+          <ellipse cx="176.4" cy="45.8" rx="0.7" ry="0.55" fill="#24302f"/>
+          <path d="M176.4,53.8 L178.6,53.6" class="fig-line" fill="none"/>
+          <ellipse cx="168" cy="47.6" rx="1.4" ry="2.1" fill="#c2937a" class="fig-line"/>
+          <rect x="166" y="56" width="7" height="6.4" fill="#c2937a" class="fig-line"/>
+          <path d="M163.4,62.6 Q170.4,59.8 177.8,62.4 L181,110.5 L160.2,110.5 Z" fill="#854d70" class="fig-line"/>
+          <path d="M168,64 L174.6,64 L178,106 L171.6,107 Z" fill="#7a4566" class="fig-line"/>
+          <ellipse cx="175.4" cy="110.2" rx="2.8" ry="3.8" fill="#cc9e80" class="fig-line"/>
+          <path d="M161.8,110 L179.8,110 L178.2,185 L164.2,185 Z" fill="#0f0f12" class="fig-line"/>
+          <path d="M164.2,185 L178.2,185 L178.6,188.4 Q184.6,188.8 185.4,190.2 L164,190.2 Z" fill="#cc9e80" class="fig-line"/>
+          <path d="M163.4,189.2 L186,189.2 L186,190.6 L163.4,190.6 Z" fill="#8c5940"/>
+          <text class="view-label" x="163" y="198">SIDE</text>
+        </g>
+      </svg>
+      <div class="caption"><span>Scale 1 : 1 cm · ground line = 0</span><span>Rest pose, arms relaxed</span></div>
+    </div>
+    <div class="notes">
+      <div class="name">
+        <span class="id">NPC_MOTHER · CHAR_MAIN_MOTHER</span>
+        <h2 id="mother-name">Mẹ</h2>
+        <span class="role">The player's mother. The most important family character.</span>
+      </div>
+      <dl class="facts">
+        <div><dt>Height</dt><dd>155 cm</dd></div>
+        <div><dt>Build</dt><dd>Slim</dd></div>
+        <div><dt>Age feel</dt><dd>late 40s</dd></div>
+        <div><dt>Default pose</dt><dd>sit_chores</dd></div>
+      </dl>
+      <div>
+        <h3>Personality to show in the body</h3>
+        <div class="traits"><span>thực tế · practical</span><span>quan tâm · caring</span><span>đôi khi nóng tính · short-tempered at times</span><span>lo lắng · worried</span><span>không dễ thể hiện cảm xúc · keeps feelings in</span></div>
+      </div>
+      <div>
+        <h3>Costume and look</h3>
+        <ul>
+          <li><b>Áo bà ba</b> in faded mauve: loose, buttoned down the front, side slits at the hip, long sleeves. It's a house shirt, worn soft, not a festival áo dài.</li>
+          <li><b>Quần lãnh đen</b>: wide black silk pants to the ankle, with a slight sheen.</li>
+          <li>Plastic house sandals (<i>dép nhựa</i>). Hair pulled back in a low bun, a few loose strands.</li>
+          <li>Hands that work every day: short nails, no rings except maybe a thin gold band.</li>
+          <li>Usually seated on a low plastic stool, sorting greens (<i>lặt rau</i>) from a basket. In the ending scene she stands in the doorway.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Palette (from appearance data)</h3>
+        <div class="swatches">
+          <div class="swatch"><span class="chip" style="background:#cc9e80"></span><span><b>Skin</b><code>#CC9E80</code></span></div>
+          <div class="swatch"><span class="chip" style="background:#854d70"></span><span><b>Áo bà ba</b><code>#854D70</code></span></div>
+          <div class="swatch"><span class="chip" style="background:#0f0f12"></span><span><b>Silk pants</b><code>#0F0F12</code></span></div>
+          <div class="swatch"><span class="chip" style="background:#121010"></span><span><b>Hair</b><code>#121010</code></span></div>
+          <div class="swatch"><span class="chip" style="background:#8c5940"></span><span><b>Sandals</b><code>#8C5940</code></span></div>
+        </div>
+      </div>
+      <div>
+        <h3>Delivery</h3>
+        <div class="spec">
+          <span><span class="k">file   </span> assets/characters/npc_mother.glb</span>
+          <span><span class="k">anims  </span> stand · sit_chores · talk · walk</span>
+          <span><span class="k">seat   </span> 42 cm plastic stool</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ OLD FISHERMAN ============ -->
+  <section class="sheet" aria-labelledby="fisher-name">
+    <div class="drawing">
+      <svg viewBox="0 0 250 200" role="img" aria-label="Old fisherman, front and side views, 162 centimetres tall with a conical hat">
+        <g id="grid-f"></g>
+        <line class="height-mark" x1="22" y1="28" x2="245" y2="28"/>
+        <text class="height-text" x="206" y="25">162 cm</text>
+        <!-- FRONT -->
+        <g>
+          <ellipse cx="70" cy="44.5" rx="8.4" ry="10" fill="#9e7052" class="fig-line"/>
+          <path d="M61.8,44 Q61.4,38.6 63.4,36.4 L62.6,45.2 Z M78.2,44 Q78.6,38.6 76.6,36.4 L77.4,45.2 Z" fill="#b8b8b3"/>
+          <path d="M65,42.2 L68,42.6 M72,42.6 L75,42.2" stroke="#b8b8b3" stroke-width="0.9" stroke-linecap="round"/>
+          <ellipse cx="66.6" cy="44.4" rx="0.85" ry="0.5" fill="#24302f"/>
+          <ellipse cx="73.4" cy="44.4" rx="0.85" ry="0.5" fill="#24302f"/>
+          <path d="M64.6,46.2 Q66.6,47 68.4,46.2 M71.6,46.2 Q73.4,47 75.4,46.2" class="fig-line" fill="none" opacity="0.45"/>
+          <path d="M70,45.4 L69.2,48.6 L70.8,48.8" class="fig-line" fill="none"/>
+          <path d="M67.4,51.4 Q70,51.9 72.6,51.4" class="fig-line" fill="none"/>
+          <!-- nón lá -->
+          <path d="M39,37.4 L70,13.6 L101,37.4 Q70,41.6 39,37.4 Z" fill="#dbc78f" class="fig-line"/>
+          <path d="M47,31.4 Q70,34.4 93,31.4 M55,25.2 Q70,27.6 85,25.2 M62.4,19.6 Q70,21 77.6,19.6" class="fig-line" fill="none" opacity="0.45"/>
+          <path d="M63.6,41 Q70,57.4 76.4,41" stroke="#8a7a58" stroke-width="0.4" fill="none"/>
+          <rect x="66.4" y="53.6" width="7.2" height="5.6" fill="#93684c" class="fig-line"/>
+          <!-- shirt, sleeves rolled -->
+          <path d="M53.6,60.4 L47,62.4 L44.2,86 L51.8,87 Z" fill="#8f8766" class="fig-line"/>
+          <path d="M86.4,60.4 L93,62.4 L95.8,86 L88.2,87 Z" fill="#8f8766" class="fig-line"/>
+          <path d="M43.8,84.6 L52.2,85.6 L51.8,89 L43.6,88 Z" fill="#a39b78" class="fig-line"/>
+          <path d="M96.2,84.6 L87.8,85.6 L88.2,89 L96.4,88 Z" fill="#a39b78" class="fig-line"/>
+          <path d="M44,88.4 L51.4,89 L50.4,108 L44.6,108 Z" fill="#9e7052" class="fig-line"/>
+          <path d="M96,88.4 L88.6,89 L89.6,108 L95.4,108 Z" fill="#9e7052" class="fig-line"/>
+          <ellipse cx="47.4" cy="111" rx="3.1" ry="3.9" fill="#9e7052" class="fig-line"/>
+          <ellipse cx="92.6" cy="111" rx="3.1" ry="3.9" fill="#9e7052" class="fig-line"/>
+          <path d="M53.8,60.4 Q70,56 86.2,60.4 L88.2,106.6 L51.8,106.6 Z" fill="#8f8766" class="fig-line"/>
+          <path d="M65.4,58.6 L70,66 L74.6,58.6" class="fig-line" fill="#93684c"/>
+          <path d="M70,66 L70,106" class="fig-line" fill="none" opacity="0.5"/>
+          <rect x="73.6" y="70" width="7.4" height="7.8" rx="0.6" fill="none" class="fig-line" opacity="0.7"/>
+          <!-- pants -->
+          <path d="M53,105.6 L69.2,105.6 L67.4,182 L56,182 Z" fill="#38383f" class="fig-line"/>
+          <path d="M70.8,105.6 L87,105.6 L84,182 L72.6,182 Z" fill="#38383f" class="fig-line"/>
+          <path d="M55.8,180 L67.6,180 L67.6,183.2 L55.8,183.2 Z M72.4,180 L84.2,180 L84.2,183.2 L72.4,183.2 Z" fill="#46464e" class="fig-line"/>
+          <path d="M56.6,183.2 L67,183.2 L67,188.8 Q61.8,190 56.8,188.8 Z M73,183.2 L83.4,183.2 L83.2,188.8 Q78,190 73.2,188.8 Z" fill="#9e7052" class="fig-line"/>
+          <path d="M55.4,188.6 L68.2,188.6 L68.2,190.4 L55.4,190.4 Z M71.8,188.6 L84.6,188.6 L84.6,190.4 L71.8,190.4 Z" fill="#1f1f1f"/>
+          <text class="view-label" x="62" y="198">FRONT</text>
+        </g>
+        <!-- SIDE (8° stoop from the lower back) -->
+        <g>
+          <g transform="rotate(8 170 106)">
+            <path d="M162.2,61.4 Q171,56.6 180,61.6 L181.8,106.6 L160.6,106.6 Z" fill="#8f8766" class="fig-line"/>
+            <path d="M166.6,63.4 L173.8,63.4 L175,86 L168,86.6 Z" fill="#8f8766" class="fig-line"/>
+            <path d="M167.6,84.8 L175.2,84.4 L175.4,88 L167.8,88.4 Z" fill="#a39b78" class="fig-line"/>
+            <path d="M168.2,88.4 L175,88 L175.8,107.6 L170,108 Z" fill="#9e7052" class="fig-line"/>
+            <ellipse cx="173.4" cy="111" rx="2.9" ry="3.8" fill="#9e7052" class="fig-line"/>
+            <rect x="166.8" y="53.2" width="7" height="6.4" fill="#93684c" class="fig-line"/>
+            <ellipse cx="171" cy="44.2" rx="9.4" ry="10.4" fill="#9e7052" class="fig-line"/>
+            <path d="M161.8,46 Q161.4,40 164,37.6 L165.2,47.4 Z" fill="#b8b8b3"/>
+            <path d="M180.2,43.2 L182.8,47.6 L180,48.4" fill="#9e7052" class="fig-line"/>
+            <ellipse cx="177" cy="43" rx="0.7" ry="0.5" fill="#24302f"/>
+            <path d="M177,51.6 L179.4,51.4" class="fig-line" fill="none"/>
+            <ellipse cx="169" cy="45" rx="1.4" ry="2.1" fill="#93684c" class="fig-line"/>
+            <path d="M140,37 L171,13.4 L202,37 Q171,41.2 140,37 Z" fill="#dbc78f" class="fig-line"/>
+            <path d="M148,31 Q171,34 194,31 M156,24.8 Q171,27.2 186,24.8" class="fig-line" fill="none" opacity="0.45"/>
+          </g>
+          <path d="M161,105.6 L181.4,105.6 L179,182 L165.4,182 Z" fill="#38383f" class="fig-line"/>
+          <path d="M165.2,180 L179.2,180 L179.2,183.2 L165.2,183.2 Z" fill="#46464e" class="fig-line"/>
+          <path d="M165.8,183.2 L178.6,183.2 L179,187.8 Q185,188.2 186,190 L165.6,190 Z" fill="#9e7052" class="fig-line"/>
+          <path d="M164.8,189 L186.8,189 L186.8,190.6 L164.8,190.6 Z" fill="#1f1f1f"/>
+          <text class="view-label" x="163" y="198">SIDE</text>
+        </g>
+      </svg>
+      <div class="caption"><span>Scale 1 : 1 cm · ground line = 0</span><span>8° stoop from the lower back</span></div>
+    </div>
+    <div class="notes">
+      <div class="name">
+        <span class="id">NPC_OLD_FISHERMAN · CHAR_MAIN_OLD_FISHERMAN</span>
+        <h2 id="fisher-name">Ông già câu cá</h2>
+        <span class="role">The man at the canal who opens the whole story. Not a mentor, just the first door.</span>
+      </div>
+      <dl class="facts">
+        <div><dt>Height</dt><dd>162 cm</dd></div>
+        <div><dt>Build</dt><dd>Wiry</dd></div>
+        <div><dt>Age feel</dt><dd>late 60s</dd></div>
+        <div><dt>Default pose</dt><dd>sit_fishing</dd></div>
+      </dl>
+      <div>
+        <h3>Personality to show in the body</h3>
+        <div class="traits"><span>bình tĩnh · calm</span><span>ít nói · few words</span><span>có kinh nghiệm · experienced</span><span>không khoe khoang · never shows off</span><span>quan sát nhiều hơn nói · watches more than talks</span></div>
+      </div>
+      <div>
+        <h3>Costume and look</h3>
+        <ul>
+          <li><b>Nón lá</b>: a palm-leaf conical hat, about 60 cm across the brim, sun-bleached, with a thin chin strap.</li>
+          <li>Faded khaki work shirt with a breast pocket, sleeves rolled to just below the elbow, collar open.</li>
+          <li>Dark grey trousers rolled once at the ankle. Black rubber sandals.</li>
+          <li>Skin darkened by decades outdoors. Short grey hair and grey brows, with deep lines at the eyes.</li>
+          <li>Sits on a blue plastic stool at the canal edge with a white bucket beside him. His hands stay on the rod, even when he talks.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Palette (from appearance data)</h3>
+        <div class="swatches">
+          <div class="swatch"><span class="chip" style="background:#9e7052"></span><span><b>Skin</b><code>#9E7052</code></span></div>
+          <div class="swatch"><span class="chip" style="background:#8f8766"></span><span><b>Work shirt</b><code>#8F8766</code></span></div>
+          <div class="swatch"><span class="chip" style="background:#38383f"></span><span><b>Trousers</b><code>#38383F</code></span></div>
+          <div class="swatch"><span class="chip" style="background:#dbc78f"></span><span><b>Nón lá</b><code>#DBC78F</code></span></div>
+          <div class="swatch"><span class="chip" style="background:#b8b8b3"></span><span><b>Hair</b><code>#B8B8B3</code></span></div>
+          <div class="swatch"><span class="chip" style="background:#1f1f1f"></span><span><b>Sandals</b><code>#1F1F1F</code></span></div>
+        </div>
+      </div>
+      <div>
+        <h3>Delivery</h3>
+        <div class="spec">
+          <span><span class="k">file   </span> assets/characters/npc_old_fisherman.glb</span>
+          <span><span class="k">anims  </span> sit_fishing · sit_reel · talk · stand</span>
+          <span><span class="k">seat   </span> 40 cm plastic stool · rod in right hand</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="shared" aria-label="Delivery spec for all characters">
+    <div>
+      <h2>Modelling</h2>
+      <ul>
+        <li>Realistic adult proportions. Heads about 1/7 of height, not chibi.</li>
+        <li>8k–15k triangles per character, including clothing and hat.</li>
+        <li>PBR textures at 2048 px: albedo, normal, roughness. Cloth should read as worn cotton and silk.</li>
+      </ul>
+    </div>
+    <div>
+      <h2>Rig and export</h2>
+      <ul>
+        <li>Humanoid skeleton that retargets in Godot 4 (Mixamo-style bone names are fine).</li>
+        <li>Export glTF binary (<code>.glb</code>) with 1 unit = 1 m, facing −Z, feet at the origin.</li>
+        <li>Animations embedded and named exactly as listed on each sheet.</li>
+      </ul>
+    </div>
+    <div>
+      <h2>Dropping it in</h2>
+      <p>The game loads <code>assets/characters/&lt;npc_id&gt;.glb</code> automatically when the file exists and replaces the built-in placeholder figure. No code change is needed. Seated poses must line up with the stool heights given above.</p>
+    </div>
+  </section>
+</div>
+
+<script>
+// Grid and height ruler behind each turnaround (1 unit = 1 cm, ground at y = 190).
+for (const id of ["grid-m", "grid-f"]) {
+  const g = document.getElementById(id);
+  let out = "";
+  for (let cm = 0; cm <= 180; cm += 10) {
+    const y = 190 - cm;
+    out += `<line class="grid-line" x1="22" y1="${y}" x2="246" y2="${y}"/>`;
+    out += `<line class="ruler" x1="${cm % 50 === 0 ? 12 : 16}" y1="${y}" x2="20" y2="${y}"/>`;
+    if (cm % 20 === 0) out += `<text class="ruler-text" x="1" y="${y + 1.4}">${cm}</text>`;
+  }
+  out += `<line class="ruler" x1="20" y1="10" x2="20" y2="190"/>`;
+  out += `<line class="ruler" x1="20" y1="190" x2="246" y2="190"/>`;
+  g.innerHTML = out;
+}
+</script>

@@ -8,6 +8,8 @@ signal exit_to_menu
 signal load_requested(slot: String)
 
 const DRAIN_PIPE := Vector3(70, -1.4, 32.0)
+const MOTHER_STOOL_HEIGHT := 0.42
+const HOME_DOOR := Vector3(-1.5, 0, 3.9)
 
 var ctx: GameContext
 var builder := WorldBuilder.new()
@@ -57,14 +59,16 @@ func start(player_save: Dictionary) -> void:
 	fisherman.position = builder.fisherman_spot
 	fisherman.rotation_degrees.y = 180
 	fisherman.water_y = 0.05
-	fisherman.build(ctx.bus)
+	fisherman.build(ctx.bus, _appearance("NPC_OLD_FISHERMAN"))
 	fisherman.look_target = player
 	add_child(fisherman)
 
 	mother = NpcActor.new()
 	mother.position = builder.mother_spot
 	mother.rotation_degrees.y = 180
-	mother.setup("NPC_MOTHER", "INT_MOTHER", Color(0.55, 0.32, 0.45), Color(0.18, 0.18, 0.22))
+	mother.setup("NPC_MOTHER", "INT_MOTHER", _appearance("NPC_MOTHER"), MOTHER_STOOL_HEIGHT)
+	builder.stool(builder.mother_spot, MOTHER_STOOL_HEIGHT, Color(0.2, 0.45, 0.8))
+	builder.vegetable_basket(builder.mother_spot + Vector3(0, 0, 0.55))
 	mother.look_target = player
 	add_child(mother)
 
@@ -205,6 +209,10 @@ func _on_bus(event_name: StringName, data: Dictionary) -> void:
 		GameEvents.AUTOSAVE_REQUESTED:
 			call_deferred("save_game", "autosave")
 		GameEvents.DIALOGUE_STARTED:
+			if data.get("dialogue", "") == "DIALOGUE_MOTHER_VS_END":
+				# "Mẹ đứng ở cửa." — she has been waiting at the door.
+				mother.position = HOME_DOOR
+				mother.set_pose("stand")
 			if mother.global_position.distance_to(player.global_position) < 6.0:
 				mother.face(player.global_position)
 		GameEvents.WEATHER_CHANGED:
@@ -337,6 +345,10 @@ func _update_zone() -> void:
 			ctx.state.enter_map(str(z["map"]))
 			ctx.state.enter_location(str(z["location"]))
 			return
+
+
+func _appearance(npc_id: String) -> Dictionary:
+	return App.data().get_def("npcs", npc_id).get("appearance", {})
 
 
 func _graphics_preset() -> Dictionary:

@@ -25,9 +25,9 @@ var _line_mesh := ImmediateMesh.new()
 var _clock: float = 0.0
 
 
-func build(p_bus: EventBus) -> void:
+func build(p_bus: EventBus, appearance: Dictionary) -> void:
 	bus = p_bus
-	setup("NPC_OLD_FISHERMAN", "INT_OLD_FISHERMAN", Color(0.45, 0.42, 0.33), Color(0.25, 0.25, 0.3), true, true)
+	setup("NPC_OLD_FISHERMAN", "INT_OLD_FISHERMAN", appearance, 0.4)
 	var stool := MeshInstance3D.new()
 	var sm := BoxMesh.new()
 	sm.size = Vector3(0.4, 0.4, 0.4)
@@ -89,12 +89,14 @@ func build(p_bus: EventBus) -> void:
 
 
 func _ready() -> void:
+	_attach_rod_to_hands()
 	_float_rest = to_local(Vector3(global_position.x, water_y, global_position.z)) + Vector3(0, 0, -3.3)
 	_float_node.position = _float_rest
 
 
 func _process(delta: float) -> void:
 	super._process(delta)
+	_attach_rod_to_hands()
 	_clock += delta
 	var near := look_target != null and look_target.global_position.distance_to(global_position) < WAKE_DISTANCE
 	if phase == Phase.WAIT and catches == 0 and not near:
@@ -115,6 +117,7 @@ func _process(delta: float) -> void:
 			_rod.rotation_degrees.x = lerpf(_rod.rotation_degrees.x, 12.0, delta * 10.0)
 			if _timer <= 0.0:
 				_enter(Phase.REEL, 1.3)
+				rig.set_pose("sit_reel")
 				_fish.visible = true
 				_float_node.visible = false
 				if bus:
@@ -140,9 +143,16 @@ func _process(delta: float) -> void:
 				_fish.visible = false
 				_float_node.visible = true
 				_rod.rotation_degrees.x = 28
+				rig.set_pose("sit_fishing")
 				catches += 1
 				_enter(Phase.WAIT, randf_range(25.0, 40.0))
 	_draw_line()
+
+
+## The rod butt follows the right hand, so arm poses and rod angle stay together.
+func _attach_rod_to_hands() -> void:
+	if rig and rig.joints.has("r_hand") and is_inside_tree():
+		_rod.global_position = rig.joints["r_hand"].global_position
 
 
 func _enter(p: Phase, seconds: float) -> void:
