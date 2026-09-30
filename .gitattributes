@@ -1,0 +1,8 @@
+# Keep LF everywhere (Godot files, shell scripts); treat binaries as binary.
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.wav binary
+*.ogg binary
+*.glb binary
+*.exe binary
