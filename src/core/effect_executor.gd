@@ -50,6 +50,17 @@ func apply(e: Dictionary) -> void:
 			ctx.bus.emit_event(GameEvents.MESSAGE, {"text": str(e["text"]), "style": str(e.get("style", "thought"))})
 		"cue":
 			ctx.bus.emit_event(GameEvents.CUE, e)
+		"open_shop":
+			ctx.bus.emit_event(GameEvents.CUE, {"cue": "open_shop", "shop": str(e["shop"])})
+		"mark_today":
+			ctx.state.set_var(str(e["key"]), str(ctx.clock.day))
+		"advance_time":
+			ctx.clock.advance_minutes(float(e["minutes"]))
+		"work":  # a small paid job: time passes, money earned, a short fade with what happened
+			ctx.clock.advance_minutes(float(e.get("minutes", 60)))
+			ctx.state.add_money(int(e.get("pay", 0)))
+			ctx.state.add_stat("JobsDone", 1)
+			ctx.bus.emit_event(GameEvents.CUE, {"cue": "work", "lines": e.get("lines", []), "pay": int(e.get("pay", 0))})
 		"autosave":
 			ctx.bus.emit_event(GameEvents.AUTOSAVE_REQUESTED, {"reason": str(e.get("reason", "effect"))})
 		_:

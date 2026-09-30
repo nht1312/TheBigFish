@@ -39,6 +39,7 @@ const DIALOGUE_ENDED := &"DialogueEnded"
 const STORY_EVENT_TRIGGERED := &"StoryEventTriggered"
 const INTERACTED := &"Interacted"
 const FISHERMAN_CATCH_OBSERVED := &"FishermanCatchObserved"
+const CHAPTER_STARTED := &"ChapterStarted"
 
 ## Presentation-only events: UI/audio/camera react, game logic never depends on them.
 const MESSAGE := &"Message"

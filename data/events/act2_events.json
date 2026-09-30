@@ -1,0 +1,39 @@
+[
+  {"id": "EVENT_ACT2_MORNING", "category": "STORY", "story_state": "ACT_II",
+   "trigger": {"on": "ChapterStarted", "match": {"chapter": "ACT_II"}}, "once": true,
+   "effects": [
+     {"type": "start_quest", "quest": "QUEST_MAIN_GET_BACK_UP"}
+   ],
+   "dialogue": "DIALOGUE_MOTHER_DAY2"},
+  {"id": "EVENT_FIRST_SALE", "category": "STORY",
+   "trigger": {"on": "ItemSold", "match": {"first": true}}, "once": true,
+   "effects": [
+     {"type": "message", "text": "Tiền mình tự kiếm.", "style": "thought"}
+   ]},
+  {"id": "EVENT_FIRST_FISH_SALE", "category": "STORY",
+   "trigger": {"on": "FishSold", "match": {"first": true}}, "once": true,
+   "effects": [
+     {"type": "add_stat", "key": "FishingPassion", "value": 3},
+     {"type": "message", "text": "Câu cá cũng ra tiền được.", "style": "thought"}
+   ]},
+  {"id": "EVENT_BOUGHT_ROD", "category": "STORY", "autosave": true,
+   "trigger": {"on": "ItemBought", "match": {"item": "ITEM_ROD_BASIC"}}, "once": true,
+   "effects": [
+     {"type": "add_stat", "key": "FishingPassion", "value": 5},
+     {"type": "message", "text": "Cây cần đầu tiên mình tự mua.", "style": "thought"}
+   ]},
+  {"id": "EVENT_ARRIVE_LAKE", "category": "STORY",
+   "trigger": {"on": "MapEntered", "match": {"map": "MAP_LAKE"}}, "once": true,
+   "effects": [
+     {"type": "message", "text": "Rộng quá. Gió thổi mặt nước lăn tăn.", "style": "thought"}
+   ]},
+  {"id": "EVENT_ACT2_COMPLETE", "category": "STORY", "story_state": "ACT_II_COMPLETE", "autosave": true,
+   "trigger": {"on": "QuestCompleted", "match": {"quest": "QUEST_MAIN_THE_LAKE"}}, "once": true,
+   "effects": [
+     {"type": "set_flag", "key": "ACT_II_COMPLETE"},
+     {"type": "set_var", "key": "story.chapter", "value": "ACT_III"},
+     {"type": "add_stat", "key": "FishingPassion", "value": 5},
+     {"type": "message", "text": "Một ngày nào đó mình sẽ quay lại cái ống cống đó.", "style": "thought"},
+     {"type": "cue", "cue": "chapter_end", "chapter": "ACT_II", "delay": 5.0}
+   ]}
+]

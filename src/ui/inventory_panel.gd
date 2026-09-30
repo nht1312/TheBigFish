@@ -32,7 +32,7 @@ func refresh() -> void:
 		c.free()
 	var ctx := App.ctx()
 	list.add_child(UiStyle.label("Đồ mang theo", 22, UiStyle.THOUGHT))
-	list.add_child(UiStyle.label("Tiền: %d" % ctx.state.money, 17, UiStyle.DIM))
+	list.add_child(UiStyle.label("Tiền: " + EconomySystem.format_money(ctx.state.money), 17, UiStyle.DIM))
 	if ctx.inventory.entries.is_empty():
 		list.add_child(UiStyle.label("Chẳng có gì.", 18, UiStyle.DIM))
 	for category in CATEGORY_NAMES:

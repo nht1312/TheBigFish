@@ -1,0 +1,20 @@
+[
+  {"id": "QUEST_MAIN_GET_BACK_UP", "mq": "MQ_008", "title": "Làm lại từ đầu", "type": "MAIN", "sequential": true,
+   "objectives": [
+     {"id": "shop", "text": "Ghé tiệm đồ câu đầu xóm (mở 7:00–18:00)", "condition": {"type": "flag", "key": "dialogue_done:DIALOGUE_SHOP_OWNER_001"}},
+     {"id": "save", "text": "Dành dụm đủ 100.000đ mua cây cần tay — lượm ve chai, phụ vựa", "condition": {"type": "money_gte", "value": 100}}
+   ],
+   "next": ["QUEST_MAIN_FIRST_REAL_GEAR"]},
+  {"id": "QUEST_MAIN_FIRST_REAL_GEAR", "mq": "MQ_009", "title": "Cây cần thật sự", "type": "MAIN", "sequential": true,
+   "objectives": [
+     {"id": "buy", "text": "Mua cây cần tay ở tiệm đồ câu", "condition": {"type": "has_item", "item": "ITEM_ROD_BASIC"}},
+     {"id": "sell", "text": "Mang cá ra chợ bán (chợ chỉ họp buổi sáng)", "condition": {"type": "stat_gte", "key": "FishSold", "value": 1}}
+   ],
+   "next": ["QUEST_MAIN_THE_LAKE"]},
+  {"id": "QUEST_MAIN_THE_LAKE", "mq": "MQ_010", "title": "Cái hồ", "type": "MAIN", "sequential": true,
+   "objectives": [
+     {"id": "ask", "text": "Hỏi chú bán đồ câu chỗ nào câu được cá lớn hơn", "condition": {"type": "flag", "key": "LAKE_TOLD"}},
+     {"id": "go", "text": "Đón xe buýt ở trạm đầu chợ ra hồ (vé 5.000đ)", "condition": {"type": "current_map", "map": "MAP_LAKE"}},
+     {"id": "catch", "text": "Câu một con cá ở hồ", "condition": {"type": "stat_gte", "key": "FishCaught.MAP_LAKE", "value": 1}}
+   ]}
+]

@@ -1,6 +1,6 @@
 class_name WorldBuilder
 extends RefCounted
-## Builds MAP_HOME and MAP_DRAIN (VERTICAL-SLICE §5–6, §16, docs/12) from primitives
+## Builds MAP_HOME and MAP_DRAIN (Act II places and MAP_LAKE: Act2Areas) (VERTICAL-SLICE §5–6, §16, docs/12) from primitives
 ## dressed with PBR materials (MaterialLibrary). Gameplay positions — interactables,
 ## colliders, spawns — are fixed here; art can replace the meshes without moving them.
 ## Water surfaces come from the fishing spots in data/maps so geometry and logic agree.
@@ -27,7 +27,9 @@ const GRASS_EXCLUDE := [
 	[52.6, 14, 58, 34],        # dirt path to the drain
 	[56.3, 29.4, 83.7, 100.6], # drain channel and lips
 	[-30.5, 16.4, 8.5, 23.6],  # canal
-	[11.5, -0.5, 48.5, 7.5],   # north row houses
+	[11.5, -0.5, 55, 9.6],     # north row houses + fishing shop
+	[61.5, -4.5, 78.5, 8.5],   # scrap yard
+	[82.5, 14.3, 101.5, 24],   # market
 	[-40.5, -0.5, -11.5, 7.5],
 	[13.5, 16, 46.5, 24.5],    # south row houses
 	[59.5, 63.5, 80.5, 67],    # bridge
@@ -36,6 +38,7 @@ const GRASS_EXCLUDE := [
 var root: Node3D
 var lib := MaterialLibrary.new()
 var spawns: Dictionary = {}  # name -> { position: Vector3, yaw: float (degrees) }
+var act2: Act2Areas
 var fisherman_spot: Vector3 = Vector3(-8, 0, 16.3)
 var mother_spot: Vector3 = Vector3(1.8, 0, 4.8)
 var grass_density: float = 5.0
@@ -57,13 +60,21 @@ func build(p_root: Node3D, data: DataRegistry) -> void:
 	_trees()
 	_backdrop()
 	_bounds()
+	act2 = Act2Areas.new(self)
+	act2.build(data)
 	if grass_density > 0.0:
 		GrassField.new(grass_density, grass_distance).build(root, [-45, -25, 100, 110], GRASS_EXCLUDE, _rng)
+		GrassField.new(grass_density, grass_distance).build(root, [398, -82, 582, 82], Act2Areas.LAKE_GRASS_EXCLUDE, _rng)
 	spawns = {
 		"start": {"position": Vector3(30, 1, 12), "yaw": 90.0},
 		"home": {"position": Vector3(0, 1, 7), "yaw": 0.0},
 		"fisherman": {"position": Vector3(-8, 1, 13), "yaw": 180.0},
 		"drain": {"position": Vector3(57.5, 1, 45), "yaw": -90.0},
+		"shop": {"position": Vector3(52, 1, 11), "yaw": 0.0},
+		"market": {"position": Vector3(90, 1, 12.5), "yaw": 180.0},
+		"home_stop": {"position": Vector3(97, 1, 11), "yaw": 90.0},
+		"lake_stop": {"position": Vector3(420, 1, -10), "yaw": -90.0},
+		"lake": {"position": Vector3(450, 1, 0), "yaw": -90.0},
 	}
 
 
@@ -287,7 +298,7 @@ func _neighborhood() -> void:
 	# Narrow tube houses (nhà ống) along both sides of the road.
 	var x := 12.0
 	var i := 0
-	while x < 48.0:
+	while x < 44.0:  # the fishing shop stands at x 49.5
 		var w := _rng.randf_range(4.0, 5.5)
 		_tube_house(x, w, 0.0, 7.0, 1, _rng.randi_range(1, 3), i)
 		x += w
@@ -566,7 +577,7 @@ func _noise_normal(seed: int, frequency: float) -> NoiseTexture2D:
 ## Shade trees inside the playable area, kept clear of paths and interactables.
 func _trees() -> void:
 	for p in [Vector3(-12, 0, -10), Vector3(11, 0, -9), Vector3(-24, 0, 30), Vector3(4, 0, 30),
-			Vector3(50, 0, -6), Vector3(90, 0, 22), Vector3(89, 0, 62), Vector3(46, 0, 46),
+			Vector3(50, 0, -6), Vector3(106, 0, 24), Vector3(89, 0, 62), Vector3(46, 0, 46),
 			Vector3(-35, 0, -15), Vector3(25, 0, 35), Vector3(100, 0, 90), Vector3(-45, 0, 45)]:
 		_tree(p, _rng.randf_range(6.0, 9.0), true)
 
@@ -575,10 +586,11 @@ func _trees() -> void:
 func _backdrop() -> void:
 	# Ring of far ground around the map (x -60..120, z -40..120) — never over the drain pit.
 	var far := surf("grass", Color(0.7, 0.95, 0.55), Color(0.36, 0.45, 0.24))
-	box(root, Vector3(-400, -0.05, -400), Vector3(520, -0.02, -40), far, false)
-	box(root, Vector3(-400, -0.05, 120), Vector3(520, -0.02, 520), far, false)
+	# Stops at x 360, where the lake's own ground begins.
+	box(root, Vector3(-400, -0.05, -400), Vector3(360, -0.02, -40), far, false)
+	box(root, Vector3(-400, -0.05, 120), Vector3(360, -0.02, 520), far, false)
 	box(root, Vector3(-400, -0.05, -40), Vector3(-60, -0.02, 120), far, false)
-	box(root, Vector3(120, -0.05, -40), Vector3(520, -0.02, 120), far, false)
+	box(root, Vector3(120, -0.05, -40), Vector3(360, -0.02, 120), far, false)
 	var x := -70.0
 	while x < 130.0:
 		for z in [_rng.randf_range(-58, -46), _rng.randf_range(126, 140)]:

@@ -5,7 +5,7 @@ extends RefCounted
 ## Layout: data/<collection>/*.json, each file holding an array of definitions.
 
 const COLLECTIONS: Array[String] = [
-	"items", "recipes", "fish", "quests", "dialogues", "events", "npcs", "maps", "interactables",
+	"items", "recipes", "fish", "quests", "dialogues", "events", "npcs", "maps", "interactables", "shops",
 ]
 
 var tables: Dictionary = {}  # collection -> { id -> definition }

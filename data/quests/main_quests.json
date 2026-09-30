@@ -38,5 +38,6 @@
      {"id": "giant", "text": "Dưới nước còn có gì đó", "condition": {"type": "event_done", "event": "EVENT_GIANT_FISH_BREAKS_ROD"}},
      {"id": "home", "text": "Về nhà", "condition": {"type": "current_location", "location": "LOC_HOME_YARD"}},
      {"id": "end", "text": "", "condition": {"type": "flag", "key": "VERTICAL_SLICE_COMPLETE"}}
-   ]}
+   ],
+   "next": ["QUEST_MAIN_GET_BACK_UP"]}
 ]

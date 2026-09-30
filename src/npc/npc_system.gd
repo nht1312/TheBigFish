@@ -12,6 +12,19 @@ func _init(context: GameContext) -> void:
 	ctx = context
 
 
+## Whether the NPC is at their spot right now. "schedule": [{ from, to }] in hours;
+## no schedule means always there (docs/13 §4 — presence only, no movement yet).
+func is_present(npc_id: String) -> bool:
+	var schedule: Array = ctx.data.get_def("npcs", npc_id).get("schedule", [])
+	if schedule.is_empty():
+		return true
+	var h := ctx.clock.minutes / 60.0
+	for block in schedule:
+		if h >= float(block["from"]) and h < float(block["to"]):
+			return true
+	return false
+
+
 func dialogue_for(npc_id: String) -> String:
 	for option in ctx.data.get_def("npcs", npc_id).get("dialogues", []):
 		if ctx.conditions.check(option.get("conditions", [])):

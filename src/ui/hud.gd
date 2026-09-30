@@ -13,6 +13,7 @@ var fade_text: Label
 var fishing_hud: FishingHud
 var dialogue_panel: DialoguePanel
 var inventory_panel: InventoryPanel
+var shop_panel: ShopPanel
 var pause_menu: PauseMenu
 var debug_overlay: DebugOverlay
 var debug_console: DebugConsole
@@ -66,6 +67,8 @@ func _init() -> void:
 	root.add_child(dialogue_panel)
 	inventory_panel = InventoryPanel.new()
 	root.add_child(inventory_panel)
+	shop_panel = ShopPanel.new()
+	root.add_child(shop_panel)
 
 	fade_rect = ColorRect.new()
 	fade_rect.color = Color(0, 0, 0, 0)
@@ -145,6 +148,24 @@ func fade_sequence(lines: Array, seconds_per_line: float = 2.2, stay_black: bool
 		back.tween_property(fade_rect, "color:a", 0.0, 0.8)
 		await back.finished
 	_fading = false
+
+
+## Back from a fade_sequence(..., stay_black = true).
+func fade_from_black(seconds: float = 0.8) -> void:
+	var back := create_tween()
+	back.tween_property(fade_rect, "color:a", 0.0, seconds)
+	await back.finished
+	_fading = false
+
+
+## Big centred text on the current (usually black) screen, then gone.
+func title_card(text: String, seconds: float = 3.5) -> void:
+	fade_text.text = text
+	var t := create_tween()
+	t.tween_property(fade_text, "modulate:a", 1.0, 0.8)
+	t.tween_interval(seconds)
+	t.tween_property(fade_text, "modulate:a", 0.0, 0.8)
+	await t.finished
 
 
 func is_fading() -> bool:

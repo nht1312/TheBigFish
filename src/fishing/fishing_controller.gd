@@ -149,12 +149,18 @@ func _toggle_rod() -> void:
 	var gear := inv.entries_in_category("FISHING_GEAR")
 	if gear.is_empty():
 		return
+	# Take the strongest rod the player owns.
+	gear.sort_custom(func(a, b): return _rod_strength(a) > _rod_strength(b))
 	_rod_uid = int(gear[0]["uid"])
 	inv.equip(_rod_uid)
 	if inv.equipped_item_id("bait") == "":
 		inv.cycle_bait()
 	in_hand = true
 	_rod_tip_piece.visible = true
+
+
+func _rod_strength(entry: Dictionary) -> float:
+	return float(ctx().data.get_item(entry["id"]).get("rod", {}).get("strength", 0.0))
 
 
 func _release_cast(power: float) -> void:

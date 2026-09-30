@@ -18,7 +18,7 @@
    "text": "Lục được một đoạn kẽm nhỏ, uốn được.",
    "locked_text": "Đống ve chai: lon, chai nhựa, dây điện cũ."},
   {"id": "INT_BAIT_SOIL_HOME", "name": "Đất ẩm dưới gốc chuối", "kind": "collect", "prompt": "Đào", "item": "ITEM_BASIC_BAIT", "qty": 4,
-   "conditions": [{"type": "has_item", "item": "ITEM_IMPROVISED_ROD"}, {"type": "lacks_item", "item": "ITEM_BASIC_BAIT"}],
+   "conditions": [{"type": "has_category", "category": "FISHING_GEAR"}, {"type": "lacks_item", "item": "ITEM_BASIC_BAIT"}],
    "text": "Bới lớp đất ẩm. Được mấy con giun ngoe nguẩy.",
    "locked_text": "Đất dưới gốc chuối lúc nào cũng ẩm."},
   {"id": "INT_CRAFT_SPOT", "name": "Bậc cửa", "kind": "craft", "prompt": "Ngồi làm cần câu", "recipe": "RECIPE_IMPROVISED_ROD",

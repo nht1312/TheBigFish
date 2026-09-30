@@ -1,6 +1,7 @@
 class_name OldFishermanActor
 extends NpcActor
-## NPC_OLD_FISHERMAN fishing at the canal (VERTICAL-SLICE §8–9).
+## A seated NPC angler — NPC_OLD_FISHERMAN at the canal (VERTICAL-SLICE §8–9), and
+## anyone else whose spawn data says actor "fisherman".
 ## Loops: wait → nibble → bite → reel → hold the fish up → bucket.
 ## When the player is close enough to see a catch, emits FishermanCatchObserved.
 
@@ -25,9 +26,9 @@ var _line_mesh := ImmediateMesh.new()
 var _clock: float = 0.0
 
 
-func build(p_bus: EventBus, appearance: Dictionary) -> void:
+func build(p_bus: EventBus, appearance: Dictionary, p_npc_id: String = "NPC_OLD_FISHERMAN", interactable_id: String = "INT_OLD_FISHERMAN") -> void:
 	bus = p_bus
-	setup("NPC_OLD_FISHERMAN", "INT_OLD_FISHERMAN", appearance, 0.4)
+	setup(p_npc_id, interactable_id, appearance, 0.4)
 	var stool := MeshInstance3D.new()
 	var sm := BoxMesh.new()
 	sm.size = Vector3(0.4, 0.4, 0.4)

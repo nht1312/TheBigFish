@@ -52,6 +52,7 @@
      {"type": "add_memory", "npc": "NPC_MOTHER", "memory": "SAW_BROKEN_FIRST_ROD"},
      {"type": "modify_relationship", "npc": "NPC_MOTHER", "dim": "Concern", "delta": 3},
      {"type": "set_flag", "key": "VERTICAL_SLICE_COMPLETE"},
+     {"type": "set_var", "key": "story.chapter", "value": "ACT_II"},
      {"type": "cue", "cue": "vs_ending"},
      {"type": "autosave", "reason": "vertical_slice_complete"}
    ]},

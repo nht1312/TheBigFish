@@ -1,6 +1,6 @@
 [
   {"id": "INT_BAIT_SOIL_DRAIN", "name": "Bãi bùn ven cống", "kind": "collect", "prompt": "Đào", "item": "ITEM_BASIC_BAIT", "qty": 3,
-   "conditions": [{"type": "has_item", "item": "ITEM_IMPROVISED_ROD"}, {"type": "lacks_item", "item": "ITEM_BASIC_BAIT"}],
+   "conditions": [{"type": "has_category", "category": "FISHING_GEAR"}, {"type": "lacks_item", "item": "ITEM_BASIC_BAIT"}],
    "text": "Bùn hôi, nhưng có giun.",
    "locked_text": "Bùn ven cống, dẫm vào là lún tới mắt cá."},
   {"id": "INT_DRAIN_PIPE", "name": "Ống cống lớn", "kind": "inspect", "text": "Ống cống bê tông to hơn cả người. Nước chảy ra ồ ồ, bên trong tối om."},

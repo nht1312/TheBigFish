@@ -1,0 +1,224 @@
+[
+  {"id": "DIALOGUE_MOTHER_DAY2", "tags": ["FAMILY", "STORY"], "start": "n1",
+   "nodes": {
+     "n1": {"speaker": "NARRATION", "text": "Sáng. Mẹ đang quét sân. Đoạn tre gãy vẫn dựng ở góc nhà.", "next": "n2"},
+     "n2": {"speaker": "NPC_MOTHER", "text": "Dậy rồi hả. Hôm qua con cá đó to lắm hả?", "choices": [
+       {"text": "Dạ. To lắm. Con muốn câu cho được nó.", "next": "honest1", "effects": [
+         {"type": "modify_relationship", "npc": "NPC_MOTHER", "dim": "Understanding", "delta": 2},
+         {"type": "add_memory", "npc": "NPC_MOTHER", "memory": "PLAYER_WANTS_GIANT_FISH"}
+       ]},
+       {"text": "Không có gì đâu mẹ. Con chơi thôi.", "next": "hide1", "effects": [
+         {"type": "modify_relationship", "npc": "NPC_MOTHER", "dim": "Understanding", "delta": -1}
+       ]}
+     ]},
+     "honest1": {"speaker": "NPC_MOTHER", "text": "Cần tre thì câu cá lòng tong thôi. Muốn câu con lớn phải có đồ đàng hoàng.", "next": "money1"},
+     "hide1": {"speaker": "NPC_MOTHER", "text": "Chơi mà bùn tới cổ.", "next": "money1"},
+     "money1": {"speaker": "NPC_MOTHER", "text": "Nhà mình không dư tiền mua mấy thứ đó đâu nghe.", "choices": [
+       {"text": "Con tự kiếm tiền.", "next": "earn1", "effects": [
+         {"type": "modify_relationship", "npc": "NPC_MOTHER", "dim": "Respect", "delta": 2}
+       ]},
+       {"text": "Con biết rồi.", "next": "earn0"}
+     ]},
+     "earn1": {"speaker": "NPC_MOTHER", "text": "Kiếm bằng gì? ...Bà ve chai đầu xóm cần người phụ phân loại. Chai lọ ngoài đường lượm đem bán cũng được đồng nào hay đồng đó.", "next": "earn2"},
+     "earn0": {"speaker": "NPC_MOTHER", "text": "Biết thì tốt. Muốn có tiền thì ra hỏi bà ve chai đầu xóm, bả cần người phụ.", "next": "earn2"},
+     "earn2": {"speaker": "NPC_MOTHER", "text": "Mà tối nhớ về ăn cơm. Mẹ không đi kiếm đâu."}
+   },
+   "end_effects": [
+     {"type": "add_memory", "npc": "NPC_MOTHER", "memory": "TALKED_ABOUT_MONEY"},
+     {"type": "message", "text": "Tiệm đồ câu đầu xóm... coi thử cây cần bao nhiêu tiền.", "style": "thought"}
+   ]},
+
+  {"id": "DIALOGUE_MOTHER_BASIC_ROD", "tags": ["FAMILY", "STORY"], "start": "n1",
+   "nodes": {
+     "n1": {"speaker": "NARRATION", "text": "Mẹ nhìn cây cần mới trên vai bạn.", "next": "n2"},
+     "n2": {"speaker": "NPC_MOTHER", "text": "Cây đó ở đâu ra?", "choices": [
+       {"text": "Con mua. Tiền con lượm ve chai với phụ vựa.", "next": "honest", "effects": [
+         {"type": "modify_relationship", "npc": "NPC_MOTHER", "dim": "Respect", "delta": 3},
+         {"type": "modify_relationship", "npc": "NPC_MOTHER", "dim": "Trust", "delta": 2},
+         {"type": "add_memory", "npc": "NPC_MOTHER", "memory": "BOUGHT_ROD_HONEST"}
+       ]},
+       {"text": "Người ta cho con.", "next": "lie", "effects": [
+         {"type": "modify_relationship", "npc": "NPC_MOTHER", "dim": "Trust", "delta": -3},
+         {"type": "set_flag", "key": "LIED_ABOUT_ROD"}
+       ]}
+     ]},
+     "honest": {"speaker": "NPC_MOTHER", "text": "...Tự kiếm hả.", "next": "honest2"},
+     "honest2": {"speaker": "NARRATION", "text": "Mẹ không nói gì thêm, nhưng lúc quay đi hình như có cười.", "next": "warn"},
+     "lie": {"speaker": "NPC_MOTHER", "text": "Ai mà cho không ai cái gì.", "next": "lie2"},
+     "lie2": {"speaker": "NARRATION", "text": "Mẹ nhìn bạn lâu hơn bình thường một chút.", "next": "warn"},
+     "warn": {"speaker": "NPC_MOTHER", "text": "Có đồ rồi thì câu cho cẩn thận. Đừng đứng sát mép cống."}
+   },
+   "end_effects": [
+     {"type": "modify_relationship", "npc": "NPC_MOTHER", "dim": "Concern", "delta": 1}
+   ]},
+
+  {"id": "DIALOGUE_MOTHER_ACT2", "tags": ["FAMILY"], "start": "n1",
+   "nodes": {
+     "n1": {"speaker": "NPC_MOTHER", "text": "Gì đó con?", "branch": [
+       {"conditions": [{"type": "day_phase", "phase": "MORNING"}], "next": "morning"},
+       {"conditions": [{"type": "day_phase", "phase": "EVENING"}], "next": "evening"},
+       {"conditions": [{"type": "day_phase", "phase": "NIGHT"}], "next": "night"}
+     ]},
+     "morning": {"speaker": "NPC_MOTHER", "text": "Đi chợ thì đi sớm. Trưa người ta dọn hết rồi."},
+     "evening": {"speaker": "NPC_MOTHER", "text": "Về rồi hả. Tắm rửa đi rồi ăn cơm."},
+     "night": {"speaker": "NPC_MOTHER", "text": "Khuya rồi. Vô ngủ đi, mai còn dậy sớm."}
+   }},
+
+  {"id": "DIALOGUE_FISHERMAN_BASIC_ROD", "tags": ["FISHING"], "start": "n1",
+   "nodes": {
+     "n1": {"speaker": "NARRATION", "text": "Ông liếc cây cần tay mới của bạn.", "next": "n2"},
+     "n2": {"speaker": "NPC_OLD_FISHERMAN", "text": "Cần tay ba mét sáu. Được đó.", "next": "n3"},
+     "n3": {"speaker": "NPC_OLD_FISHERMAN", "text": "Dây nó chịu hơn, nhưng cá lớn kéo thì phải nhả. Căng quá là đứt.", "next": "n4"},
+     "n4": {"speaker": "NPC_OLD_FISHERMAN", "text": "Con cá dưới ống cống đó hả... cần này chưa đủ đâu. Ra hồ câu cho quen tay đã."}
+   },
+   "end_effects": [
+     {"type": "add_stat", "key": "Knowledge.Fishing", "value": 1},
+     {"type": "modify_relationship", "npc": "NPC_OLD_FISHERMAN", "dim": "Respect", "delta": 2},
+     {"type": "add_memory", "npc": "NPC_OLD_FISHERMAN", "memory": "SAW_PLAYER_BASIC_ROD"}
+   ]},
+
+  {"id": "DIALOGUE_SHOP_OWNER_001", "tags": ["SHOP", "STORY"], "start": "n1",
+   "nodes": {
+     "n1": {"speaker": "NARRATION", "text": "Tiệm nhỏ, cần câu dựng kín một bức tường. Chú chủ tiệm đang cột lưỡi.", "next": "n2"},
+     "n2": {"speaker": "NPC_SHOP_OWNER", "text": "Mua gì con?", "choices": [
+       {"text": "Cây cần rẻ nhất bao nhiêu vậy chú?", "next": "price"},
+       {"text": "Con coi thôi.", "next": "look"}
+     ]},
+     "look": {"speaker": "NPC_SHOP_OWNER", "text": "Ừ, coi đi. Đừng đụng lưỡi, bén lắm.", "next": "price0"},
+     "price0": {"speaker": "NARRATION", "text": "Cây rẻ nhất treo gần cửa. Cái thẻ ghi giá cột bằng dây thun.", "next": "price"},
+     "price": {"speaker": "NPC_SHOP_OWNER", "text": "Cần tay ba mét sáu, một trăm ngàn. Có dây có lưỡi luôn, về là câu được.", "choices": [
+       {"text": "Con chưa đủ tiền.", "next": "poor"},
+       {"text": "Hôm qua con câu bằng cần tre, bị con cá kéo gãy luôn.", "next": "story", "effects": [
+         {"type": "modify_relationship", "npc": "NPC_SHOP_OWNER", "dim": "Familiarity", "delta": 2}
+       ]}
+     ]},
+     "story": {"speaker": "NPC_SHOP_OWNER", "text": "Cần tre mà kéo gãy? Ở đâu vậy? ...Cống lớn hả. Cá gì ở đó to vậy ta.", "next": "poor"},
+     "poor": {"speaker": "NPC_SHOP_OWNER", "text": "Hồi bằng tuổi con chú cũng đi lượm ve chai mua cây cần đầu tiên. Bà ve chai trong vựa kế bên đó.", "next": "poor2"},
+     "poor2": {"speaker": "NPC_SHOP_OWNER", "text": "Đủ tiền thì ghé. Chú để dành cây đó cho."}
+   },
+   "end_effects": [
+     {"type": "set_flag", "key": "SHOP_ROD_PRICE_SEEN"},
+     {"type": "modify_relationship", "npc": "NPC_SHOP_OWNER", "dim": "Familiarity", "delta": 1}
+   ]},
+
+  {"id": "DIALOGUE_SHOP_OWNER_SHOP", "tags": ["SHOP"], "start": "n1",
+   "nodes": {
+     "n1": {"speaker": "NPC_SHOP_OWNER", "text": "Coi đi con.", "branch": [
+       {"conditions": [{"type": "has_item", "item": "ITEM_ROD_BASIC"}], "next": "owner"},
+       {"conditions": [{"type": "money_gte", "value": 100}], "next": "rich"}
+     ]},
+     "owner": {"speaker": "NPC_SHOP_OWNER", "text": "Cây cần sao rồi? Hết mồi thì mua, giun với cám đều có."},
+     "rich": {"speaker": "NPC_SHOP_OWNER", "text": "Đủ tiền rồi hả? Cây đó chú vẫn để đó."}
+   },
+   "end_effects": [
+     {"type": "open_shop", "shop": "SHOP_FISHING"}
+   ]},
+
+  {"id": "DIALOGUE_SHOP_OWNER_LAKE", "tags": ["SHOP", "STORY"], "start": "n1",
+   "nodes": {
+     "n1": {"speaker": "NPC_SHOP_OWNER", "text": "Nghe nói con đem cá ra chợ bán rồi hả? Bà bán cá kể.", "next": "n2"},
+     "n2": {"speaker": "NPC_SHOP_OWNER", "text": "Cá cống thì nhỏ thôi. Muốn cá lớn phải ra hồ.", "choices": [
+       {"text": "Hồ ở đâu vậy chú?", "next": "where"},
+       {"text": "Ở hồ có cá gì?", "next": "fish"}
+     ]},
+     "fish": {"speaker": "NPC_SHOP_OWNER", "text": "Rô phi, cá chép, có khi gặp cá lóc. Chép nó khôn lắm, động là nó bỏ mồi. Phải ngồi im.", "next": "where"},
+     "where": {"speaker": "NPC_SHOP_OWNER", "text": "Ra trạm xe buýt đầu chợ, đón xe đi chừng bốn mươi phút. Vé năm ngàn.", "next": "n3"},
+     "n3": {"speaker": "NPC_SHOP_OWNER", "text": "Đi sớm hoặc chiều mát. Trưa nắng cá lặn hết."}
+   },
+   "end_effects": [
+     {"type": "set_flag", "key": "LAKE_TOLD"},
+     {"type": "unlock_map", "map": "MAP_LAKE"},
+     {"type": "add_stat", "key": "Knowledge.Fishing", "value": 1},
+     {"type": "modify_relationship", "npc": "NPC_SHOP_OWNER", "dim": "Familiarity", "delta": 2},
+     {"type": "message", "text": "Cái hồ... Trạm xe buýt ở đầu chợ.", "style": "thought"}
+   ]},
+
+  {"id": "DIALOGUE_FISH_VENDOR_001", "tags": ["SHOP"], "start": "n1",
+   "nodes": {
+     "n1": {"speaker": "NARRATION", "text": "Cô bán cá ngồi sau mấy cái thau nhôm, tay cầm dao, mắt không rời khách.", "next": "n2"},
+     "n2": {"speaker": "NPC_FISH_VENDOR", "text": "Mua cá hả con? Hay có cá bán?", "choices": [
+       {"text": "Con có cá câu được. Cô mua không?", "next": "sell"},
+       {"text": "Cô mua cá như nào vậy?", "next": "how"}
+     ]},
+     "how": {"speaker": "NPC_FISH_VENDOR", "text": "Cân ký. Cá càng nặng càng nhiều tiền, cá ngon thì giá cao hơn.", "next": "sell"},
+     "sell": {"speaker": "NPC_FISH_VENDOR", "text": "Cá tươi cô mua giá đủ. Để qua ngày là ươn, cô trả nửa thôi nghe.", "next": "n3"},
+     "n3": {"speaker": "NPC_FISH_VENDOR", "text": "Cô bán tới trưa là dọn. Có cá thì mang ra sớm."}
+   },
+   "end_effects": [
+     {"type": "add_stat", "key": "Knowledge.Market", "value": 1},
+     {"type": "open_shop", "shop": "SHOP_FISH_VENDOR"}
+   ]},
+
+  {"id": "DIALOGUE_FISH_VENDOR_SHOP", "tags": ["SHOP"], "start": "n1",
+   "nodes": {
+     "n1": {"speaker": "NPC_FISH_VENDOR", "text": "Cá đâu, đưa cô cân coi."}
+   },
+   "end_effects": [
+     {"type": "modify_relationship", "npc": "NPC_FISH_VENDOR", "dim": "Business", "delta": 1},
+     {"type": "open_shop", "shop": "SHOP_FISH_VENDOR"}
+   ]},
+
+  {"id": "DIALOGUE_SCRAP_001", "tags": ["SHOP", "WORK"], "start": "n1",
+   "nodes": {
+     "n1": {"speaker": "NARRATION", "text": "Vựa chất đầy bao tải. Bà ve chai ngồi phân loại lon, tay nhanh thoăn thoắt.", "next": "n2"},
+     "n2": {"speaker": "NPC_SCRAP_COLLECTOR", "text": "Con nhà ai đây? Bán gì?", "choices": [
+       {"text": "Mẹ con nói bà cần người phụ.", "next": "job"},
+       {"text": "Bà mua chai lọ không?", "next": "buy"}
+     ]},
+     "buy": {"speaker": "NPC_SCRAP_COLLECTOR", "text": "Mua hết. Chai nhựa, lon nhôm, giấy, sắt vụn. Sắt là được giá nhất.", "next": "job"},
+     "job": {"speaker": "NPC_SCRAP_COLLECTOR", "text": "Cần người phân loại thì có. Ngày một buổi, hai tiếng, bà trả hai lăm ngàn.", "next": "n3"},
+     "n3": {"speaker": "NPC_SCRAP_COLLECTOR", "text": "Ngoài đường người ta vứt đầy. Lượm đem vô đây bà cân cho. Sáng nào cũng có đồ mới."}
+   },
+   "end_effects": [
+     {"type": "modify_relationship", "npc": "NPC_SCRAP_COLLECTOR", "dim": "Familiarity", "delta": 2}
+   ]},
+
+  {"id": "DIALOGUE_SCRAP_SHOP", "tags": ["SHOP", "WORK"], "start": "n1",
+   "nodes": {
+     "n1": {"speaker": "NPC_SCRAP_COLLECTOR", "text": "Lại đó hả con?", "choices": [
+       {"text": "Con bán ve chai.", "next": "sell"},
+       {"text": "Con phụ bà phân loại. (2 tiếng, 25.000đ)", "next": "work", "conditions": [{"type": "not_today", "key": "job:SCRAP_SORT"}]},
+       {"text": "Thôi, con đi.", "next": "bye"}
+     ]},
+     "sell": {"speaker": "NPC_SCRAP_COLLECTOR", "text": "Đưa đây bà cân.", "effects": [
+       {"type": "open_shop", "shop": "SHOP_SCRAP"}
+     ]},
+     "work": {"speaker": "NPC_SCRAP_COLLECTOR", "text": "Ngồi đây. Lon riêng, chai riêng, giấy riêng. Đừng để bị đứt tay.", "effects": [
+       {"type": "mark_today", "key": "job:SCRAP_SORT"},
+       {"type": "work", "pay": 25, "minutes": 120, "lines": ["Lon bên này. Chai bên kia.", "Tay dính đầy nhớt với cát.", "Bà dúi vào tay hai tờ tiền nhàu."]},
+       {"type": "modify_relationship", "npc": "NPC_SCRAP_COLLECTOR", "dim": "Familiarity", "delta": 1}
+     ]},
+     "bye": {"speaker": "NPC_SCRAP_COLLECTOR", "text": "Ừ."}
+   }},
+
+  {"id": "DIALOGUE_VEG_VENDOR", "tags": ["AMBIENT"], "start": "n1",
+   "nodes": {
+     "n1": {"speaker": "NPC_VEG_VENDOR", "text": "Rau muống mới hái nè con. Về nói mẹ ra mua.", "branch": [
+       {"conditions": [{"type": "stat_gte", "key": "FishSold", "value": 1}], "next": "known"}
+     ]},
+     "known": {"speaker": "NPC_VEG_VENDOR", "text": "Đứa nhỏ bán cá đây mà. Hôm nay câu được nhiều không?"}
+   }},
+
+  {"id": "DIALOGUE_LAKE_FISHERMAN", "tags": ["FISHING", "AMBIENT"], "start": "n1",
+   "nodes": {
+     "n1": {"speaker": "NARRATION", "text": "Người đàn ông ngồi trên cái ghế xếp, bên cạnh là thùng mồi với cái vợt.", "next": "n2", "branch": [
+       {"conditions": [{"type": "flag", "key": "dialogue_done:DIALOGUE_LAKE_FISHERMAN"}], "next": "again"}
+     ]},
+     "n2": {"speaker": "NPC_LAKE_FISHERMAN", "text": "Mới ra đây câu lần đầu hả?", "next": "n3"},
+     "n3": {"speaker": "NPC_LAKE_FISHERMAN", "text": "Hồ này sáng sớm với chiều tối cá ăn mạnh. Trưa thì ngồi chơi thôi.", "next": "n4"},
+     "n4": {"speaker": "NPC_LAKE_FISHERMAN", "text": "Chép thích mồi cám. Rô phi thì cái gì cũng ăn. Nói nhỏ thôi, cá nghe đó."},
+     "again": {"speaker": "NPC_LAKE_FISHERMAN", "text": "Suỵt.", "branch": [
+       {"conditions": [{"type": "stat_gte", "key": "FishCaught.MAP_LAKE", "value": 1}], "next": "caught"}
+     ]},
+     "caught": {"speaker": "NPC_LAKE_FISHERMAN", "text": "Được con nào rồi hả? Được đó. Kiên nhẫn là cá tự tới."}
+   },
+   "end_effects": [
+     {"type": "add_stat", "key": "Knowledge.Fishing", "value": 1}
+   ]},
+
+  {"id": "DIALOGUE_LAKE_CHILD", "tags": ["AMBIENT"], "start": "n1",
+   "nodes": {
+     "n1": {"speaker": "NPC_LAKE_CHILD", "text": "Câu cá hả? Hồ này có con cá lóc bự lắm, ba em thấy rồi.", "next": "n2"},
+     "n2": {"speaker": "NPC_LAKE_CHILD", "text": "Nó ăn mồi sống á. Nhưng mà nó cắn đứt dây luôn."}
+   }}
+]

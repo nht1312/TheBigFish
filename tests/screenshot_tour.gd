@@ -12,6 +12,14 @@ const SHOTS := [
 	{"name": "07_drain_pipe", "pos": Vector3(58, 1, 40), "yaw": -140.0, "pitch": -18.0},
 	{"name": "09_mother_close", "pos": Vector3(1.1, 1, 6.7), "yaw": -18.0, "pitch": -22.0},
 	{"name": "10_fisherman_close", "pos": Vector3(-6.3, 1, 18.3), "yaw": 38.0, "pitch": -14.0, "wait": 1.5},
+	{"name": "11_fishing_shop", "pos": Vector3(52, 1, 12.8), "yaw": 0.0, "pitch": -4.0, "act2": true},
+	{"name": "12_scrap_yard", "pos": Vector3(70, 1, 12.0), "yaw": 0.0, "pitch": -10.0},
+	{"name": "13_market", "pos": Vector3(91, 1, 12.2), "yaw": 180.0, "pitch": -14.0},
+	{"name": "14_scrap_spot", "pos": Vector3(15, 1, 11.0), "yaw": 0.0, "pitch": -35.0},
+	{"name": "15_shop_panel", "pos": Vector3(52, 1, 9.6), "yaw": 0.0, "pitch": -5.0, "shop": "SHOP_FISHING"},
+	{"name": "16_lake_pier", "pos": Vector3(437, 1, 0), "yaw": -90.0, "pitch": -4.0},
+	{"name": "17_lake_wide", "pos": Vector3(424, 1, -14), "yaw": -65.0, "pitch": -4.0, "wait": 2.0},
+	{"name": "18_bus_stop", "pos": Vector3(98, 1, 12.6), "yaw": 0.0, "pitch": -6.0},
 	{"name": "08_fight", "pos": Vector3(57.5, 1, 45), "yaw": -90.0, "pitch": -20.0, "fight": true},
 ]
 
@@ -71,6 +79,16 @@ func _prepare(shot: Dictionary) -> void:
 	world.player.global_position = shot["pos"]
 	world.player.set_yaw_degrees(shot["yaw"])
 	world.player.head.rotation_degrees.x = shot.get("pitch", 0.0)
+	if shot.get("act2", false):
+		while game.ctx.dialogue.is_active():
+			game.ctx.dialogue.end()
+		game.ctx.state.set_flag("VERTICAL_SLICE_COMPLETE")
+		game.ctx.state.set_flag("event_done:EVENT_ACT2_MORNING")  # no chapter transition in the tour
+		world._refresh_placed()
+	world.hud.shop_panel.close()
+	if shot.has("shop"):
+		game.ctx.state.money = 150
+		world.hud.shop_panel.open(shot["shop"])
 	if shot.get("talk", false):
 		game.ctx.state.set_flag("STORY_PROLOGUE_FISHERMAN")
 		game.ctx.interactions.interact("INT_MOTHER")

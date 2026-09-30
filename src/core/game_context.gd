@@ -19,6 +19,8 @@ var npcs: NpcSystem
 var story_events: StoryEventSystem
 var interactions: InteractionSystem
 var fishing_outcomes: FishingOutcomes
+var economy: EconomySystem
+var rng := RandomNumberGenerator.new()  # gameplay randomness (scrap yields); story events keep their own
 var save: SaveSystem
 
 
@@ -39,6 +41,7 @@ func _init(p_data: DataRegistry, p_config: Dictionary = {}) -> void:
 	story_events = StoryEventSystem.new(self)
 	interactions = InteractionSystem.new(self)
 	fishing_outcomes = FishingOutcomes.new(self)
+	economy = EconomySystem.new(self)
 	save = SaveSystem.new(self)
 	relationships.init_from_npcs(data)
 
@@ -83,4 +86,5 @@ func dispose() -> void:
 	story_events = null
 	interactions = null
 	fishing_outcomes = null
+	economy = null
 	save = null

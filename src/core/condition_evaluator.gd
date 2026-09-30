@@ -48,6 +48,12 @@ func _check_one(c: Dictionary) -> bool:
 			return ctx.inventory.count(str(c["item"])) >= int(c.get("qty", 1))
 		"lacks_item":
 			return ctx.inventory.count(str(c["item"])) < int(c.get("qty", 1))
+		"has_category":
+			return not ctx.inventory.entries_in_category(str(c["category"])).is_empty()
+		"not_today":  # something marked with the mark_today effect has not happened today
+			return ctx.state.get_var(str(c["key"])) != str(ctx.clock.day)
+		"npc_present":
+			return ctx.npcs.is_present(str(c["npc"]))
 		"equipped":
 			return ctx.inventory.equipped_item_id(str(c["slot"])) == str(c["item"])
 		"stat_gte":

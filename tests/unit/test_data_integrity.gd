@@ -85,3 +85,52 @@ func test_canonical_ids_present() -> void:
 		assert_true(data.has_def("events", id), id)
 	for id in ["MAP_HOME", "MAP_DRAIN"]:
 		assert_true(data.has_def("maps", id), id)
+
+
+func test_shops_and_spawns_reference_real_data() -> void:
+	for shop in data.all("shops"):
+		assert_true(data.has_def("npcs", shop["npc"]), "%s → %s" % [shop["id"], shop["npc"]])
+		for line in shop.get("sells", []):
+			assert_false(data.get_item(line["item"]).is_empty(), "%s sells unknown %s" % [shop["id"], line["item"]])
+			assert_gt(float(line["price"]), 0.0, "%s price" % line["item"])
+	for npc in data.all("npcs"):
+		if npc.has("spawn"):
+			assert_true(data.has_def("interactables", npc.get("interactable", "")), "%s spawn needs an interactable" % npc["id"])
+			assert_eq(npc["spawn"]["position"].size(), 3, "%s spawn position" % npc["id"])
+	for it in data.all("interactables"):
+		for y in it.get("yield", []):
+			assert_false(data.get_item(y["item"]).is_empty(), "%s yields unknown %s" % [it["id"], y["item"]])
+		if it.has("position"):
+			assert_eq(it["position"].size(), 3, "%s position" % it["id"])
+
+
+func test_effects_reference_real_data() -> void:
+	var effects: Array = []
+	for d in data.all("dialogues"):
+		effects.append_array(d.get("end_effects", []))
+		for node in d["nodes"].values():
+			effects.append_array(node.get("effects", []))
+			for c in node.get("choices", []):
+				effects.append_array(c.get("effects", []))
+	for e in data.all("events"):
+		effects.append_array(e.get("effects", []))
+	for e in effects:
+		match str(e["type"]):
+			"open_shop":
+				assert_true(data.has_def("shops", e["shop"]), "unknown shop %s" % e["shop"])
+			"unlock_map":
+				assert_true(data.has_def("maps", e["map"]), "unknown map %s" % e["map"])
+			"start_quest", "complete_quest":
+				assert_true(data.has_def("quests", e["quest"]), "unknown quest %s" % e["quest"])
+			"give_item", "remove_item":
+				assert_false(data.get_item(e["item"]).is_empty(), "unknown item %s" % e["item"])
+
+
+func test_act2_ids_present() -> void:
+	for id in ["QUEST_MAIN_GET_BACK_UP", "QUEST_MAIN_FIRST_REAL_GEAR", "QUEST_MAIN_THE_LAKE"]:
+		assert_true(data.has_def("quests", id), id)
+	assert_eq(data.get_def("quests", "QUEST_MAIN_GET_BACK_UP").get("mq", ""), "MQ_008")
+	assert_eq(data.get_def("quests", "QUEST_MAIN_THE_LAKE").get("mq", ""), "MQ_010")
+	assert_true(data.has_def("maps", "MAP_LAKE"), "MAP_LAKE")
+	for id in ["NPC_SHOP_OWNER", "NPC_FISH_VENDOR", "NPC_SCRAP_COLLECTOR"]:
+		assert_true(data.has_def("npcs", id), id)

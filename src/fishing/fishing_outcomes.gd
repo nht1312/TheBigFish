@@ -41,9 +41,10 @@ func _land(fish_id: String, weight: float) -> void:
 	var first := ctx.state.get_stat("FishCaught") < 1.0
 	ctx.inventory.add(fish_id, 1, {
 		"weight": weight, "length": length, "map": ctx.state.current_map,
-		"day": ctx.clock.day, "time": ctx.clock.time_string(),
+		"day": ctx.clock.day, "time": ctx.clock.time_string(), "caught_at": ctx.clock.total_minutes(),
 	})
 	ctx.state.add_stat("FishCaught", 1)
+	ctx.state.add_stat("FishCaught." + ctx.state.current_map, 1)
 	ctx.state.add_stat("FishingSkill", float(def.get("skill_xp", 2)))
 	var records := ctx.state.records
 	if first:

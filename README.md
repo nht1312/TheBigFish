@@ -11,7 +11,7 @@ Design documents are in [`docs/`](docs/00-game-overview.md). The development rul
 tools/dev.sh setup   # once: download portable Godot 4.7.2 into tools/godot/ (or set $GODOT)
 tools/dev.sh run     # play
 tools/dev.sh test    # unit tests (headless)
-tools/dev.sh smoke   # boots the real world and plays the whole Vertical Slice headless
+tools/dev.sh smoke   # boots the real world and plays Prologue → Act I → Act II headless
 tools/dev.sh shots   # renders review screenshots to build/screenshots/
 tools/dev.sh edit    # open the Godot editor
 ```
@@ -21,7 +21,7 @@ tools/dev.sh edit    # open the Godot editor
 | | |
 |---|---|
 | WASD / Shift | walk / sprint |
-| E | inspect, collect, talk, craft |
+| E | inspect, collect, talk, craft, take the bus, sleep (home door, at night) |
 | Tab | what you are carrying |
 | 1 | hold / put away the rod · B switch bait |
 | Left mouse | hold then release to cast · strike when the float goes under · hold to reel |
@@ -46,7 +46,7 @@ tools/dev.sh edit    # open the Godot editor
 ```text
 config/        tuning and new-game setup (JSON)
 data/          static game data by collection: items, recipes, fish, quests,
-               dialogues, events, npcs, maps, interactables (JSON, stable IDs)
+               dialogues, events, npcs, maps, interactables, shops (JSON, stable IDs)
 scenes/main.tscn  entry scene
 src/
   core/        EventBus, GameState, GameClock (time/weather), DataRegistry,
@@ -55,14 +55,16 @@ src/
   fishing/     FishingSession (pure simulation), FishingController (input/visuals), outcomes, skill
   fish/        FishSelector, FishBiteAI (approach/nibble/bite), FishFighter (fight AI, archetypes, giant phases)
   inventory/   Inventory + equipment
+  economy/     EconomySystem (shops, buying, selling fish by weight and freshness)
   crafting/    CraftingSystem
   quests/      QuestSystem (objectives are conditions)
   dialogue/    DialogueSystem (branching, conditions, effects)
   events/      StoryEventSystem (triggers, once/cooldown/probability)
   npc/         RelationshipSystem (multi-dimension + memory), NpcSystem, NPC actors
   save/        SaveSystem (versioned JSON, migration, atomic write)
-  world/       WorldScene, greybox WorldBuilder, InteractionSystem, Interactable
-  ui/          HUD, fishing HUD, dialogue, inventory, pause, main menu, debug tools
+  world/       WorldScene, WorldBuilder (+ Act2Areas: shop, scrap yard, market, lake),
+               InteractionSystem, Interactable
+  ui/          HUD, fishing HUD, dialogue, inventory, shop, pause, main menu, debug tools
   audio/       placeholder synthesised sounds
   debug/       DebugCommands
 tests/         unit tests (run_tests.gd), world smoke test, screenshot tour
@@ -71,9 +73,25 @@ assets/        art/audio (empty: the Vertical Slice uses greybox primitives)
 
 **Architecture in one paragraph.** The gameplay systems are plain `RefCounted` classes wired together by `GameContext`, and they talk to each other through the `EventBus` (docs/18 §9). Story content is data. An event has a trigger, conditions and effects. A quest objective is a condition. A dialogue node can run effects, for example `FishLanded` → `EVENT_GIANT_FISH` → `set_var fishing.next_fish`. The 3D and UI layer only reads state and forwards input, so all of the game logic can be tested headless.
 
-## Vertical Slice status
+## Story status
 
-All of it is playable from the title screen to "Còn tiếp...". The unit tests cover the story, exploration, crafting, fishing, giant-fish and save items of the checklist in VERTICAL-SLICE §32. `tools/dev.sh smoke` plays the whole slice through the real world nodes. How movement and fishing *feel* still needs hands-on play, which no automated test can judge.
+| Chapter | Quests | State |
+|---|---|---|
+| Prologue + Act I (Vertical Slice) | MQ_001–MQ_007 | playable |
+| Act II "Học nghề" | MQ_008–MQ_010 | playable |
+| Act III onward | — | not started |
+
+**Vertical Slice.** Playable from the title screen to "Còn tiếp...". The unit tests cover the story, exploration, crafting, fishing, giant-fish and save items of the checklist in VERTICAL-SLICE §32.
+
+**Act II.** After the ending, the night passes and Chapter II starts the next morning at home. You:
+
+- save up 100.000đ for a real rod (a 3m6 hand rod). Money comes from scrap along the streets, which refills daily, from sorting at the scrap yard (one paid job per day), and later from selling fish at the morning market (priced by weight and freshness);
+- buy the rod at the fishing shop, sell a fish, and get told about the lake;
+- take the bus (5.000đ, 40 minutes) to MAP_LAKE and catch a fish there (tilapia, carp, snakehead).
+
+Shopkeepers and vendors keep opening hours, so the market is only there in the morning. You can sleep at the home door at night. Mother notices the new rod, and she remembers whether you were honest about where it came from.
+
+`tools/dev.sh smoke` plays Prologue → Act I → Act II through the real world nodes, then saves and loads. How movement and fishing *feel* still needs hands-on play, which no automated test can judge.
 
 ## Implementation decisions (where the docs disagreed or left gaps)
 
@@ -83,4 +101,7 @@ All of it is playable from the title screen to "Còn tiếp...". The unit tests 
 - **Soft-lock safety.** Materials can be collected again while you have no rod and haven't met the giant yet. Bait can always be dug up again. After the giant, no second bamboo rod can be crafted.
 - **Line break on the improvised rod.** A line break costs you the bait and the fish, but not the rod. Line repair is outside the Vertical Slice.
 - **Saving.** You can't save during a fight. A save while the float is in the water reels it in first. Autosaves happen after main quests and major story events.
-- Weather has no automatic simulation yet: it only changes through story or debug. NPC schedules, economy, shop and family events beyond the two Mother scenes are outside the Vertical Slice.
+- **Money** is stored in thousands of đồng (`20` = 20.000đ). Shops never buy what they sell (docs/10 §18).
+- **Act II pacing.** Every scrap spot in a day plus the one sorting job comes to about 60–70k, and you start with 20k, so the rod takes one night of saving. That night is the "saving up" beat. Act I leaves you without a rod, so the first money has to come from scrap.
+- **NPC schedules** only control presence for now (docs/13 §4): NPCs appear and disappear at their spot by the hour, with no walking between places.
+- Weather has no automatic simulation yet: it only changes through story or debug.

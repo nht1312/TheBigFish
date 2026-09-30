@@ -1,6 +1,6 @@
 [
   {"id": "EVENT_FIRST_FISHERMAN", "category": "STORY", "story_state": "STORY_PROLOGUE_FISHERMAN",
-   "trigger": {"on": "FishermanCatchObserved"}, "once": true, "autosave": true,
+   "trigger": {"on": "FishermanCatchObserved", "match": {"npc": "NPC_OLD_FISHERMAN"}}, "once": true, "autosave": true,
    "effects": [
      {"type": "set_flag", "key": "STORY_PROLOGUE_FISHERMAN"},
      {"type": "add_stat", "key": "FishingPassion", "value": 5},

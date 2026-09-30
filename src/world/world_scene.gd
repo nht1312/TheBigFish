@@ -22,6 +22,12 @@ var mother: NpcActor
 var lighting: WorldLighting
 var graphics: Dictionary  # active quality preset from config/graphics.json
 var zones: Array = []  # [{ map, location, rect }] first match wins
+var npc_actors: Dictionary = {}  # npc id -> NpcActor spawned from data "spawn"
+
+## Cues that open UI or fade the screen wait until the dialogue that caused them ends.
+const DEFERRED_CUES := ["open_shop", "work", "travel", "sleep"]
+var _pending_cues: Array = []
+var _presence_timer: float = 0.0
 
 var _cutscene: bool = false
 var _input_cooldown: int = 0
@@ -71,6 +77,7 @@ func start(player_save: Dictionary) -> void:
 	builder.vegetable_basket(builder.mother_spot + Vector3(0, 0, 0.55))
 	mother.look_target = player
 	add_child(mother)
+	_spawn_npcs()
 
 	audio = GameAudio.new()
 	add_child(audio)
@@ -88,6 +95,7 @@ func start(player_save: Dictionary) -> void:
 	hud.pause_menu.save_requested.connect(func(): hud.pause_menu.status.text = "Đã lưu." if save_game("manual") else "Không lưu được lúc này.")
 	hud.pause_menu.load_requested.connect(func(): _unpause(); load_requested.emit("manual"))
 	hud.pause_menu.menu_requested.connect(func(): _unpause(); exit_to_menu.emit())
+	hud.shop_panel.closed.connect(func(): _input_cooldown = 2)
 
 	fishing.message.connect(hud.show_message)
 	fishing.sound.connect(audio.play)
@@ -98,9 +106,12 @@ func start(player_save: Dictionary) -> void:
 		if node != hud:
 			node.process_mode = Node.PROCESS_MODE_PAUSABLE
 
+	_refresh_presence()
+	_refresh_placed()
 	_update_objective()
 	_apply_weather()
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	call_deferred("_resume_story")
 
 
 func teleport(place: String) -> bool:
@@ -124,14 +135,18 @@ func save_game(slot: String) -> bool:
 
 
 func _process(_delta: float) -> void:
-	if ctx == null:
-		return
+	if ctx == null or ctx != App.ctx():
+		return  # a load replaced the context; this world is being freed
 	if get_tree().paused:
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 		return
 	_update_zone()
+	_presence_timer -= _delta
+	if _presence_timer <= 0.0:
+		_presence_timer = 1.0
+		_refresh_presence()
 	var talking := ctx.dialogue.is_active()
-	var menu_open := hud.pause_menu.visible or hud.debug_console.visible
+	var menu_open := hud.pause_menu.visible or hud.debug_console.visible or hud.shop_panel.visible
 	if talking or _cutscene or menu_open:
 		player.lock("ui")
 		fishing.enabled = false
@@ -157,6 +172,8 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("pause"):
 		if hud.debug_console.visible:
 			hud.debug_console.toggle()
+		elif hud.shop_panel.visible:
+			hud.shop_panel.close()
 		elif hud.inventory_panel.visible:
 			hud.inventory_panel.toggle()
 		else:
@@ -167,7 +184,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		hud.debug_console.toggle()
 		get_viewport().set_input_as_handled()
 		return
-	if hud.debug_console.visible or hud.pause_menu.visible:
+	if hud.debug_console.visible or hud.pause_menu.visible or hud.shop_panel.visible:
 		return
 	if event.is_action_pressed("debug_overlay"):
 		hud.debug_overlay.toggle()
@@ -182,7 +199,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _interact() -> void:
-	if player.focused == null or ctx.dialogue.is_active() or _cutscene or fishing.is_busy() or _input_cooldown > 0:
+	if player.focused == null or ctx.dialogue.is_active() or _cutscene or fishing.is_busy() or _input_cooldown > 0 or hud.shop_panel.visible:
 		return
 	var id := player.focused.interactable_id
 	var result := ctx.interactions.interact(id)
@@ -215,6 +232,19 @@ func _on_bus(event_name: StringName, data: Dictionary) -> void:
 				mother.set_pose("stand")
 			if mother.global_position.distance_to(player.global_position) < 6.0:
 				mother.face(player.global_position)
+			for actor in npc_actors.values():
+				if actor.seat_height < 0.0 and not actor is OldFishermanActor and actor.visible \
+						and actor.global_position.distance_to(player.global_position) < 4.0:
+					actor.face(player.global_position)
+		GameEvents.DIALOGUE_ENDED:
+			if not _pending_cues.is_empty():
+				call_deferred("_flush_cues")
+		GameEvents.MONEY_CHANGED:
+			var delta := int(data.get("delta", 0))
+			if delta != 0 and not ctx.dialogue.is_active() and not hud.shop_panel.visible and not _cutscene:
+				hud.show_message(("+" if delta > 0 else "") + EconomySystem.format_money(delta), "hint")
+		GameEvents.INTERACTED, InteractionSystem.SLEEP:
+			_refresh_placed()
 		GameEvents.WEATHER_CHANGED:
 			_apply_weather()
 		GameEvents.ITEM_OBTAINED, GameEvents.ITEM_LOST:
@@ -229,7 +259,24 @@ func _on_cue(data: Dictionary) -> void:
 		copy.erase("delay")
 		get_tree().create_timer(delay, false).timeout.connect(_on_cue.bind(copy))
 		return
-	match str(data.get("cue", "")):
+	var cue := str(data.get("cue", ""))
+	if cue in DEFERRED_CUES and ctx.dialogue.is_active():
+		_pending_cues.append(data)
+		return
+	match cue:
+		"open_shop":
+			hud.inventory_panel.visible = false
+			hud.shop_panel.open(str(data["shop"]))
+		"work":
+			var lines: Array = data.get("lines", []).duplicate()
+			lines.append("+" + EconomySystem.format_money(int(data.get("pay", 0))))
+			_play_fade(lines)
+		"travel":
+			_play_travel(str(data["destination"]), data.get("lines", []))
+		"sleep":
+			_play_fade(data.get("lines", []))
+		"chapter_end":
+			_play_chapter_end()
 		"craft":
 			_play_craft(data.get("lines", []))
 		"giant_sign":
@@ -252,16 +299,70 @@ func _play_craft(lines: Array) -> void:
 	hud.show_message("[Tab] xem đồ mang theo", "hint", 0.5)
 
 
+func _play_fade(lines: Array) -> void:
+	_cutscene = true
+	await hud.fade_sequence(lines, 1.8)
+	_cutscene = false
+	_refresh_presence()
+	_refresh_placed()
+
+
+func _play_travel(destination: String, lines: Array) -> void:
+	_cutscene = true
+	await hud.fade_sequence(lines, 1.8, true)
+	teleport(destination)
+	_update_zone()
+	_refresh_presence()
+	await hud.fade_from_black()
+	_cutscene = false
+
+
+func _flush_cues() -> void:
+	var cues := _pending_cues.duplicate()
+	_pending_cues.clear()
+	for data in cues:
+		_on_cue(data)
+
+
+## End of the Vertical Slice (Act I): the night passes and Chapter II begins at home.
 func _play_ending() -> void:
 	_cutscene = true
 	await get_tree().create_timer(1.2).timeout
 	await hud.fade_sequence(["Con cá đó vẫn còn ở dưới ống cống.", "Còn tiếp..."], 2.6, true)
-	hud.fade_text.text = "CÁ LỚN — THE LAST CAST\n\nHết bản Vertical Slice. Cảm ơn bạn đã chơi."
-	var t := create_tween()
-	t.tween_property(hud.fade_text, "modulate:a", 1.0, 0.8)
-	await get_tree().create_timer(6.0).timeout
+	await _start_chapter_two()
+
+
+## Also used when a save from the moment after the ending is loaded.
+func _start_chapter_two() -> void:
+	_cutscene = true
+	if hud.fade_rect.color.a < 1.0:
+		await hud.fade_sequence([], 0.0, true)
+	await hud.title_card("CHƯƠNG II\n\nHọc nghề")
+	ctx.clock.sleep_until(7)
+	teleport("home")
+	mother.position = builder.mother_spot
+	mother.rotation_degrees = Vector3(0, 180, 0)
+	mother.set_pose("sit_chores", MOTHER_STOOL_HEIGHT)
+	_update_zone()
+	_refresh_presence()
+	_refresh_placed()
+	save_game("autosave")
+	await hud.fade_from_black(1.2)
 	_cutscene = false
-	exit_to_menu.emit()
+	ctx.bus.emit_event(GameEvents.CHAPTER_STARTED, {"chapter": "ACT_II"})
+
+
+func _play_chapter_end() -> void:
+	_cutscene = true
+	await hud.fade_sequence([], 0.0, true)
+	await hud.title_card("HẾT CHƯƠNG II\n\nChương III đang được viết.\nBạn vẫn có thể câu cá, bán cá và dành dụm tiếp.", 5.0)
+	await hud.fade_from_black()
+	_cutscene = false
+
+
+func _resume_story() -> void:
+	if ctx.state.has_flag("VERTICAL_SLICE_COMPLETE") and not ctx.state.has_flag("event_done:EVENT_ACT2_MORNING") and not _cutscene:
+		_start_chapter_two()
 
 
 func _giant_sign() -> void:
@@ -345,6 +446,47 @@ func _update_zone() -> void:
 			ctx.state.enter_map(str(z["map"]))
 			ctx.state.enter_location(str(z["location"]))
 			return
+
+
+func _spawn_npcs() -> void:
+	for def in App.data().all("npcs"):
+		if not def.has("spawn"):
+			continue
+		var sp: Dictionary = def["spawn"]
+		var p: Array = sp["position"]
+		var id := str(def["id"])
+		var actor: NpcActor
+		if str(sp.get("actor", "")) == "fisherman":
+			var angler := OldFishermanActor.new()
+			angler.water_y = float(sp.get("water_y", 0.0))
+			angler.position = Vector3(float(p[0]), float(p[1]), float(p[2]))
+			angler.rotation_degrees.y = float(sp.get("yaw", 0.0))
+			angler.build(ctx.bus, def.get("appearance", {}), id, str(def["interactable"]))
+			actor = angler
+		else:
+			actor = NpcActor.new()
+			actor.position = Vector3(float(p[0]), float(p[1]), float(p[2]))
+			actor.rotation_degrees.y = float(sp.get("yaw", 0.0))
+			actor.setup(id, str(def["interactable"]), def.get("appearance", {}), float(sp.get("seat", -1.0)))
+		actor.look_target = player
+		add_child(actor)
+		npc_actors[id] = actor
+
+
+## NPCs with a schedule are only there during their hours (docs/13 §4).
+func _refresh_presence() -> void:
+	for id in npc_actors:
+		var actor: Node3D = npc_actors[id]
+		var here := ctx.npcs.is_present(id)
+		if actor.visible != here:
+			actor.visible = here
+			actor.process_mode = Node.PROCESS_MODE_PAUSABLE if here else Node.PROCESS_MODE_DISABLED
+
+
+## Scrap spots already picked today stay empty until they respawn.
+func _refresh_placed() -> void:
+	for id in builder.act2.placed:
+		builder.act2.placed[id].visible = not ctx.interactions.is_depleted(id)
 
 
 func _appearance(npc_id: String) -> Dictionary:

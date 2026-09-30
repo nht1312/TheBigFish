@@ -159,10 +159,10 @@ func test_dialogue_queue() -> void:
 # --- Story events ---
 
 func test_story_event_fires_once_with_effects() -> void:
-	ctx.bus.emit_event(GameEvents.FISHERMAN_CATCH_OBSERVED)
+	ctx.bus.emit_event(GameEvents.FISHERMAN_CATCH_OBSERVED, {"npc": "NPC_OLD_FISHERMAN"})
 	assert_true(ctx.state.has_flag("STORY_PROLOGUE_FISHERMAN"))
 	assert_eq(ctx.state.get_stat("FishingPassion"), 5.0)
-	ctx.bus.emit_event(GameEvents.FISHERMAN_CATCH_OBSERVED)
+	ctx.bus.emit_event(GameEvents.FISHERMAN_CATCH_OBSERVED, {"npc": "NPC_OLD_FISHERMAN"})
 	assert_eq(ctx.state.get_stat("FishingPassion"), 5.0, "once")
 	assert_eq(ctx.story_events.times_fired("EVENT_FIRST_FISHERMAN"), 1)
 

@@ -17,7 +17,7 @@ func test_save_round_trip() -> void:
 	ctx.relationships.set_relationship("NPC_MOTHER", "Trust", 61)
 	ctx.clock.set_time(16, 45)
 	ctx.clock.set_weather("CLOUDY")
-	ctx.bus.emit_event(GameEvents.FISHERMAN_CATCH_OBSERVED)
+	ctx.bus.emit_event(GameEvents.FISHERMAN_CATCH_OBSERVED, {"npc": "NPC_OLD_FISHERMAN"})
 	var player := {"position": [1.0, 2.0, 3.0], "yaw": 0.5}
 	assert_eq(ctx.save.write("manual", player), OK)
 	ctx.dispose()
@@ -37,7 +37,7 @@ func test_save_round_trip() -> void:
 	assert_eq(loaded.clock.weather, "CLOUDY")
 	assert_eq(loaded.quests.get_state("QUEST_MAIN_FISHERMAN"), QuestSystem.ACTIVE)
 	assert_eq(loaded.story_events.times_fired("EVENT_FIRST_FISHERMAN"), 1, "event history survives")
-	loaded.bus.emit_event(GameEvents.FISHERMAN_CATCH_OBSERVED)
+	loaded.bus.emit_event(GameEvents.FISHERMAN_CATCH_OBSERVED, {"npc": "NPC_OLD_FISHERMAN"})
 	assert_eq(loaded.state.get_stat("FishingPassion"), 5.0, "once-events do not re-fire after load")
 	loaded.dispose()
 
@@ -89,7 +89,7 @@ func test_vertical_slice_flow() -> void:
 	assert_eq(q.get_state("QUEST_MAIN_FISHERMAN"), QuestSystem.ACTIVE)
 
 	# Watch the old fisherman catch a fish.
-	ctx.bus.emit_event(GameEvents.FISHERMAN_CATCH_OBSERVED)
+	ctx.bus.emit_event(GameEvents.FISHERMAN_CATCH_OBSERVED, {"npc": "NPC_OLD_FISHERMAN"})
 	assert_true(ctx.state.has_flag("STORY_PROLOGUE_FISHERMAN"))
 	assert_eq(q.current_objective_text("QUEST_MAIN_FISHERMAN"), "Về nhà")
 

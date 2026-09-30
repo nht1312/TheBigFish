@@ -1,11 +1,20 @@
 class_name InteractionSystem
 extends RefCounted
-## Logic behind world interactions: Inspect / Collect / Talk / Craft (roadmap Phase 1).
-## The 3D node only knows its interactable id; everything else is data.
+## Logic behind world interactions (roadmap Phase 1). The 3D node only knows its
+## interactable id; everything else is data.
 ##
-## Interactable data: { id, name, kind, prompt?, conditions?, text?, locked_text?,
-##                      item?, qty?, once?, npc?, recipe?, missing_text? }
-## Collect is repeatable unless "once": true; conditions decide when it can be used.
+## Interactable data: { id, name, kind, prompt?, conditions?, text?, locked_text?, ... }
+##   collect: item + qty, or yield: [{ item, qty: n | [min, max], chance? }]
+##            once: true → never again; respawn_days: n → again after n days (empty_text meanwhile)
+##   talk:    npc (closed_text when the NPC is not there)
+##   craft:   recipe
+##   travel:  destination (spawn name), cost, minutes
+##   sleep:   wake_hour
+##   inspect: text
+## Optional "position"/"size" let the world place the interactable itself.
+
+const SLEEP := &"Sleep"
+const TRAVEL := &"Travel"
 
 var ctx: GameContext
 
@@ -20,10 +29,17 @@ func is_unlocked(interactable_id: String) -> bool:
 		return false
 	if def.get("once", false) and ctx.state.has_flag("used:" + interactable_id):
 		return false
+	if _waiting_to_respawn(def):
+		return false
 	return ctx.conditions.check(def.get("conditions", []))
 
 
-## Short prompt for the HUD, e.g. "Nhặt  Cây tre".
+## True while a used, respawning spot is still empty (the world hides its visual).
+func is_depleted(interactable_id: String) -> bool:
+	return _waiting_to_respawn(ctx.data.get_def("interactables", interactable_id))
+
+
+## Short prompt for the HUD, e.g. "Lượm  Rác ven đường".
 func prompt(interactable_id: String) -> String:
 	var def := ctx.data.get_def("interactables", interactable_id)
 	if def.is_empty():
@@ -31,7 +47,10 @@ func prompt(interactable_id: String) -> String:
 	var verb := str(def.get("prompt", ""))
 	if verb == "" or not is_unlocked(interactable_id):
 		verb = "Xem"
-	return "%s  %s" % [verb, def.get("name", "")]
+	var extra := ""
+	if def.get("kind", "") == "travel" and is_unlocked(interactable_id):
+		extra = "  (%s)" % EconomySystem.format_money(int(def.get("cost", 0)))
+	return "%s  %s%s" % [verb, def.get("name", ""), extra]
 
 
 ## Performs the interaction. Returns { text } to show (may be empty).
@@ -40,16 +59,19 @@ func interact(interactable_id: String) -> Dictionary:
 	if def.is_empty():
 		return {"text": ""}
 	var result := {"text": ""}
-	if not is_unlocked(interactable_id):
+	if _waiting_to_respawn(def):
+		result["text"] = str(def.get("empty_text", def.get("locked_text", "")))
+	elif not is_unlocked(interactable_id):
 		result["text"] = str(def.get("locked_text", def.get("text", "")))
 	else:
 		match str(def.get("kind", "inspect")):
 			"collect":
-				ctx.inventory.add(str(def["item"]), int(def.get("qty", 1)))
-				ctx.state.set_flag("used:" + interactable_id)
-				result["text"] = str(def.get("text", ""))
+				result["text"] = _collect(interactable_id, def)
 			"talk":
-				if not ctx.npcs.talk(str(def["npc"])):
+				var npc := str(def["npc"])
+				if not ctx.npcs.is_present(npc):
+					result["text"] = str(def.get("closed_text", def.get("text", "")))
+				elif not ctx.npcs.talk(npc):
 					result["text"] = str(def.get("text", ""))
 			"craft":
 				var recipe_id := str(def["recipe"])
@@ -59,10 +81,57 @@ func interact(interactable_id: String) -> Dictionary:
 					ctx.bus.emit_event(GameEvents.CUE, {"cue": "craft", "lines": recipe.get("craft_lines", [])})
 				else:
 					result["text"] = _missing_text(def, recipe_id)
+			"travel":
+				result["text"] = _travel(def)
+			"sleep":
+				ctx.clock.sleep_until(int(def.get("wake_hour", 6)))
+				ctx.bus.emit_event(SLEEP, {"day": ctx.clock.day})
+				ctx.bus.emit_event(GameEvents.CUE, {"cue": "sleep", "lines": def.get("sleep_lines", [])})
+				ctx.bus.emit_event(GameEvents.AUTOSAVE_REQUESTED, {"reason": "sleep"})
 			_:
 				result["text"] = str(def.get("text", ""))
 	ctx.bus.emit_event(GameEvents.INTERACTED, {"interactable": interactable_id})
 	return result
+
+
+func _collect(interactable_id: String, def: Dictionary) -> String:
+	var got: Array[String] = []
+	if def.has("yield"):
+		for y in def["yield"]:
+			if ctx.rng.randf() > float(y.get("chance", 1.0)):
+				continue
+			var qty_spec = y.get("qty", 1)
+			var qty := ctx.rng.randi_range(int(qty_spec[0]), int(qty_spec[1])) if qty_spec is Array else int(qty_spec)
+			if qty > 0:
+				ctx.inventory.add(str(y["item"]), qty)
+				got.append("%d %s" % [qty, ctx.data.display_name("items", str(y["item"])).to_lower()])
+	else:
+		ctx.inventory.add(str(def["item"]), int(def.get("qty", 1)))
+	ctx.state.set_flag("used:" + interactable_id)
+	if def.has("respawn_days"):
+		ctx.state.set_var("used_day:" + interactable_id, str(ctx.clock.day))
+	if def.has("yield"):
+		return ("Lượm được " + ", ".join(got) + ".") if not got.is_empty() else str(def.get("empty_text", ""))
+	return str(def.get("text", ""))
+
+
+func _travel(def: Dictionary) -> String:
+	var cost := int(def.get("cost", 0))
+	if not ctx.state.add_money(-cost):
+		return "Không đủ tiền đi xe. Vé %s." % EconomySystem.format_money(cost)
+	ctx.clock.advance_minutes(float(def.get("minutes", 30)))
+	ctx.bus.emit_event(TRAVEL, {"destination": str(def["destination"]), "cost": cost})
+	ctx.bus.emit_event(GameEvents.CUE, {"cue": "travel", "destination": str(def["destination"]), "lines": def.get("travel_lines", [])})
+	return ""
+
+
+func _waiting_to_respawn(def: Dictionary) -> bool:
+	if def.is_empty() or not def.has("respawn_days"):
+		return false
+	var used := ctx.state.get_var("used_day:" + str(def["id"]))
+	if used == "":
+		return false
+	return ctx.clock.day - int(used) < int(def["respawn_days"])
 
 
 func _missing_text(def: Dictionary, recipe_id: String) -> String:

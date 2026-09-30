@@ -39,6 +39,23 @@ func advance(real_seconds: float) -> void:
 		bus.emit_event(GameEvents.DAY_PHASE_CHANGED, {"phase": day_phase()})
 
 
+## Skips game time (travel, work, sleep) and emits the usual hour/phase events.
+func advance_minutes(game_minutes: float) -> void:
+	var scale := time_scale
+	time_scale = 1.0
+	advance(game_minutes)
+	time_scale = scale
+
+
+## Sleeps until the next occurrence of `wake_hour` (always at least into the next morning).
+func sleep_until(wake_hour: int) -> void:
+	var target := wake_hour * 60.0
+	var delta := target - minutes
+	if delta <= 60.0:
+		delta += MINUTES_PER_DAY
+	advance_minutes(delta)
+
+
 func hour() -> int:
 	return int(minutes) / 60
 
